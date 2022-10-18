@@ -8,6 +8,7 @@ import {
   FlatList,
   Dimensions,
   TextInput,
+  Pressable,
   KeyboardAvoidingView,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -103,19 +104,31 @@ const Groups = ({navigation, route}) => {
   const [groupList, setGroupList] = useState([
     {
       id: 0,
-      name: 'Groupname',
+      name: 'Carnage Coverage',
     },
     {
       id: 1,
-      name: 'Groupname',
+      name: 'Baseline Grid',
     },
     {
       id: 2,
-      name: 'Groupname',
+      name: 'Softlancers',
     },
     {
       id: 3,
-      name: 'Groupname',
+      name: 'PRTX',
+    },
+    {
+      id: 4,
+      name: 'The Tungstens',
+    },
+    {
+      id: 5,
+      name: 'The Nulls',
+    },
+    {
+      id: 6,
+      name: 'Helium Hydroxide',
     },
   ]);
   const handleonJoin = id => {
@@ -266,11 +279,7 @@ const Groups = ({navigation, route}) => {
             <View
               style={{
                 marginVertical: 15,
-                // width: SCREEN_WIDTH - 15,
-                flex: 1,
-                // paddingRight: 15,
                 paddingHorizontal: 10,
-                // backgroundColor: 'red',
               }}>
               {isSuggestedVisible && (
                 <FlatList
@@ -280,7 +289,9 @@ const Groups = ({navigation, route}) => {
                   showsHorizontalScrollIndicator={false}
                   renderItem={item => {
                     return (
-                      <View style={{...styles.cardView, width: 101}}>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('JoinGroup')}
+                        style={{...styles.cardView, width: 101}}>
                         <Image
                           source={require('../../../assets/images/group-profile.png')}
                           style={{marginVertical: 8}}
@@ -316,7 +327,7 @@ const Groups = ({navigation, route}) => {
                             </TouchableOpacity>
                           )}
                         </View>
-                      </View>
+                      </TouchableOpacity>
                     );
                   }}
                 />
@@ -330,75 +341,80 @@ const Groups = ({navigation, route}) => {
                 paddingHorizontal: 20,
               }}>
               <Text style={{color: '#000000', fontSize: 16}}>Groups</Text>
-              <TouchableOpacity
-                style={{...styles.btnCreateGroup, width: 115, height: 33}}
-                onPress={() => navigation.navigate('CreateGroup')}>
-                <Text style={{color: '#FFFFFF', fontSize: 13}}>
-                  Create a Group
-                </Text>
-              </TouchableOpacity>
+              {groupList.length > 0 && (
+                <TouchableOpacity
+                  style={{...styles.btnCreateGroup, width: 115, height: 33}}
+                  onPress={() => navigation.navigate('CreateGroup')}>
+                  <Text style={{color: '#FFFFFF', fontSize: 13}}>
+                    Create a Group
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
-            <View
-              style={{
-                marginVertical: 15,
-                paddingBottom: 10,
-                paddingHorizontal: 20,
-              }}>
-              <FlatList
-                data={groupList}
-                numColumns={3}
-                showsVerticalScrollIndicator={false}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={item => {
-                  return (
-                    <View
-                      style={{
-                        ...styles.cardView,
-                        justifyContent: 'center',
-                        height: 110,
-                        // width: 92,
-                        width: '28.9%',
-                      }}>
-                      <Image
-                        source={require('../../../assets/images/group-profile.png')}
-                        style={{marginVertical: 8}}
-                      />
-                      <Text style={styles.cardText}>{item.item.name}</Text>
-                    </View>
-                  );
-                }}
-              />
-            </View>
-            {/* <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Image
-                source={require('../../../assets/images/group1.png')}
-                style={{backgroundColor: '#FFFF', resizeMode: 'contain'}}
-              />
-
-              <Text
+            {groupList.length == 0 ? (
+              <View
                 style={{
-                  width: 206,
-                  textAlign: 'center',
-                  fontSize: 16,
-                  color: '#000000',
-                  marginVertical: 20,
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}>
-                Create or join a group and compete in challenges with other
-                groups
-              </Text>
-              <TouchableOpacity
-                style={styles.btnCreateGroup}
-                onPress={() => navigation.navigate('CreateGroup')}>
-                <Text style={{color: '#FFFFFF', fontSize: 13}}>
-                  Create a Group
+                <Image
+                  source={require('../../../assets/images/group1.png')}
+                  style={{backgroundColor: '#FFFF', resizeMode: 'contain'}}
+                />
+
+                <Text
+                  style={{
+                    width: 206,
+                    textAlign: 'center',
+                    fontSize: 16,
+                    color: '#000000',
+                    marginVertical: 20,
+                  }}>
+                  Create or join a group and compete in challenges with other
+                  groups
                 </Text>
-              </TouchableOpacity>
-            </View> */}
+                <TouchableOpacity
+                  style={styles.btnCreateGroup}
+                  onPress={() => navigation.navigate('CreateGroup')}>
+                  <Text style={{color: '#FFFFFF', fontSize: 13}}>
+                    Create a Group
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View
+                style={{
+                  marginVertical: 15,
+                  paddingBottom: 10,
+                  paddingHorizontal: 20,
+                }}>
+                <FlatList
+                  data={groupList}
+                  numColumns={3}
+                  showsVerticalScrollIndicator={false}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={item => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('GroupDetail')}
+                        style={{
+                          ...styles.cardView,
+                          justifyContent: 'center',
+                          height: 110,
+                          width: '28.9%',
+                        }}>
+                        <Image
+                          source={require('../../../assets/images/group-profile.png')}
+                          style={{marginVertical: 8}}
+                        />
+                        <Text style={styles.cardText}>{item.item.name}</Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+              </View>
+            )}
           </View>
         )}
       </ScrollView>

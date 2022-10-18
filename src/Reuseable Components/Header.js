@@ -8,14 +8,17 @@ const Header = ({navigation, title}) => {
       <TouchableOpacity
         style={{padding: 10, paddingLeft: 0}}
         onPress={() => navigation?.goBack()}>
-        <Image source={left_arrow} style={{width: 14, height: 24}} />
+        {/* <Image source={left_arrow} style={{width: 14, height: 24}} /> */}
+        <Image source={left_arrow} style={{width: 14, height: 22}} />
       </TouchableOpacity>
       <Text
         style={{
           color: '#000000',
           textAlign: 'center',
           flex: 1,
-          fontSize: 25,
+          // fontSize: 25,
+          fontSize: 23,
+          fontWeight: 'bold',
         }}>
         {title}
       </Text>
