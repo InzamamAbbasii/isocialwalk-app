@@ -4,8 +4,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import Home from '../Home';
-import Friends from '../Friends';
 import Groups from '../Groups/Groups';
+import Friends from '../Friends/Friends';
 import Challenges from '../Challenges/Challenges';
 
 const Tab = createBottomTabNavigator();

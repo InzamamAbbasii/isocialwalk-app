@@ -23,6 +23,8 @@ const AuthScreen = ({navigation}) => {
     }
     if (password.length === 0) {
       setInvalidPassword(true);
+    } else {
+      navigation.navigate('Verification');
     }
   };
   const handleLogin = () => {
@@ -86,6 +88,8 @@ const AuthScreen = ({navigation}) => {
                 borderColor: invalidEmail ? '#D66262' : '#ccc',
               }}
               placeholder={'Enter your Email'}
+              value={email}
+              onChangeText={txt => setEmail(txt)}
             />
             {invalidEmail && (
               <Text
@@ -107,6 +111,8 @@ const AuthScreen = ({navigation}) => {
                 borderColor: invalidPassword ? '#D66262' : '#ccc',
               }}
               placeholder={'Enter your Password'}
+              value={password}
+              onChangeText={txt => setPassword(txt)}
             />
             {invalidPassword && (
               <Text

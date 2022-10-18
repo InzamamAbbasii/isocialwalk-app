@@ -33,7 +33,12 @@ const Home = ({navigation}) => {
               style={{marginTop: 5}}
             />
           </View>
-          <Image source={require('../../assets/images/bell.png')} />
+          <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+            <Image
+              source={require('../../assets/images/bell1.png')}
+              style={{width: 25, height: 25, resizeMode: 'contain'}}
+            />
+          </TouchableOpacity>
         </View>
         <Text style={{color: '#000000', marginTop: 8}}>Good Evening</Text>
         <Text style={{color: '#000305', fontSize: 16, fontWeight: '500'}}>
@@ -225,9 +230,14 @@ const Home = ({navigation}) => {
               </Text>
               <View style={{padding: 10, marginTop: 10}}>
                 <View style={styles.bootSheetCardView}>
-                  <Image
+                  {/* <Image
                     style={{marginVertical: 10}}
                     source={require('../../assets/images/friend-profile.png')}
+                  /> */}
+
+                  <Image
+                    source={require('../../assets/images/friend-profile.png')}
+                    style={{marginVertical: 8, width: 44, height: 44}}
                   />
                   <Text style={{color: '#040103'}}>Me</Text>
                   <Text style={{color: '#38acff'}}>0</Text>
@@ -242,11 +252,14 @@ const Home = ({navigation}) => {
               </Text>
               <View style={{padding: 10, marginTop: 10}}>
                 <View style={styles.bootSheetCardView}>
-                  <Image
+                  {/* <Image
                     style={{marginVertical: 10}}
                     source={require('../../assets/images/friend-profile.png')}
+                  /> */}
+                  <Image
+                    source={require('../../assets/images/friend-profile.png')}
+                    style={{marginVertical: 8, width: 44, height: 44}}
                   />
-
                   <Text style={{color: '#040103'}}>Me</Text>
                   <Text style={{color: '#38acff'}}>0</Text>
                 </View>
