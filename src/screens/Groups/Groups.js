@@ -11,6 +11,8 @@ import {
   Pressable,
   KeyboardAvoidingView,
 } from 'react-native';
+import {captureScreen} from 'react-native-view-shot';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ScrollView} from 'react-native-gesture-handler';
 
 const SCREEN_WIDTH = Dimensions.get('screen').width;
@@ -146,6 +148,19 @@ const Groups = ({navigation, route}) => {
     });
     setSuggestedGroups(newData);
   };
+
+  const handleOpenDrawer = navigation => {
+    captureScreen({
+      format: 'jpg',
+    })
+      .then(uri => {
+        AsyncStorage.setItem('Screen', uri.toString());
+        AsyncStorage.setItem('ScreenName', 'Groups');
+        navigation.openDrawer();
+      })
+      .catch(error => console.log(error));
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -186,13 +201,13 @@ const Groups = ({navigation, route}) => {
             </View>
           ) : (
             <View style={styles.headerView}>
-              <View>
+              <Pressable onPress={() => handleOpenDrawer(navigation)}>
                 <Image source={require('../../../assets/images/Line1.png')} />
                 <Image
                   source={require('../../../assets/images/Line2.png')}
                   style={{marginTop: 5}}
                 />
-              </View>
+              </Pressable>
               <TouchableOpacity onPress={() => setIsSearch(!isSearch)}>
                 <Image source={require('../../../assets/images/search.png')} />
               </TouchableOpacity>

@@ -12,6 +12,9 @@ import {
   Pressable,
 } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {captureScreen} from 'react-native-view-shot';
+
 const SCREEN_WIDTH = Dimensions.get('screen').width;
 
 const Friends = ({navigation}) => {
@@ -150,19 +153,30 @@ const Friends = ({navigation}) => {
     setSuggestedFriends(newData);
   };
 
+  const handleOpenDrawer = navigation => {
+    captureScreen({
+      format: 'jpg',
+    })
+      .then(uri => {
+        AsyncStorage.setItem('Screen', uri.toString());
+        AsyncStorage.setItem('ScreenName', 'Friends');
+        navigation.openDrawer();
+      })
+      .catch(error => console.log(error));
+  };
   return (
     <View style={styles.container}>
       <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         showsVerticalScrollIndicator={false}>
         <View style={styles.headerView}>
-          <View>
+          <Pressable onPress={() => handleOpenDrawer(navigation)}>
             <Image source={require('../../../assets/images/Line1.png')} />
             <Image
               source={require('../../../assets/images/Line2.png')}
               style={{marginTop: 5}}
             />
-          </View>
+          </Pressable>
           <Text style={styles.headerTitle}>Friends</Text>
           <TouchableOpacity onPress={() => bottomSheetRef?.current?.open()}>
             <Image source={require('../../../assets/images/addFriend1.png')} />

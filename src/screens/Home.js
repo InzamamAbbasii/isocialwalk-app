@@ -6,9 +6,12 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import {captureScreen} from 'react-native-view-shot';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = ({navigation}) => {
   const bottomSheetRef = useRef(null);
@@ -16,7 +19,17 @@ const Home = ({navigation}) => {
   const handleonTabChange = () => {
     setIndex(index == 0 ? 1 : 0);
   };
-
+  const handleOpenDrawer = navigation => {
+    captureScreen({
+      format: 'jpg',
+    })
+      .then(uri => {
+        AsyncStorage.setItem('Screen', uri.toString());
+        AsyncStorage.setItem('ScreenName', 'Home');
+        navigation.openDrawer();
+      })
+      .catch(error => console.log(error));
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -26,13 +39,13 @@ const Home = ({navigation}) => {
         }}
         showsVerticalScrollIndicator={false}>
         <View style={styles.headerView}>
-          <View>
+          <Pressable onPress={() => handleOpenDrawer(navigation)}>
             <Image source={require('../../assets/images/Line1.png')} />
             <Image
               source={require('../../assets/images/Line2.png')}
               style={{marginTop: 5}}
             />
-          </View>
+          </Pressable>
           <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
             <Image
               source={require('../../assets/images/bell1.png')}
