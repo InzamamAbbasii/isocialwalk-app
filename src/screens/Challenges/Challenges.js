@@ -8,9 +8,13 @@ import {
   FlatList,
   Dimensions,
   TextInput,
+  Pressable,
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
+
+import {captureScreen} from 'react-native-view-shot';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SCREEN_WIDTH = Dimensions.get('screen').width;
 
@@ -115,6 +119,17 @@ const Challenges = ({navigation, route}) => {
     });
     setSuggestedChallenges(newData);
   };
+  const handleOpenDrawer = navigation => {
+    captureScreen({
+      format: 'jpg',
+    })
+      .then(uri => {
+        AsyncStorage.setItem('Screen', uri.toString());
+        AsyncStorage.setItem('ScreenName', 'Challenges');
+        navigation.openDrawer();
+      })
+      .catch(error => console.log(error));
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -151,13 +166,13 @@ const Challenges = ({navigation, route}) => {
             </View>
           ) : (
             <View style={styles.headerView}>
-              <View>
+              <Pressable onPress={() => handleOpenDrawer(navigation)}>
                 <Image source={require('../../../assets/images/Line1.png')} />
                 <Image
                   source={require('../../../assets/images/Line2.png')}
                   style={{marginTop: 5}}
                 />
-              </View>
+              </Pressable>
               <TouchableOpacity onPress={() => setIsSearch(!isSearch)}>
                 <Image source={require('../../../assets/images/search.png')} />
               </TouchableOpacity>

@@ -7,6 +7,7 @@ import Home from '../Home';
 import Groups from '../Groups/Groups';
 import Friends from '../Friends/Friends';
 import Challenges from '../Challenges/Challenges';
+import Chat from '../Chat/Chat';
 
 const Tab = createBottomTabNavigator();
 
@@ -76,6 +77,51 @@ const TabNavigation = () => {
             ) : (
               <Image
                 source={require('../../../assets/images/friends-dark.png')}
+                style={{
+                  height: 25,
+                  width: 29,
+                  position: 'relative',
+                  top: 5,
+                }}
+                resizeMode={'stretch'}
+              />
+            ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Chat"
+        component={Chat}
+        options={{
+          headerShown: false,
+          tabBarLabel: '',
+          tabBarIcon: ({focused}) =>
+            focused ? (
+              <View
+                style={{
+                  alignItems: 'center',
+                  height: 32,
+                  justifyContent: 'space-between',
+                }}>
+                <Image
+                  source={require('../../../assets/images/chat-inactive.png')}
+                  style={{
+                    height: 25,
+                    width: 25,
+                    tintColor: '#38ACFF',
+                  }}
+                />
+                <Image
+                  source={require('../../../assets/images/Line3.png')}
+                  style={{
+                    height: 4,
+                    width: 8,
+                  }}
+                />
+              </View>
+            ) : (
+              <Image
+                source={require('../../../assets/images/chat-inactive.png')}
                 style={{
                   height: 25,
                   width: 29,

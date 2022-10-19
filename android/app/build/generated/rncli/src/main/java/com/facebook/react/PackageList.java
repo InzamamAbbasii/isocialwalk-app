@@ -11,10 +11,14 @@ import com.facebook.react.shell.MainReactPackage;
 import java.util.Arrays;
 import java.util.ArrayList;
 
+// @react-native-async-storage/async-storage
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 // @react-native-clipboard/clipboard
 import com.reactnativecommunity.clipboard.ClipboardPackage;
 // @react-native-community/datetimepicker
 import com.reactcommunity.rndatetimepicker.RNDateTimePickerPackage;
+// @react-native-community/slider
+import com.reactnativecommunity.slider.ReactSliderPackage;
 // react-native-gesture-handler
 import com.swmansion.gesturehandler.RNGestureHandlerPackage;
 // react-native-pager-view
@@ -27,6 +31,8 @@ import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 import com.swmansion.rnscreens.RNScreensPackage;
 // react-native-svg
 import com.horcrux.svg.SvgPackage;
+// react-native-view-shot
+import fr.greweb.reactnativeviewshot.RNViewShotPackage;
 
 public class PackageList {
   private Application application;
@@ -72,14 +78,17 @@ public class PackageList {
   public ArrayList<ReactPackage> getPackages() {
     return new ArrayList<>(Arrays.<ReactPackage>asList(
       new MainReactPackage(mConfig),
+      new AsyncStoragePackage(),
       new ClipboardPackage(),
       new RNDateTimePickerPackage(),
+      new ReactSliderPackage(),
       new RNGestureHandlerPackage(),
       new PagerViewPackage(),
       new ReanimatedPackage(),
       new SafeAreaContextPackage(),
       new RNScreensPackage(),
-      new SvgPackage()
+      new SvgPackage(),
+      new RNViewShotPackage()
     ));
   }
 }
