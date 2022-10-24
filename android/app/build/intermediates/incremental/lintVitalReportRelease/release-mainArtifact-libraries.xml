@@ -1,9 +1,22 @@
 <libraries>
   <library
-      name="G:\MTechub\Project 2\isocialwalkApp\android@@:react-native-pager-view::release"
-      jars="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-pager-view\android\build\.transforms\a6df7b73521515966f746f09e42cf8de\transformed\out\jars\classes.jar"
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-community_slider::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\slider\android\build\.transforms\761a0728f15b5f9fd6f13b5925958c64\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-community_slider:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\slider\android\build\.transforms\761a0728f15b5f9fd6f13b5925958c64\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-pager-view::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-pager-view\android\build\.transforms\de72fb98e2efaf9babe4304b5d8509d4\transformed\out\jars\classes.jar"
       resolved="isocialwalkApp:react-native-pager-view:unspecified"
-      folder="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-pager-view\android\build\.transforms\a6df7b73521515966f746f09e42cf8de\transformed\out"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-pager-view\android\build\.transforms\de72fb98e2efaf9babe4304b5d8509d4\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -52,10 +65,49 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="G:\MTechub\Project 2\isocialwalkApp\android@@:react-native-gesture-handler::release"
-      jars="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-gesture-handler\android\build\.transforms\4d1f19d37d3d52f47fffc4c01d9ebae0\transformed\out\jars\classes.jar"
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-async-storage_async-storage::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-async-storage\async-storage\android\build\.transforms\fe6cd356dfd27c738108e5d105fa83f8\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-async-storage_async-storage:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-async-storage\async-storage\android\build\.transforms\fe6cd356dfd27c738108e5d105fa83f8\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-clipboard_clipboard::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-clipboard\clipboard\android\build\.transforms\87bad4b721dfbb2c90f0bcae8f403bdb\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-clipboard_clipboard:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-clipboard\clipboard\android\build\.transforms\87bad4b721dfbb2c90f0bcae8f403bdb\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-community_datetimepicker::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\datetimepicker\android\build\.transforms\2bb8355489987a19adc02d69fe542f9a\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-community_datetimepicker:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\datetimepicker\android\build\.transforms\2bb8355489987a19adc02d69fe542f9a\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-gesture-handler::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-gesture-handler\android\build\.transforms\d26f9297fe10ab16f49ad972ad37ef71\transformed\out\jars\classes.jar"
       resolved="isocialwalkApp:react-native-gesture-handler:unspecified"
-      folder="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-gesture-handler\android\build\.transforms\4d1f19d37d3d52f47fffc4c01d9ebae0\transformed\out"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-gesture-handler\android\build\.transforms\d26f9297fe10ab16f49ad972ad37ef71\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -65,10 +117,36 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="G:\MTechub\Project 2\isocialwalkApp\android@@:react-native-reanimated"
-      jars="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-reanimated\android\build\.transforms\5ca15b8299726f07e9a08174f01c5d36\transformed\jetified-react-native-reanimated-70-hermes\jars\classes.jar"
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-image-picker::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-image-picker\android\build\.transforms\0fc8c0db1ad10cabdb5c9fe5dacb0ae2\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-image-picker:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-image-picker\android\build\.transforms\0fc8c0db1ad10cabdb5c9fe5dacb0ae2\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-maps::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-maps\android\build\.transforms\bba42112d19b711c982900427ddecfba\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-maps:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-maps\android\build\.transforms\bba42112d19b711c982900427ddecfba\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-reanimated"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-reanimated\android\build\.transforms\1bc3580ba1ef502ca3d7a29cfa57951c\transformed\jetified-react-native-reanimated-70-hermes\jars\classes.jar"
       resolved="artifacts:react-native-reanimated:unspecified"
-      folder="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-reanimated\android\build\.transforms\5ca15b8299726f07e9a08174f01c5d36\transformed\jetified-react-native-reanimated-70-hermes"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-reanimated\android\build\.transforms\1bc3580ba1ef502ca3d7a29cfa57951c\transformed\jetified-react-native-reanimated-70-hermes"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -78,10 +156,10 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="G:\MTechub\Project 2\isocialwalkApp\android@@:react-native-safe-area-context::release"
-      jars="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-safe-area-context\android\build\.transforms\d6630753cbcf16e44c2ca944bb332dbd\transformed\out\jars\classes.jar"
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-safe-area-context::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-safe-area-context\android\build\.transforms\15e477546fb342226a0943b5e51e57cb\transformed\out\jars\classes.jar"
       resolved="isocialwalkApp:react-native-safe-area-context:unspecified"
-      folder="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-safe-area-context\android\build\.transforms\d6630753cbcf16e44c2ca944bb332dbd\transformed\out"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-safe-area-context\android\build\.transforms\15e477546fb342226a0943b5e51e57cb\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -91,10 +169,10 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="G:\MTechub\Project 2\isocialwalkApp\android@@:react-native-screens::release"
-      jars="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-screens\android\build\.transforms\73e2ca464693da9e59b46acb245c57aa\transformed\out\jars\classes.jar"
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-screens::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-screens\android\build\.transforms\9e21c4e6af67de11c72488f61dcd3d20\transformed\out\jars\classes.jar"
       resolved="isocialwalkApp:react-native-screens:unspecified"
-      folder="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-screens\android\build\.transforms\73e2ca464693da9e59b46acb245c57aa\transformed\out"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-screens\android\build\.transforms\9e21c4e6af67de11c72488f61dcd3d20\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -104,10 +182,49 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="G:\MTechub\Project 2\isocialwalkApp\android@@:react-native-svg::release"
-      jars="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-svg\android\build\.transforms\722f7666bb4a1c3dc2436e372f0e78df\transformed\out\jars\classes.jar"
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-share::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-share\android\build\.transforms\16bcda4e328c89d0e052bb46633018c8\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-share:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-share\android\build\.transforms\16bcda4e328c89d0e052bb46633018c8\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-svg::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-svg\android\build\.transforms\832e888d2757ca3de6d8189f5f52998a\transformed\out\jars\classes.jar"
       resolved="isocialwalkApp:react-native-svg:unspecified"
-      folder="G:\MTechub\Project 2\isocialwalkApp\node_modules\react-native-svg\android\build\.transforms\722f7666bb4a1c3dc2436e372f0e78df\transformed\out"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-svg\android\build\.transforms\832e888d2757ca3de6d8189f5f52998a\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-vector-icons::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-vector-icons\android\build\.transforms\3f29908b77ff840ada8b88f9cb26d013\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-vector-icons:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-vector-icons\android\build\.transforms\3f29908b77ff840ada8b88f9cb26d013\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-view-shot::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-view-shot\android\build\.transforms\9142dab016abe688b8a2dbe5571618c7\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-view-shot:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-view-shot\android\build\.transforms\9142dab016abe688b8a2dbe5571618c7\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -355,10 +472,10 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="androidx.lifecycle:lifecycle-livedata:2.0.0@aar"
-      jars="C:\Users\abbas\.gradle\caches\transforms-3\6c8ebe32a5ea13a3f8e5bbe4096d6ca3\transformed\lifecycle-livedata-2.0.0\jars\classes.jar"
-      resolved="androidx.lifecycle:lifecycle-livedata:2.0.0"
-      folder="C:\Users\abbas\.gradle\caches\transforms-3\6c8ebe32a5ea13a3f8e5bbe4096d6ca3\transformed\lifecycle-livedata-2.0.0"
+      name="androidx.lifecycle:lifecycle-livedata:2.1.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\6c53e0a0e30e2b956847f2535a1ce9ba\transformed\lifecycle-livedata-2.1.0\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-livedata:2.1.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\6c53e0a0e30e2b956847f2535a1ce9ba\transformed\lifecycle-livedata-2.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -730,6 +847,19 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
+      name="androidx.exifinterface:exifinterface:1.3.3@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\dabeb127ebcf68c206ca5581e62d75f6\transformed\exifinterface-1.3.3\jars\classes.jar"
+      resolved="androidx.exifinterface:exifinterface:1.3.3"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\dabeb127ebcf68c206ca5581e62d75f6\transformed\exifinterface-1.3.3"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
       name="androidx.viewpager2:viewpager2:1.0.0@aar"
       jars="C:\Users\abbas\.gradle\caches\transforms-3\237960ca1607edccd2d98c15f52b2dce\transformed\jetified-viewpager2-1.0.0\jars\classes.jar"
       resolved="androidx.viewpager2:viewpager2:1.0.0"
@@ -747,6 +877,84 @@
       jars="C:\Users\abbas\.gradle\caches\transforms-3\499913aa779d5677f84de1b3821854aa\transformed\coordinatorlayout-1.1.0\jars\classes.jar"
       resolved="androidx.coordinatorlayout:coordinatorlayout:1.1.0"
       folder="C:\Users\abbas\.gradle\caches\transforms-3\499913aa779d5677f84de1b3821854aa\transformed\coordinatorlayout-1.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="com.google.android.gms:play-services-maps:18.0.2@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\5b94eed69c74e072e7c17c8facb87462\transformed\jetified-play-services-maps-18.0.2\jars\classes.jar"
+      resolved="com.google.android.gms:play-services-maps:18.0.2"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\5b94eed69c74e072e7c17c8facb87462\transformed\jetified-play-services-maps-18.0.2"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="com.google.android.gms:play-services-location:20.0.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\78c57395196967b06c6cb2d5c289c699\transformed\jetified-play-services-location-20.0.0\jars\classes.jar"
+      resolved="com.google.android.gms:play-services-location:20.0.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\78c57395196967b06c6cb2d5c289c699\transformed\jetified-play-services-location-20.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="com.google.android.gms:play-services-base:18.1.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\7f54a7dfe19ef0767a7a4a59f18603f7\transformed\jetified-play-services-base-18.1.0\jars\classes.jar"
+      resolved="com.google.android.gms:play-services-base:18.1.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\7f54a7dfe19ef0767a7a4a59f18603f7\transformed\jetified-play-services-base-18.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.work:work-runtime:2.7.1@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\3bc811facf50ede55bc8298072e0374d\transformed\work-runtime-2.7.1\jars\classes.jar"
+      resolved="androidx.work:work-runtime:2.7.1"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\3bc811facf50ede55bc8298072e0374d\transformed\work-runtime-2.7.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="com.google.android.gms:play-services-tasks:18.0.2@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\d4ce3f4b0548416e2fc8861880f5736c\transformed\jetified-play-services-tasks-18.0.2\jars\classes.jar"
+      resolved="com.google.android.gms:play-services-tasks:18.0.2"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\d4ce3f4b0548416e2fc8861880f5736c\transformed\jetified-play-services-tasks-18.0.2"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="com.google.android.gms:play-services-basement:18.1.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\ea51e9565e00dfcc01c5228a0311af20\transformed\jetified-play-services-basement-18.1.0\jars\classes.jar"
+      resolved="com.google.android.gms:play-services-basement:18.1.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\ea51e9565e00dfcc01c5228a0311af20\transformed\jetified-play-services-basement-18.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -812,23 +1020,6 @@
       jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\androidx.resourceinspection\resourceinspection-annotation\1.0.0\8c21f8ff5d96d5d52c948707f7e4d6ca6773feef\resourceinspection-annotation-1.0.0.jar"
       resolved="androidx.resourceinspection:resourceinspection-annotation:1.0.0"/>
   <library
-      name="androidx.cardview:cardview:1.0.0@aar"
-      jars="C:\Users\abbas\.gradle\caches\transforms-3\3cb37a6faf29ddf73604c194d6dae8fd\transformed\cardview-1.0.0\jars\classes.jar"
-      resolved="androidx.cardview:cardview:1.0.0"
-      folder="C:\Users\abbas\.gradle\caches\transforms-3\3cb37a6faf29ddf73604c194d6dae8fd\transformed\cardview-1.0.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.concurrent:concurrent-futures:1.0.0@jar"
-      jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\androidx.concurrent\concurrent-futures\1.0.0\c1e77e3ee6f4643b77496a1ddf7a2eef1aefdaa1\concurrent-futures-1.0.0.jar"
-      resolved="androidx.concurrent:concurrent-futures:1.0.0"/>
-  <library
       name="androidx.lifecycle:lifecycle-process:2.4.0@aar"
       jars="C:\Users\abbas\.gradle\caches\transforms-3\bc74a39e1ea23fea00bfcf2682a93948\transformed\jetified-lifecycle-process-2.4.0\jars\classes.jar"
       resolved="androidx.lifecycle:lifecycle-process:2.4.0"
@@ -855,6 +1046,62 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
+      name="androidx.room:room-runtime:2.2.5@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\d6dec416bb888634412be1a5a950fd3c\transformed\room-runtime-2.2.5\jars\classes.jar"
+      resolved="androidx.room:room-runtime:2.2.5"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\d6dec416bb888634412be1a5a950fd3c\transformed\room-runtime-2.2.5"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.sqlite:sqlite-framework:2.1.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\7aa95ea95f7888771eaaf73aa7600b26\transformed\sqlite-framework-2.1.0\jars\classes.jar"
+      resolved="androidx.sqlite:sqlite-framework:2.1.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\7aa95ea95f7888771eaaf73aa7600b26\transformed\sqlite-framework-2.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.sqlite:sqlite:2.1.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\6c2e0b04a335666cd4b78cb912868b2a\transformed\sqlite-2.1.0\jars\classes.jar"
+      resolved="androidx.sqlite:sqlite:2.1.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\6c2e0b04a335666cd4b78cb912868b2a\transformed\sqlite-2.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.cardview:cardview:1.0.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\3cb37a6faf29ddf73604c194d6dae8fd\transformed\cardview-1.0.0\jars\classes.jar"
+      resolved="androidx.cardview:cardview:1.0.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\3cb37a6faf29ddf73604c194d6dae8fd\transformed\cardview-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.concurrent:concurrent-futures:1.0.0@jar"
+      jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\androidx.concurrent\concurrent-futures\1.0.0\c1e77e3ee6f4643b77496a1ddf7a2eef1aefdaa1\concurrent-futures-1.0.0.jar"
+      resolved="androidx.concurrent:concurrent-futures:1.0.0"/>
+  <library
       name="androidx.tracing:tracing:1.0.0@aar"
       jars="C:\Users\abbas\.gradle\caches\transforms-3\0f0f5e42aea69d3ef4b498b0dacc0aba\transformed\jetified-tracing-1.0.0\jars\classes.jar"
       resolved="androidx.tracing:tracing:1.0.0"
@@ -868,11 +1115,41 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="com.parse.bolts:bolts-tasks:1.4.0@jar"
-      jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-tasks\1.4.0\d85884acf6810a3bbbecb587f239005cbc846dc4\bolts-tasks-1.4.0.jar"
-      resolved="com.parse.bolts:bolts-tasks:1.4.0"/>
+      name="androidx.lifecycle:lifecycle-service:2.1.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\cf4bc4bd0a068ff977cd17353fa87ab6\transformed\jetified-lifecycle-service-2.1.0\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-service:2.1.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\cf4bc4bd0a068ff977cd17353fa87ab6\transformed\jetified-lifecycle-service-2.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.room:room-common:2.2.5@jar"
+      jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\androidx.room\room-common\2.2.5\f5e3b73a0c2ab5e276e26868e4ce3542baede207\room-common-2.2.5.jar"
+      resolved="androidx.room:room-common:2.2.5"/>
+  <library
+      name="com.google.maps.android:android-maps-utils:0.5@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\71150f55b8bd515353f08b11bf68fd2e\transformed\jetified-android-maps-utils-0.5\jars\classes.jar"
+      resolved="com.google.maps.android:android-maps-utils:0.5"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\71150f55b8bd515353f08b11bf68fd2e\transformed\jetified-android-maps-utils-0.5"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
   <library
       name="com.google.guava:listenablefuture:1.0@jar"
       jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\com.google.guava\listenablefuture\1.0\c949a840a6acbc5268d088e47b04177bf90b3cad\listenablefuture-1.0.jar"
       resolved="com.google.guava:listenablefuture:1.0"/>
+  <library
+      name="com.parse.bolts:bolts-tasks:1.4.0@jar"
+      jars="C:\Users\abbas\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-tasks\1.4.0\d85884acf6810a3bbbecb587f239005cbc846dc4\bolts-tasks-1.4.0.jar"
+      resolved="com.parse.bolts:bolts-tasks:1.4.0"/>
 </libraries>

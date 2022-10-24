@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.isocialwalkapp-mergeReleaseResources-26:/values-v16/values-v16.xml",
+            "outputFile": "com.isocialwalkapp-mergeReleaseResources-31:/values-v16/values-v16.xml",
             "map": [
                 {
                     "source": "C:\\Users\\abbas\\.gradle\\caches\\transforms-3\\63a3df243d2d102452600006144a86df\\transformed\\core-1.7.0\\res\\values-v16\\values-v16.xml",

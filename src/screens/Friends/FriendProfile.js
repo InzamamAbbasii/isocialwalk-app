@@ -63,11 +63,16 @@ const FriendProfile = ({navigation}) => {
               color: '#000000',
               fontSize: 18,
               marginVertical: 10,
-              fontWeight: '700',
+              fontFamily: 'Rubik-Medium',
             }}>
             Saffa Waller
           </Text>
-          <Text style={{color: '#4C7897', fontSize: 16}}>
+          <Text
+            style={{
+              color: '#4C7897',
+              fontSize: 16,
+              fontFamily: 'Rubik-Regular',
+            }}>
             Daily Goal: 8,500 Steps
           </Text>
         </View>
@@ -81,6 +86,7 @@ const FriendProfile = ({navigation}) => {
             style={{
               color: '#000000',
               fontSize: 18,
+              fontFamily: 'Rubik-Regular',
             }}>
             {selectedType} Performance
           </Text>
@@ -116,6 +122,7 @@ const FriendProfile = ({navigation}) => {
             }}
             selectedItemLabelStyle={{
               color: '#FFF',
+              fontFamily: 'Rubik-Regular',
             }}
             scrollViewProps={{
               showsVerticalScrollIndicator: false,
@@ -126,6 +133,7 @@ const FriendProfile = ({navigation}) => {
               textAlign: 'left',
               paddingLeft: 5,
               color: '#fff',
+              fontFamily: 'Rubik-Regular',
             }}
             style={{
               height: 35,
@@ -166,13 +174,31 @@ const FriendProfile = ({navigation}) => {
                   marginBottom: 10,
                 }}>
                 <Text
-                  style={{color: '#38ACFF', fontSize: 16, fontWeight: '500'}}>
+                  style={{
+                    color: '#38ACFF',
+                    fontSize: 16,
+                    fontFamily: 'Rubik-Medium',
+                  }}>
                   39,283
                 </Text>
-                <Text style={{color: '#38ACFF', fontSize: 14}}>Me</Text>
+                <Text
+                  style={{
+                    color: '#38ACFF',
+                    fontSize: 14,
+                    fontFamily: 'Rubik-Regular',
+                  }}>
+                  Me
+                </Text>
               </View>
             </View>
-            <Text style={{color: '#000000', fontSize: 14}}>vs</Text>
+            <Text
+              style={{
+                color: '#000000',
+                fontSize: 14,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              vs
+            </Text>
             <View
               style={{
                 flexDirection: 'row',
@@ -181,10 +207,21 @@ const FriendProfile = ({navigation}) => {
               }}>
               <View style={{marginRight: 5, marginBottom: 10}}>
                 <Text
-                  style={{color: '#003E6B', fontSize: 16, fontWeight: '500'}}>
+                  style={{
+                    color: '#003E6B',
+                    fontSize: 16,
+                    fontFamily: 'Rubik-Medium',
+                  }}>
                   94,434
                 </Text>
-                <Text style={{color: '#003E6B', fontSize: 14}}>Saffa</Text>
+                <Text
+                  style={{
+                    color: '#003E6B',
+                    fontSize: 14,
+                    fontFamily: 'Rubik-Regular',
+                  }}>
+                  Saffa
+                </Text>
               </View>
               <View>
                 <Image
@@ -258,6 +295,7 @@ const FriendProfile = ({navigation}) => {
             style={{
               color: '#000000',
               fontSize: 18,
+              fontFamily: 'Rubik-Regular',
             }}>
             Groups in Common
           </Text>
@@ -272,6 +310,7 @@ const FriendProfile = ({navigation}) => {
                 style={{
                   color: '#000000',
                   fontSize: 14,
+                  fontFamily: 'Rubik-Regular',
                 }}>
                 No Groups in common
               </Text>
@@ -332,7 +371,8 @@ const styles = StyleSheet.create({
     color: '#000000',
     textAlign: 'center',
     fontSize: 13,
-    fontWeight: '500',
+    // fontWeight: '500',
+    fontFamily: 'Rubik-Medium',
     width: 85,
   },
   performanceCard: {

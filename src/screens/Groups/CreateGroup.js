@@ -14,8 +14,11 @@ import {
 import moment from 'moment/moment';
 import Header from '../../Reuseable Components/Header';
 import DropDownPicker from 'react-native-dropdown-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+
 const SCREEN_WIDTH = Dimensions.get('screen').width;
 const CreateGroup = ({navigation}) => {
+  const [groupImage, setGroupImage] = useState(null);
   const [groupName, setGroupName] = useState('');
   const [isValidGroupName, setIsValidGroupName] = useState(true);
   // membership list
@@ -76,6 +79,20 @@ const CreateGroup = ({navigation}) => {
       setIsValidGroupName(true);
     }
   };
+
+  const pickImage = async () => {
+    var options = {
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+    await launchImageLibrary(options)
+      .then(res => {
+        setGroupImage(res.assets[0].uri);
+      })
+      .catch(error => console.log(error));
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -88,28 +105,52 @@ const CreateGroup = ({navigation}) => {
         <Header title={'Create Group'} navigation={navigation} />
         <View style={{marginVertical: 10, alignItems: 'center'}}>
           <View style={{}}>
-            <Image
-              source={require('../../../assets/images/group-profile2.png')}
+            {groupImage == null ? (
+              <Image
+                source={require('../../../assets/images/group-profile2.png')}
+                style={{
+                  marginVertical: 10,
+                  height: 123,
+                  width: 123,
+                }}
+              />
+            ) : (
+              <Image
+                source={{uri: groupImage}}
+                style={{
+                  marginVertical: 10,
+                  height: 123,
+                  width: 123,
+                  borderRadius: 123,
+                }}
+              />
+            )}
+            <TouchableOpacity
+              onPress={() => pickImage()}
               style={{
-                marginVertical: 10,
-                height: 123,
-                width: 123,
-              }}
-            />
-            <Image
-              source={require('../../../assets/images/camera.png')}
-              style={{
-                width: 30,
-                height: 28,
-                resizeMode: 'contain',
                 position: 'absolute',
                 right: 0,
                 top: 20,
-              }}
-            />
+              }}>
+              <Image
+                source={require('../../../assets/images/camera.png')}
+                style={{
+                  width: 30,
+                  height: 28,
+                  resizeMode: 'contain',
+                }}
+              />
+            </TouchableOpacity>
           </View>
 
-          <Text style={{color: '#000000', fontSize: 17}}>Group image</Text>
+          <Text
+            style={{
+              color: '#000000',
+              fontSize: 17,
+              fontFamily: 'Rubik-Regular',
+            }}>
+            Group image
+          </Text>
         </View>
         <View>
           <View style={styles.textInputView}>
@@ -181,6 +222,7 @@ const CreateGroup = ({navigation}) => {
               style={{
                 color: '#000000',
                 fontSize: 16,
+                fontFamily: 'Rubik-Regular',
               }}>
               Add Members
             </Text>
@@ -219,7 +261,12 @@ const CreateGroup = ({navigation}) => {
                           <TouchableOpacity
                             onPress={() => handleonAdd(item.item.id)}
                             style={styles.cardButton}>
-                            <Text style={{color: '#ffffff', fontSize: 11}}>
+                            <Text
+                              style={{
+                                color: '#ffffff',
+                                fontSize: 11,
+                                fontFamily: 'Rubik-Regular',
+                              }}>
                               Added
                             </Text>
                           </TouchableOpacity>
@@ -231,7 +278,12 @@ const CreateGroup = ({navigation}) => {
                               backgroundColor: '#38acff',
                               width: 60,
                             }}>
-                            <Text style={{color: '#ffffff', fontSize: 11}}>
+                            <Text
+                              style={{
+                                color: '#ffffff',
+                                fontSize: 11,
+                                fontFamily: 'Rubik-Regular',
+                              }}>
                               Add
                             </Text>
                           </TouchableOpacity>
@@ -269,6 +321,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     marginVertical: 5,
     marginBottom: 15,
+    fontFamily: 'Rubik-Regular',
   },
   textInput: {
     borderWidth: 1,
@@ -306,6 +359,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     width: 75,
+    marginVertical: 5,
+    fontFamily: 'Rubik-Regular',
   },
   btn: {
     backgroundColor: '#38acff',
@@ -315,11 +370,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
   },
-  btnText: {color: '#ffffff', fontSize: 17},
+  btnText: {color: '#ffffff', fontSize: 17, fontFamily: 'Rubik-Regular'},
   errorText: {
     color: '#D66262',
     fontSize: 12,
     marginLeft: 10,
     marginTop: 3,
+    fontFamily: 'Rubik-Regular',
   },
 });

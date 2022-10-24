@@ -6,11 +6,7 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  Dimensions,
-  TextInput,
-  KeyboardAvoidingView,
   ScrollView,
-  Pressable,
 } from 'react-native';
 import Header from '../../Reuseable Components/Header';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -91,7 +87,7 @@ const GroupDetail = ({navigation}) => {
       id: 5,
       name: 'Zaina',
       avater: require('../../../assets/images/friend-profile.png'),
-      selected: true,
+      selected: false,
     },
     // {
     //   id: 6,
@@ -138,7 +134,14 @@ const GroupDetail = ({navigation}) => {
           },
         }}>
         <View style={{alignItems: 'center', flex: 1}}>
-          <Text style={{color: '#003e6b', fontSize: 18, textAlign: 'center'}}>
+          <Text
+            style={{
+              color: '#003e6b',
+              fontSize: 18,
+              textAlign: 'center',
+              fontFamily: 'Rubik-Regular',
+              marginTop: 5,
+            }}>
             Add Members
           </Text>
           <View
@@ -155,7 +158,7 @@ const GroupDetail = ({navigation}) => {
               renderItem={item => {
                 return (
                   <TouchableOpacity
-                    onPress={() => handleAddMemberSelect(item.item.id)}
+                    // onPress={() => handleAddMemberSelect(item.item.id)}
                     style={{
                       ...styles.bootSheetCardView,
                       width: '28.9%',
@@ -170,7 +173,10 @@ const GroupDetail = ({navigation}) => {
                       source={item.item.avater}
                       style={{marginVertical: 8, width: 44, height: 44}}
                     />
-                    <Text style={{color: '#040103'}}>{item.item.name}</Text>
+                    <Text
+                      style={{color: '#040103', fontFamily: 'Rubik-Regular'}}>
+                      {item.item.name}
+                    </Text>
                   </TouchableOpacity>
                 );
               }}
@@ -186,7 +192,14 @@ const GroupDetail = ({navigation}) => {
               justifyContent: 'center',
               borderRadius: 5,
             }}>
-            <Text style={{color: '#FFF', fontSize: 16}}>Add to group</Text>
+            <Text
+              style={{
+                color: '#FFF',
+                fontSize: 16,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Add to group
+            </Text>
           </TouchableOpacity>
         </View>
       </RBSheet>
@@ -214,13 +227,19 @@ const GroupDetail = ({navigation}) => {
           },
         }}>
         <View style={{alignItems: 'center', flex: 1}}>
-          <Text style={{color: '#003e6b', fontSize: 18, textAlign: 'center'}}>
+          <Text
+            style={{
+              color: '#003e6b',
+              fontSize: 18,
+              textAlign: 'center',
+              fontFamily: 'Rubik-Regular',
+              marginTop: 5,
+            }}>
             Remove Member
           </Text>
           <View
             style={{
               marginVertical: 15,
-              // paddingBottom: 10,
               paddingHorizontal: 20,
               flex: 1,
             }}>
@@ -235,7 +254,6 @@ const GroupDetail = ({navigation}) => {
                     style={{
                       ...styles.bootSheetCardView,
                       width: '28.9%',
-                      // marginTop: 10,
                       marginVertical: 5,
                       marginHorizontal: 7,
                     }}>
@@ -243,7 +261,10 @@ const GroupDetail = ({navigation}) => {
                       source={item.item.avater}
                       style={{marginVertical: 8, width: 44, height: 44}}
                     />
-                    <Text style={{color: '#040103'}}>{item.item.name}</Text>
+                    <Text
+                      style={{color: '#040103', fontFamily: 'Rubik-Regular'}}>
+                      {item.item.name}
+                    </Text>
                   </View>
                 );
               }}
@@ -258,6 +279,7 @@ const GroupDetail = ({navigation}) => {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: 5,
+              fontFamily: 'Rubik-Regular',
             }}>
             <Text style={{color: '#FFF', fontSize: 16}}>Remove from group</Text>
           </TouchableOpacity>
@@ -286,12 +308,19 @@ const GroupDetail = ({navigation}) => {
           <Image
             source={require('../../../assets/images/group-profile2.png')}
             style={{
-              marginVertical: 10,
+              marginVertical: 12,
               height: 123,
               width: 123,
             }}
           />
-          <Text style={{color: '#000000', fontSize: 17}}>Cyanide</Text>
+          <Text
+            style={{
+              color: '#000000',
+              fontSize: 17,
+              fontFamily: 'Rubik-Regular',
+            }}>
+            Cyanide
+          </Text>
           <View
             style={{
               flexDirection: 'row',
@@ -320,6 +349,7 @@ const GroupDetail = ({navigation}) => {
             style={{
               color: '#000000',
               fontSize: 16,
+              fontFamily: 'Rubik-Regular',
             }}>
             Active Challenges
           </Text>
@@ -328,6 +358,7 @@ const GroupDetail = ({navigation}) => {
               height: 120,
               justifyContent: 'center',
               alignItems: 'center',
+              fontFamily: 'Rubik-Regular',
             }}>
             <Text style={{color: '#000'}}> No Active Challenges</Text>
           </View>
@@ -344,6 +375,7 @@ const GroupDetail = ({navigation}) => {
               style={{
                 color: '#000000',
                 fontSize: 16,
+                fontFamily: 'Rubik-Regular',
               }}>
               Group Members ({groupMembersList.length})
             </Text>
@@ -352,6 +384,7 @@ const GroupDetail = ({navigation}) => {
                 style={{
                   color: '#6f92c9',
                   fontSize: 16,
+                  fontFamily: 'Rubik-Regular',
                 }}>
                 Remove Member
               </Text>
@@ -419,6 +452,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     width: 75,
+    fontFamily: 'Rubik-Regular',
   },
   btn: {
     flex: 1,

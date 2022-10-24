@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  StatusBar,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const AuthScreen = ({navigation}) => {
   const [index, setIndex] = useState(0);
@@ -41,7 +43,8 @@ const AuthScreen = ({navigation}) => {
     setInvalidPassword(false);
   };
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      <StatusBar backgroundColor={'#fff'} />
       <View style={styles.tabView}>
         <TouchableOpacity
           onPress={() => handleonTabChange()}
@@ -68,18 +71,24 @@ const AuthScreen = ({navigation}) => {
             style={{
               color: '#000',
               fontWeight: 'bold',
+              // fontFamily: 'Rubik-Bold',
               fontSize: 24,
               marginTop: 10,
               marginBottom: 5,
             }}>
             Create your account
           </Text>
-          <Text style={{color: '#000', fontWeight: '400'}}>
+          <Text style={{color: '#000', fontFamily: 'Rubik-Regular'}}>
             Signup with Email for an account
           </Text>
 
           <View style={styles.textInputView}>
-            <Text style={{color: '#000', marginVertical: 5}}>
+            <Text
+              style={{
+                color: '#000',
+                marginVertical: 5,
+                fontFamily: 'Rubik-Regular',
+              }}>
               Email Address
             </Text>
             <TextInput
@@ -92,19 +101,20 @@ const AuthScreen = ({navigation}) => {
               onChangeText={txt => setEmail(txt)}
             />
             {invalidEmail && (
-              <Text
-                style={{
-                  color: '#D66262',
-                  fontSize: 10,
-                  marginLeft: 10,
-                  marginTop: 3,
-                }}>
+              <Text style={styles.errorText}>
                 This email doesn't look right
               </Text>
             )}
           </View>
           <View style={styles.textInputView}>
-            <Text style={{color: '#000', marginVertical: 5}}>Password</Text>
+            <Text
+              style={{
+                color: '#000',
+                marginVertical: 5,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Password
+            </Text>
             <TextInput
               style={{
                 ...styles.textInput,
@@ -115,13 +125,7 @@ const AuthScreen = ({navigation}) => {
               onChangeText={txt => setPassword(txt)}
             />
             {invalidPassword && (
-              <Text
-                style={{
-                  color: '#D66262',
-                  fontSize: 10,
-                  marginLeft: 10,
-                  marginTop: 3,
-                }}>
+              <Text style={styles.errorText}>
                 Enter a password with a cap, small letter, symbol and a number
               </Text>
             )}
@@ -129,22 +133,29 @@ const AuthScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.btnRegister}
             onPress={() => handleRegister()}>
-            <Text style={{color: '#FFF', fontSize: 16}}>Register</Text>
+            <Text
+              style={{
+                color: '#FFF',
+                fontSize: 16,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Register
+            </Text>
           </TouchableOpacity>
           <View>
             <TouchableOpacity
               style={styles.socialBtn}
-              onPress={() => navigation.navigate('TabNavigation')}>
+              // onPress={() => navigation.navigate('TabNavigation')}>
+              onPress={() => navigation.navigate('DrawerTest')}>
               <Image
                 source={require('../../assets/images/apple.png')}
                 style={{width: 20, height: 20, marginRight: 10}}
               />
-              <Text style={{color: '#FFF', fontSize: 14}}>
-                Signup with Apple ID
-              </Text>
+              <Text style={styles.socialBtnText}>Signup with Apple ID</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('TabNavigation')}
+              // onPress={() => navigation.navigate('TabNavigation')}
+              onPress={() => navigation.navigate('DrawerTest')}
               style={{...styles.socialBtn, backgroundColor: '#4267B2'}}>
               <Image
                 source={require('../../assets/images/facebook.png')}
@@ -155,20 +166,17 @@ const AuthScreen = ({navigation}) => {
                   tintColor: '#FFF',
                 }}
               />
-              <Text style={{color: '#FFF', fontSize: 14}}>
-                Signup with Facebook
-              </Text>
+              <Text style={styles.socialBtnText}>Signup with Facebook</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('TabNavigation')}
+              // onPress={() => navigation.navigate('TabNavigation')}
+              onPress={() => navigation.navigate('DrawerTest')}
               style={{...styles.socialBtn, backgroundColor: '#4285F4'}}>
               <Image
                 source={require('../../assets/images/google.png')}
                 style={{width: 20, height: 20, marginRight: 10}}
               />
-              <Text style={{color: '#FFF', fontSize: 14}}>
-                Signup with Google
-              </Text>
+              <Text style={styles.socialBtnText}>Signup with Google</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -200,13 +208,7 @@ const AuthScreen = ({navigation}) => {
               placeholder={'Enter your Email'}
             />
             {invalidEmail && (
-              <Text
-                style={{
-                  color: '#D66262',
-                  fontSize: 10,
-                  marginLeft: 10,
-                  marginTop: 3,
-                }}>
+              <Text style={styles.errorText}>
                 This email doesn't look right
               </Text>
             )}
@@ -221,13 +223,7 @@ const AuthScreen = ({navigation}) => {
               placeholder={'Enter your Password'}
             />
             {invalidPassword && (
-              <Text
-                style={{
-                  color: '#D66262',
-                  fontSize: 10,
-                  marginLeft: 10,
-                  marginTop: 3,
-                }}>
+              <Text style={styles.errorText}>
                 Enter a password with a cap, small letter, symbol and a number
               </Text>
             )}
@@ -235,30 +231,48 @@ const AuthScreen = ({navigation}) => {
           <TouchableOpacity
             style={{...styles.btnRegister, marginBottom: 18}}
             onPress={() => handleLogin()}>
-            <Text style={{color: '#FFF', fontSize: 16}}>Sign In</Text>
+            <Text
+              style={{
+                color: '#FFF',
+                fontSize: 16,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Sign In
+            </Text>
           </TouchableOpacity>
-          <Text style={{color: '#000', fontSize: 14, fontWeight: '400'}}>
-            Forgot Password?
-          </Text>
-          <Text
-            style={{color: '#3BADFF', fontWeight: 'bold', marginBottom: 10}}>
-            Reset Password
-          </Text>
-
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}>
+            <Text
+              style={{
+                color: '#000',
+                fontSize: 14,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Forgot Password?
+            </Text>
+            <Text
+              style={{
+                color: '#3BADFF',
+                fontFamily: 'Rubik-Medium',
+                marginBottom: 10,
+              }}>
+              Reset Password
+            </Text>
+          </TouchableOpacity>
           <View>
             <TouchableOpacity
               style={styles.socialBtn}
-              onPress={() => navigation.navigate('TabNavigation')}>
+              // onPress={() => navigation.navigate('TabNavigation')}
+              onPress={() => navigation.navigate('DrawerTest')}>
               <Image
                 source={require('../../assets/images/apple.png')}
                 style={{width: 20, height: 20, marginRight: 10}}
               />
-              <Text style={{color: '#FFF', fontSize: 14}}>
-                Signup with Apple ID
-              </Text>
+              <Text style={styles.socialBtnText}>Signup with Apple ID</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('TabNavigation')}
+              // onPress={() => navigation.navigate('TabNavigation')}
+              onPress={() => navigation.navigate('DrawerTest')}
               style={{...styles.socialBtn, backgroundColor: '#4267B2'}}>
               <Image
                 source={require('../../assets/images/facebook.png')}
@@ -269,25 +283,22 @@ const AuthScreen = ({navigation}) => {
                   tintColor: '#FFF',
                 }}
               />
-              <Text style={{color: '#FFF', fontSize: 14}}>
-                Signup with Facebook
-              </Text>
+              <Text style={styles.socialBtnText}>Signup with Facebook</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate('TabNavigation')}
+              // onPress={() => navigation.navigate('TabNavigation')}
+              onPress={() => navigation.navigate('DrawerTest')}
               style={{...styles.socialBtn, backgroundColor: '#4285F4'}}>
               <Image
                 source={require('../../assets/images/google.png')}
                 style={{width: 20, height: 20, marginRight: 10}}
               />
-              <Text style={{color: '#FFF', fontSize: 14}}>
-                Signup with Google
-              </Text>
+              <Text style={styles.socialBtnText}>Signup with Google</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -353,5 +364,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
+  },
+  socialBtnText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontFamily: 'Rubik-Regular',
+  },
+  errorText: {
+    color: '#D66262',
+    fontSize: 10,
+    marginLeft: 10,
+    marginTop: 3,
+    fontFamily: 'Rubik-Regular',
   },
 });

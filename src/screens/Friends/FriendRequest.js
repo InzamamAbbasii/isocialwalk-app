@@ -12,23 +12,29 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
+import RBSheet from 'react-native-raw-bottom-sheet';
 import Header from '../../Reuseable Components/Header';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 import {LineChart} from 'react-native-chart-kit';
 
 const FriendRequest = ({navigation}) => {
+  const bottomSheetRef = useRef();
+  const [isFriendRequestApproved, setIsFriendRequestApproved] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    require('../../../assets/images/friend-profile.png'),
+  );
   const [commonGroupsList, setCommonGroupsList] = useState([
-    // {
-    //   id: 0,
-    //   name: 'Carnage Coverage',
-    //   avatar: require('../../../assets/images/friend-profile.png'),
-    // },
-    // {
-    //   id: 1,
-    //   name: 'GhostRunners',
-    //   avatar: require('../../../assets/images/friend-profile.png'),
-    // },
+    {
+      id: 0,
+      name: 'Carnage Coverage',
+      avatar: require('../../../assets/images/friend-profile.png'),
+    },
+    {
+      id: 1,
+      name: 'GhostRunners',
+      avatar: require('../../../assets/images/friend-profile.png'),
+    },
   ]);
 
   const [isTypeOpen, setIsTypeOpen] = useState(false);
@@ -46,13 +52,20 @@ const FriendRequest = ({navigation}) => {
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}>
-        <Header title={'Eduardo'} navigation={navigation} />
+        <Header
+          title={'Boris'}
+          navigation={navigation}
+          titleStyle={{
+            marginLeft: -30,
+            zIndex: -1,
+          }}
+        />
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginVertical: 20,
-            paddingLeft: 30,
+            // paddingLeft: 30,
           }}>
           <Image
             source={require('../../../assets/images/user1.png')}
@@ -65,11 +78,29 @@ const FriendRequest = ({navigation}) => {
               marginVertical: 10,
               fontWeight: '700',
             }}>
-            Eduardo Felming
+            Boris Findlay
           </Text>
-          <TouchableOpacity style={styles.btn}>
-            <Text style={{color: '#FFF', fontSize: 16}}>Add</Text>
-          </TouchableOpacity>
+          <View
+            style={{
+              flexDirection: 'row',
+            }}>
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => bottomSheetRef?.current?.open()}>
+              <Text style={styles.btnText}>Approve Request</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => bottomSheetRef?.current?.open()}
+              style={{
+                ...styles.btn,
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+              }}>
+              <Text style={{...styles.btnText, color: '#38ACFF'}}>
+                Ignore Request
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View
           style={{
@@ -285,6 +316,7 @@ const FriendRequest = ({navigation}) => {
               renderItem={(item, index) => {
                 return (
                   <TouchableOpacity
+                    onPress={() => navigation.navigate('GroupDetail')}
                     style={{
                       ...styles.cardView,
                       justifyContent: 'center',
@@ -302,6 +334,99 @@ const FriendRequest = ({navigation}) => {
             />
           )}
         </View>
+
+        <RBSheet
+          ref={bottomSheetRef}
+          height={300}
+          openDuration={270}
+          closeOnDragDown={true}
+          closeOnPressMask={false}
+          animationType={'slide'}
+          customStyles={{
+            container: {
+              padding: 5,
+              alignItems: 'center',
+              // height: 530,
+              flex: 1.1,
+              backgroundColor: '#ffffff',
+              borderRadius: 30,
+            },
+            draggableIcon: {
+              backgroundColor: '#003e6b',
+            },
+          }}>
+          <Text
+            style={{
+              color: '#003e6b',
+              fontSize: 18,
+              fontFamily: 'Rubik-Regular',
+              marginTop: 5,
+            }}>
+            Friend Request
+          </Text>
+          <Image
+            source={profileImage}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              resizeMode: 'contain',
+            }}
+          />
+          <Text
+            style={{
+              color: '#000000',
+              fontSize: 16,
+              fontFamily: 'Rubik-Medium',
+            }}>
+            Boris Findlay
+          </Text>
+          {isFriendRequestApproved ? (
+            <View
+              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              <Text
+                style={{
+                  ...styles.btnText,
+                  fontSize: 15,
+                  fontFamily: 'Rubik-Medium',
+                  color: '#38ACFF',
+                }}>
+                You and Boris are now friends
+              </Text>
+            </View>
+          ) : (
+            <View style={{width: '100%', alignItems: 'center'}}>
+              <TouchableOpacity
+                style={styles.btnBottomSheet}
+                onPress={() =>
+                  setIsFriendRequestApproved(!isFriendRequestApproved)
+                }>
+                <Text style={styles.btnText}>Approve Request</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  ...styles.btnBottomSheet,
+                  backgroundColor: 'transparent',
+                  borderWidth: 1,
+                }}
+                onPress={() => bottomSheetRef?.current?.close()}>
+                <Text style={{...styles.btnText, color: '#38ACFF'}}>
+                  Ignore Request
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={{...styles.btnBottomSheet, backgroundColor: '#003e6b'}}
+            onPress={() => {
+              navigation.navigate('FriendProfile');
+              bottomSheetRef?.current?.close();
+            }}>
+            <Text style={styles.btnText}>View Profile</Text>
+          </TouchableOpacity>
+        </RBSheet>
       </ScrollView>
     </View>
   );
@@ -337,7 +462,7 @@ const styles = StyleSheet.create({
   },
   performanceCard: {
     zIndex: -1,
-    height: 255,
+    height: 288,
     flex: 1,
     backgroundColor: '#ffffff',
     borderRadius: 10,
@@ -349,12 +474,32 @@ const styles = StyleSheet.create({
   },
   btn: {
     marginVertical: 10,
-    width: 120,
+    width: 135,
+    // paddingHorizontal: 10,
     height: 35,
     backgroundColor: '#38ACFF',
+    borderColor: '#38ACFF',
     marginHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,
+  },
+  btnText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontFamily: 'Rubik-Regular',
+  },
+  btnBottomSheet: {
+    marginVertical: 7,
+    height: 35,
+    backgroundColor: '#38ACFF',
+    borderColor: '#38ACFF',
+    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 6,
+    width: '85%',
+    height: 45,
+    marginVertical: 8,
   },
 });

@@ -15,8 +15,10 @@ import moment from 'moment/moment';
 import Header from '../../Reuseable Components/Header';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const CreateChallenges = ({navigation, route}) => {
+  const [challengeImage, setchallengeImage] = useState(null);
   const [membersList, setMembersList] = useState([
     {
       id: 0,
@@ -106,6 +108,19 @@ const CreateChallenges = ({navigation, route}) => {
     setEndDate(value);
     setIsEndDatePickerShow(false);
   };
+  const pickImage = async () => {
+    var options = {
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+    await launchImageLibrary(options)
+      .then(res => {
+        setchallengeImage(res.assets[0].uri);
+      })
+      .catch(error => console.log(error));
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -118,28 +133,54 @@ const CreateChallenges = ({navigation, route}) => {
         <Header title={'Create Challenge'} navigation={navigation} />
         <View style={{marginVertical: 10, alignItems: 'center'}}>
           <View style={{}}>
-            <Image
-              source={require('../../../assets/images/Challenge.png')}
+            {challengeImage == null ? (
+              <Image
+                source={require('../../../assets/images/Challenge.png')}
+                style={{
+                  marginVertical: 10,
+                  height: 123,
+                  width: 123,
+                }}
+              />
+            ) : (
+              <Image
+                source={{uri: challengeImage}}
+                style={{
+                  marginVertical: 10,
+                  height: 123,
+                  width: 123,
+                  borderRadius: 123,
+                }}
+              />
+            )}
+            <TouchableOpacity
+              onPress={() => pickImage()}
               style={{
-                marginVertical: 10,
-                height: 123,
-                width: 123,
-              }}
-            />
-            <Image
-              source={require('../../../assets/images/camera.png')}
-              style={{
-                width: 30,
-                height: 28,
-                resizeMode: 'contain',
                 position: 'absolute',
                 right: 0,
                 top: 20,
-              }}
-            />
+              }}>
+              <Image
+                source={require('../../../assets/images/camera.png')}
+                style={{
+                  width: 30,
+                  height: 28,
+                  borderRadius: 30,
+                  resizeMode: 'contain',
+                }}
+              />
+            </TouchableOpacity>
           </View>
 
-          <Text style={{color: '#000000', fontSize: 17}}>Challenge image</Text>
+          <Text
+            style={{
+              color: '#000000',
+              fontSize: 17,
+              fontFamily: 'Rubik-Regular',
+              marginTop: 5,
+            }}>
+            Challenge image
+          </Text>
         </View>
         {/* ----------------------------------Create Challenge Form Start---------------------------------------- */}
         <View>
@@ -196,10 +237,6 @@ const CreateChallenges = ({navigation, route}) => {
                 justifyContent: 'center',
               }}
             />
-            {/* <TextInput
-              style={styles.textInput}
-              placeholder={'Enter Challenge Name'}
-            /> */}
           </View>
           <View style={styles.textInputView}>
             <Text style={styles.textInputHeading}>Challenge Visibility</Text>
@@ -431,7 +468,14 @@ const CreateChallenges = ({navigation, route}) => {
         </View>
         {/* ----------------------------------Create Challenge Form END------------------------------------------ */}
         <View>
-          <Text style={{color: '#000000', fontSize: 17}}>Add Members</Text>
+          <Text
+            style={{
+              color: '#000000',
+              fontSize: 17,
+              fontFamily: 'Rubik-Regular',
+            }}>
+            Add Members
+          </Text>
           <View
             style={{
               marginVertical: 15,
@@ -450,9 +494,7 @@ const CreateChallenges = ({navigation, route}) => {
                     style={{
                       ...styles.cardView,
                       justifyContent: 'center',
-                      // flex: 1 / 3,
                       width: '28.5%',
-                      // width: Dimensions.get('window').width / 4,
                     }}>
                     <Image
                       source={require('../../../assets/images/friend-profile.png')}
@@ -488,6 +530,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     marginVertical: 5,
     marginBottom: 15,
+    fontFamily: 'Rubik-Regular',
   },
   textInput: {
     borderWidth: 1,
@@ -513,6 +556,7 @@ const styles = StyleSheet.create({
     color: '#040103',
     textAlign: 'center',
     fontSize: 13,
+    fontFamily: 'Rubik-Regular',
   },
 
   btn: {

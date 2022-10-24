@@ -21,11 +21,13 @@ import Animated, {set} from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Home from '../../screens/Home';
+import SplashScreen from '../SplashScreen';
 import AuthScreen from '../AuthScreen';
 import Welcome from '../Welcome';
 import TabNavigation from './TabNavigation';
 
 import CreateChallenges from '../Challenges/CreateChallenges';
+import ChallengesDetail from '../Challenges/ChallengesDetail';
 //groups
 import CreateGroup from '../Groups/CreateGroup';
 import GroupDetail from '../Groups/GroupDetail';
@@ -39,14 +41,27 @@ import Notification from '../Notification/Notification';
 // friends
 import FriendProfile from '../Friends/FriendProfile';
 import FriendRequest from '../Friends/FriendRequest';
+import AddFriend from '../Friends/AddFriend';
+
 //history
 import History from '../History/History';
 
 import ChangePassword from '../ChangePassword';
+import ForgotPassword from '../ForgotPassword';
 
 import PrivacyPolicy from '../PrivacyPolicy';
 import ConnectDevices from '../ConnectDevices';
 import UpdateGoals from '../UpdateGoals';
+
+// chat
+import Chat from '../Chat/Chat';
+import Conversations from '../Chat/Conversations';
+
+import Summary from '../Summary';
+import DaySummary from '../History/DaySummary';
+
+import DrawerTest from '../DrawerTest';
+
 import {useRoute} from '@react-navigation/native';
 
 const Drawer = createDrawerNavigator();
@@ -58,11 +73,11 @@ const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const handleLogout = props =>
   Alert.alert('Log out', `Are you sure you want to logout from isocialWalk?`, [
     {
-      text: 'Cancel',
+      text: 'No',
       onPress: () => console.log('Cancel Pressed'),
       style: 'cancel',
     },
-    {text: 'OK', onPress: () => props.navigation.navigate('AuthScreen')},
+    {text: 'Yes', onPress: () => props.navigation.navigate('AuthScreen')},
   ]);
 
 const Screens = ({navigation, style}) => {
@@ -73,13 +88,24 @@ const Screens = ({navigation, style}) => {
         headerTitle: null,
       }}>
       <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
         name="Welcome"
         component={Welcome}
         options={{headerShown: false}}
       />
+
       <Stack.Screen
         name="AuthScreen"
         component={AuthScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="DrawerTest"
+        component={DrawerTest}
         options={{headerShown: false}}
       />
       <Stack.Screen
@@ -144,6 +170,11 @@ const Screens = ({navigation, style}) => {
         component={FriendRequest}
         options={{headerShown: false}}
       />
+      <Stack.Screen
+        name="AddFriend"
+        component={AddFriend}
+        options={{headerShown: false}}
+      />
 
       <Stack.Screen
         name="PrivacyPolicy"
@@ -168,6 +199,36 @@ const Screens = ({navigation, style}) => {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePassword}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ForgotPassword"
+        component={ForgotPassword}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Conversations"
+        component={Conversations}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Summary"
+        component={Summary}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="DaySummary"
+        component={DaySummary}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ChallengesDetail"
+        component={ChallengesDetail}
         options={{headerShown: false}}
       />
     </Stack.Navigator>
@@ -400,6 +461,7 @@ export default () => {
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
+        swipeEnabled: false,
         // headerTransparent: true,
         //   drawerType: 'slide',
         // drawerType: 'slide',

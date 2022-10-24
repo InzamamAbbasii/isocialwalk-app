@@ -5,8 +5,6 @@ import {NavigationContainer} from '@react-navigation/native';
 import DrawerNavigations from './src/screens/Navigation/DrawerNavigations';
 
 function App() {
-  global.url =
-    'file:///data/user/0/com.isocialwalkapp/cache/ReactNative-snapshot-image1218147318540443495.jpg';
   return (
     <NavigationContainer>
       <StatusBar backgroundColor={'#FFF'} barStyle={'dark-content'} />

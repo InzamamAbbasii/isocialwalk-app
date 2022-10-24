@@ -10,7 +10,7 @@ import {
 import {captureScreen} from 'react-native-view-shot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MenuHeader = ({navigation, title}) => {
+const MenuHeader = ({navigation, title, onPress}) => {
   const menu = require('../../assets/images/menu1.png');
 
   const handleOpenDrawer = navigation => {
@@ -28,7 +28,8 @@ const MenuHeader = ({navigation, title}) => {
       <Pressable
         style={{padding: 10, paddingLeft: 0}}
         // onPress={() => navigation.openDrawer()}>
-        onPress={() => handleOpenDrawer(navigation)}>
+        // onPress={() => handleOpenDrawer(navigation)}>
+        onPress={onPress}>
         <Image source={menu} style={{width: 34, height: 17}} />
       </Pressable>
       <Text
@@ -37,7 +38,7 @@ const MenuHeader = ({navigation, title}) => {
           textAlign: 'center',
           flex: 1,
           fontSize: 25,
-          //   fontWeight: 'bold',
+          fontFamily: 'Rubik-Regular',
         }}>
         {title}
       </Text>

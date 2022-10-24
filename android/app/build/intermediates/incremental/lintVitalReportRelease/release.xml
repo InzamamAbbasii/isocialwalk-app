@@ -14,7 +14,7 @@
         manifest="src\main\AndroidManifest.xml"
         javaDirectories="src\main\java;build\generated\rncli\src\main\java;src\main\kotlin"
         resDirectories="src\main\res"
-        assetsDirectories="src\main\assets"/>
+        assetsDirectories="src\main\assets;build\intermediates\ReactNativeVectorIcons"/>
     <sourceProvider
         manifest="src\release\AndroidManifest.xml"
         javaDirectories="src\release\java;src\release\kotlin"

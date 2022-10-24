@@ -1,6 +1,6 @@
 <lint-module
     format="1"
-    dir="G:\MTechub\Project 2\isocialwalkApp\android\app"
+    dir="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app"
     name=":app"
     type="APP"
     maven="isocialwalkApp:app:"

@@ -118,10 +118,25 @@ const JoinGroup = ({navigation}) => {
               width: 123,
             }}
           />
-          <Text style={{color: '#000000', fontSize: 17}}>Incorruptibles</Text>
+          <Text
+            style={{
+              color: '#000000',
+              fontSize: 17,
+              fontFamily: 'Rubik-Regular',
+              marginTop: 5,
+            }}>
+            Incorruptibles
+          </Text>
 
           <TouchableOpacity style={styles.btn}>
-            <Text style={{color: '#FFF', fontSize: 16}}>Join Group</Text>
+            <Text
+              style={{
+                color: '#FFF',
+                fontSize: 16,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Join Group
+            </Text>
           </TouchableOpacity>
         </View>
         <View style={{marginVertical: 10, paddingHorizontal: 20}}>
@@ -129,6 +144,7 @@ const JoinGroup = ({navigation}) => {
             style={{
               color: '#000000',
               fontSize: 16,
+              fontFamily: 'Rubik-Regular',
             }}>
             Active Challenges
           </Text>
@@ -138,7 +154,9 @@ const JoinGroup = ({navigation}) => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{color: '#000'}}> No Active Challenges</Text>
+            <Text style={{color: '#000', fontFamily: 'Rubik-Regular'}}>
+              No Active Challenges
+            </Text>
           </View>
         </View>
         <View style={{}}>
@@ -147,6 +165,7 @@ const JoinGroup = ({navigation}) => {
               color: '#000000',
               fontSize: 16,
               paddingHorizontal: 20,
+              fontFamily: 'Rubik-Regular',
             }}>
             Group Members ({groupMembersList.length})
           </Text>
@@ -213,6 +232,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     width: 75,
+    fontFamily: 'Rubik-Regular',
   },
   btn: {
     marginTop: 15,

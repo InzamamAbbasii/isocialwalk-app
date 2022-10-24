@@ -44,7 +44,8 @@ const Verification = ({navigation}) => {
               color: '#000000',
               fontSize: 24,
               marginTop: 15,
-              fontWeight: 'bold',
+              // fontWeight: 'bold',
+              fontFamily: 'Rubik-Bold',
             }}>
             Verify your account
           </Text>
@@ -56,10 +57,17 @@ const Verification = ({navigation}) => {
               width: '75%',
               fontSize: 16,
               marginTop: 8,
+              fontFamily: 'Rubik-Regular',
             }}>
             A verification was sent to abbasiinzamam2@gmail.com
           </Text>
-          <Text style={{color: '#000000', marginTop: 30, fontSize: 17}}>
+          <Text
+            style={{
+              color: '#000000',
+              marginTop: 30,
+              fontSize: 17,
+              fontFamily: 'Rubik-Regular',
+            }}>
             Verification Code
           </Text>
 
@@ -92,13 +100,27 @@ const Verification = ({navigation}) => {
           )}
 
           <TouchableOpacity style={styles.btn} onPress={() => handleVerify()}>
-            <Text style={{color: '#ffffff', fontSize: 17}}>Verify Now</Text>
+            <Text
+              style={{
+                color: '#ffffff',
+                fontSize: 17,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              Verify Now
+            </Text>
           </TouchableOpacity>
-          <Text style={{color: '#000', fontSize: 15}}>
+          <Text
+            style={{color: '#000', fontSize: 15, fontFamily: 'Rubik-Regular'}}>
             Didn't receive any code?
           </Text>
           <TouchableOpacity onPress={() => handleResendCode()}>
-            <Text style={{color: '#38ACFF', fontWeight: 'bold', fontSize: 14}}>
+            <Text
+              style={{
+                color: '#38ACFF',
+                fontWeight: 'bold',
+                fontSize: 14,
+                fontFamily: 'Rubik-Regular',
+              }}>
               Re-send Code
             </Text>
           </TouchableOpacity>
@@ -122,7 +144,7 @@ const styles = StyleSheet.create({
   underlineStyleBase: {
     color: '#000000',
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Rubik-Bold',
     width: 60,
     height: 50,
     borderRadius: 4,
@@ -148,5 +170,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginLeft: 10,
     marginTop: 3,
+    fontFamily: 'Rubik-Regular',
   },
 });

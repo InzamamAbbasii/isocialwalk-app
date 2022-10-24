@@ -12,8 +12,15 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
+import RBSheet from 'react-native-raw-bottom-sheet';
 import Header from '../../Reuseable Components/Header';
+
 const Notification = ({navigation}) => {
+  const bottomSheetRef = useRef();
+  const [isFriendRequestApproved, setIsFriendRequestApproved] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    require('../../../assets/images/friend-profile.png'),
+  );
   const [notificationsList, setNotificationsList] = useState([
     {
       id: 0,
@@ -69,6 +76,7 @@ const Notification = ({navigation}) => {
               width: 182,
               textAlign: 'center',
               marginVertical: 20,
+              fontFamily: 'Rubik-Regular',
             }}>
             All your Notifications will appear here
           </Text>
@@ -100,27 +108,136 @@ const Notification = ({navigation}) => {
                       width: 60,
                     }}
                   />
-                  <View style={{flex: 1, marginLeft: 10}}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      item.index === 0 && bottomSheetRef?.current?.open();
+                    }}
+                    style={{flex: 1, marginLeft: 10}}>
                     <View
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                       }}>
-                      <Text style={{color: '#000000', fontWeight: 'bold'}}>
+                      <Text
+                        style={{
+                          color: '#000000',
+                          fontSize: 16,
+                          fontFamily: 'Rubik-Medium',
+                        }}>
                         {item.item.title}
                       </Text>
-                      <Text style={{color: '#838383'}}>{item.item.date}</Text>
+                      <Text
+                        style={{color: '#838383', fontFamily: 'Rubik-Regular'}}>
+                        {item.item.date}
+                      </Text>
                     </View>
-                    <Text style={{color: '#000000'}}>
+                    <Text
+                      style={{
+                        color: item.index == 0 ? '#003e6b' : '#000000',
+                        fontFamily: 'Rubik-Regular',
+                      }}>
                       {item.item.description}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               );
             }}
           />
         </View>
       )}
+
+      <RBSheet
+        ref={bottomSheetRef}
+        height={300}
+        openDuration={270}
+        closeOnDragDown={true}
+        closeOnPressMask={false}
+        animationType={'slide'}
+        customStyles={{
+          container: {
+            padding: 5,
+            alignItems: 'center',
+            // height: 530,
+            flex: 1.1,
+            backgroundColor: '#ffffff',
+            borderRadius: 30,
+          },
+          draggableIcon: {
+            backgroundColor: '#003e6b',
+          },
+        }}>
+        <Text
+          style={{
+            color: '#003e6b',
+            fontSize: 18,
+            fontFamily: 'Rubik-Regular',
+            marginTop: 5,
+          }}>
+          Friend Request
+        </Text>
+        <Image
+          source={profileImage}
+          style={{
+            marginTop: 20,
+            marginBottom: 10,
+            width: 110,
+            height: 110,
+            resizeMode: 'contain',
+          }}
+        />
+        <Text
+          style={{
+            color: '#000000',
+            fontSize: 16,
+            fontFamily: 'Rubik-Medium',
+          }}>
+          Boris Findlay
+        </Text>
+        {isFriendRequestApproved ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text
+              style={{
+                ...styles.btnText,
+                fontSize: 15,
+                fontFamily: 'Rubik-Medium',
+                color: '#38ACFF',
+              }}>
+              You and Boris are now friends
+            </Text>
+          </View>
+        ) : (
+          <View style={{width: '100%', alignItems: 'center'}}>
+            <TouchableOpacity
+              style={styles.btnBottomSheet}
+              onPress={() =>
+                setIsFriendRequestApproved(!isFriendRequestApproved)
+              }>
+              <Text style={styles.btnText}>Approve Request</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                ...styles.btnBottomSheet,
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+              }}
+              onPress={() => bottomSheetRef?.current?.close()}>
+              <Text style={{...styles.btnText, color: '#38ACFF'}}>
+                Ignore Request
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={{...styles.btnBottomSheet, backgroundColor: '#003e6b'}}
+          onPress={() => {
+            navigation.navigate('FriendProfile');
+            bottomSheetRef?.current?.close();
+          }}>
+          <Text style={styles.btnText}>View Profile</Text>
+        </TouchableOpacity>
+      </RBSheet>
     </View>
   );
 };
@@ -132,5 +249,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
+  },
+  btnText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontFamily: 'Rubik-Regular',
+  },
+  btnBottomSheet: {
+    backgroundColor: '#38ACFF',
+    borderColor: '#38ACFF',
+    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 6,
+    width: '85%',
+    height: 45,
+    marginVertical: 8,
   },
 });

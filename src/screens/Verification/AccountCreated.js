@@ -8,16 +8,22 @@ const AccountCreated = ({navigation}) => {
         style={{
           color: '#000000',
           fontSize: 18,
+          fontFamily: 'Rubik-Regular',
         }}>
         Your Account has been created
       </Text>
-      <Text style={{color: '#838383', fontSize: 14}}>
+      <Text
+        style={{color: '#838383', fontSize: 14, fontFamily: 'Rubik-Regular'}}>
         We created an account for you
       </Text>
       <TouchableOpacity
         style={styles.btn}
-        onPress={() => navigation.navigate('TabNavigation')}>
-        <Text style={{color: '#ffffff', fontSize: 17}}>Proceed to Home</Text>
+        // onPress={() => navigation.navigate('TabNavigation')}
+        onPress={() => navigation.navigate('DrawerTest')}>
+        <Text
+          style={{color: '#ffffff', fontSize: 17, fontFamily: 'Rubik-Regular'}}>
+          Proceed to Home
+        </Text>
       </TouchableOpacity>
     </View>
   );

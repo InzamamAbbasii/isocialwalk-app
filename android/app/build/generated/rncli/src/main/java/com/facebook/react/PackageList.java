@@ -21,6 +21,10 @@ import com.reactcommunity.rndatetimepicker.RNDateTimePickerPackage;
 import com.reactnativecommunity.slider.ReactSliderPackage;
 // react-native-gesture-handler
 import com.swmansion.gesturehandler.RNGestureHandlerPackage;
+// react-native-image-picker
+import com.imagepicker.ImagePickerPackage;
+// react-native-maps
+import com.airbnb.android.react.maps.MapsPackage;
 // react-native-pager-view
 import com.reactnativepagerview.PagerViewPackage;
 // react-native-reanimated
@@ -29,8 +33,12 @@ import com.swmansion.reanimated.ReanimatedPackage;
 import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 // react-native-screens
 import com.swmansion.rnscreens.RNScreensPackage;
+// react-native-share
+import cl.json.RNSharePackage;
 // react-native-svg
 import com.horcrux.svg.SvgPackage;
+// react-native-vector-icons
+import com.oblador.vectoricons.VectorIconsPackage;
 // react-native-view-shot
 import fr.greweb.reactnativeviewshot.RNViewShotPackage;
 
@@ -83,11 +91,15 @@ public class PackageList {
       new RNDateTimePickerPackage(),
       new ReactSliderPackage(),
       new RNGestureHandlerPackage(),
+      new ImagePickerPackage(),
+      new MapsPackage(),
       new PagerViewPackage(),
       new ReanimatedPackage(),
       new SafeAreaContextPackage(),
       new RNScreensPackage(),
+      new RNSharePackage(),
       new SvgPackage(),
+      new VectorIconsPackage(),
       new RNViewShotPackage()
     ));
   }

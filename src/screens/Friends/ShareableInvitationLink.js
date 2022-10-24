@@ -20,14 +20,29 @@ const ShareableInvitationLink = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Header title={'Shareable Invitation Link'} navigation={navigation} />
-      <Text style={{color: '#000000', fontSize: 18, marginTop: 45}}>
+      <Text
+        style={{
+          color: '#000000',
+          fontSize: 18,
+          marginTop: 45,
+          fontFamily: 'Rubik-Regular',
+        }}>
         Invitation Link
       </Text>
-      <Text style={{marginVertical: 20, color: '#4c9de0', fontSize: 16}}>
+      <Text
+        style={{
+          marginVertical: 20,
+          color: '#4c9de0',
+          fontSize: 16,
+          fontFamily: 'Rubik-Regular',
+        }}>
         {invitationLink}
       </Text>
       <TouchableOpacity style={styles.btn} onPress={() => handleonCopyPress()}>
-        <Text style={{color: '#FFF', fontSize: 16}}>Copy Invitation Link</Text>
+        <Text
+          style={{color: '#FFF', fontSize: 16, fontFamily: 'Rubik-Regular'}}>
+          Copy Invitation Link
+        </Text>
       </TouchableOpacity>
     </View>
   );
