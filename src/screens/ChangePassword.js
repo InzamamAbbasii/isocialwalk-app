@@ -2,13 +2,20 @@ import React, {useState, useRef, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
+  ToastAndroid,
   View,
   TouchableOpacity,
   Image,
   Animated,
   TextInput,
 } from 'react-native';
+import {toast, Toasts, ToastPosition} from '@backpackapp-io/react-native-toast';
 import MenuHeader from '../Reuseable Components/MenuHeader';
+
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const ChangePassword = ({
   navigation,
@@ -17,6 +24,7 @@ const ChangePassword = ({
   setShowMenu,
   moveToRight,
 }) => {
+  const toastRef = useRef();
   const [password, setPassword] = useState('');
   const [isInvalidPassword, setIsInvalidPassword] = useState(false);
   const handleOpenCustomDrawer = () => {
@@ -38,6 +46,31 @@ const ChangePassword = ({
       setIsInvalidPassword(true);
     } else {
       setIsInvalidPassword(false);
+      toast.dismiss();
+      toast('Password Update was a Success', {
+        position: ToastPosition.BOTTOM,
+        duration: 2000,
+        customToast: toast => {
+          return (
+            <View
+              style={{
+                height: toast.height,
+                // width: toast.width,
+                padding: 15,
+                backgroundColor: '#28a745',
+                borderRadius: 8,
+                justifyContent: 'center',
+                alignItems: 'center',
+                // alignSelf: 'center',
+                position: 'absolute',
+                left: wp(13),
+                // right: 0,
+              }}>
+              <Text style={{color: '#fff'}}>{toast.message}</Text>
+            </View>
+          );
+        },
+      });
     }
   };
   return (
@@ -54,6 +87,7 @@ const ChangePassword = ({
         transform: [{scale: scale}, {translateX: moveToRight}],
       }}>
       <View style={styles.container}>
+        <Toasts />
         <MenuHeader
           title={'Change Password'}
           navigation={navigation}
@@ -67,6 +101,7 @@ const ChangePassword = ({
                 ...styles.textInput,
                 borderColor: isInvalidPassword ? '#D66262' : '#ccc',
               }}
+              autoFocus
               placeholder={'Enter your Password'}
               value={password}
               onChangeText={txt => setPassword(txt)}

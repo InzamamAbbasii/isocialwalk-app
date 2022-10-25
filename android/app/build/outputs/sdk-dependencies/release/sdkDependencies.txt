@@ -876,6 +876,19 @@ library {
 }
 library {
   maven_library {
+    groupId: "androidx.core"
+    artifactId: "core-splashscreen"
+    version: "1.0.0"
+  }
+  digests {
+    sha256: ">\206\262=\301\312?\304\253\302\021\356\234\247\310\211\364xt>$\202E\212bg\346\002=\317*r"
+  }
+  repo_index {
+    value: 1
+  }
+}
+library {
+  maven_library {
     groupId: "com.facebook.react"
     artifactId: "hermes-engine"
     version: "0.70.3"
@@ -1522,100 +1535,98 @@ library_dependencies {
 }
 library_dependencies {
   library_index: 70
+  library_dep_index: 3
+  library_dep_index: 62
+}
+library_dependencies {
+  library_index: 71
   library_dep_index: 42
   library_dep_index: 65
   library_dep_index: 3
 }
 library_dependencies {
-  library_index: 71
+  library_index: 72
   library_dep_index: 62
   library_dep_index: 3
   library_dep_index: 4
 }
 library_dependencies {
-  library_index: 72
-  library_dep_index: 3
-}
-library_dependencies {
   library_index: 73
-  library_dep_index: 2
-  library_dep_index: 4
-  library_dep_index: 24
-  library_dep_index: 74
-  library_dep_index: 75
+  library_dep_index: 3
 }
 library_dependencies {
   library_index: 74
   library_dep_index: 2
   library_dep_index: 4
   library_dep_index: 24
+  library_dep_index: 75
+  library_dep_index: 76
 }
 library_dependencies {
   library_index: 75
-  library_dep_index: 74
+  library_dep_index: 2
+  library_dep_index: 4
+  library_dep_index: 24
 }
 library_dependencies {
   library_index: 76
-  library_dep_index: 24
-  library_dep_index: 73
-  library_dep_index: 74
+  library_dep_index: 75
 }
 library_dependencies {
   library_index: 77
-  library_dep_index: 73
+  library_dep_index: 24
   library_dep_index: 74
   library_dep_index: 75
 }
 library_dependencies {
-  library_index: 79
+  library_index: 78
+  library_dep_index: 74
+  library_dep_index: 75
+  library_dep_index: 76
+}
+library_dependencies {
+  library_index: 80
   library_dep_index: 5
   library_dep_index: 12
   library_dep_index: 28
   library_dep_index: 32
   library_dep_index: 4
-  library_dep_index: 80
-  library_dep_index: 83
-  library_dep_index: 82
-  library_dep_index: 4
-  library_dep_index: 84
-}
-library_dependencies {
-  library_index: 80
   library_dep_index: 81
-  library_dep_index: 82
+  library_dep_index: 84
   library_dep_index: 83
-  library_dep_index: 7
+  library_dep_index: 4
+  library_dep_index: 85
 }
 library_dependencies {
   library_index: 81
-  library_dep_index: 3
+  library_dep_index: 82
+  library_dep_index: 83
+  library_dep_index: 84
+  library_dep_index: 7
 }
 library_dependencies {
   library_index: 82
   library_dep_index: 3
-  library_dep_index: 83
 }
 library_dependencies {
   library_index: 83
   library_dep_index: 3
+  library_dep_index: 84
 }
 library_dependencies {
   library_index: 84
-  library_dep_index: 6
+  library_dep_index: 3
 }
 library_dependencies {
   library_index: 85
-  library_dep_index: 3
-  library_dep_index: 24
-  library_dep_index: 86
-  library_dep_index: 4
-  library_dep_index: 2
+  library_dep_index: 6
 }
 library_dependencies {
   library_index: 86
   library_dep_index: 3
+  library_dep_index: 24
+  library_dep_index: 87
   library_dep_index: 4
-  library_dep_index: 26
   library_dep_index: 2
 }
 library_dependencies {
@@ -1628,23 +1639,30 @@ library_dependencies {
 library_dependencies {
   library_index: 88
   library_dep_index: 3
-  library_dep_index: 16
-  library_dep_index: 89
-  library_dep_index: 87
   library_dep_index: 4
-  library_dep_index: 24
-  library_dep_index: 6
-  library_dep_index: 86
-  library_dep_index: 90
-  library_dep_index: 13
-  library_dep_index: 85
+  library_dep_index: 26
+  library_dep_index: 2
 }
 library_dependencies {
   library_index: 89
   library_dep_index: 3
+  library_dep_index: 16
+  library_dep_index: 90
+  library_dep_index: 88
+  library_dep_index: 4
+  library_dep_index: 24
+  library_dep_index: 6
+  library_dep_index: 87
+  library_dep_index: 91
+  library_dep_index: 13
+  library_dep_index: 86
 }
 library_dependencies {
   library_index: 90
+  library_dep_index: 3
+}
+library_dependencies {
+  library_index: 91
   library_dep_index: 3
   library_dep_index: 4
   library_dep_index: 2
@@ -1654,21 +1672,22 @@ module_dependencies {
   dependency_index: 0
   dependency_index: 36
   dependency_index: 70
-  dependency_index: 16
   dependency_index: 71
+  dependency_index: 16
+  dependency_index: 72
   dependency_index: 62
   dependency_index: 4
-  dependency_index: 72
   dependency_index: 73
-  dependency_index: 76
+  dependency_index: 74
   dependency_index: 77
   dependency_index: 78
   dependency_index: 79
-  dependency_index: 85
+  dependency_index: 80
+  dependency_index: 86
   dependency_index: 67
   dependency_index: 24
-  dependency_index: 87
   dependency_index: 88
+  dependency_index: 89
 }
 repositories {
   maven_repo {

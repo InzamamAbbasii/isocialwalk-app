@@ -28,54 +28,67 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
     {
       id: 0,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 1,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 2,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 3,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 4,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 5,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 6,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 7,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 8,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 9,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 10,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 11,
       friend_name: 'Username',
+      selected: false,
     },
     {
       id: 12,
       friend_name: 'Username',
+      selected: false,
     },
   ]);
   const [isSuggestedVisible, setIsSuggestedVisible] = useState(true);
@@ -154,6 +167,22 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
       }
     });
     setSuggestedFriends(newData);
+  };
+
+  const handleonSearchItemPress = id => {
+    const newData = searchResults.map(item => {
+      if (id == item.id) {
+        return {
+          ...item,
+          selected: !item.selected,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setSearchResults(newData);
   };
 
   const handleOpenDrawer = navigation => {
@@ -265,13 +294,18 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                             flex: 1,
                           }}>
                           <TouchableOpacity
+                            onPress={() =>
+                              handleonSearchItemPress(item.item.id)
+                            }
                             style={{
                               ...styles.cardButton,
-                              backgroundColor: '#38acff',
-                              width: 60,
+                              backgroundColor: item.item.selected
+                                ? '#ccc'
+                                : '#38acff',
+                              width: item.item.selected ? 70 : 60,
                             }}>
                             <Text style={{color: '#ffffff', fontSize: 11}}>
-                              Add
+                              {item.item.selected ? 'Requested' : 'Add'}
                             </Text>
                           </TouchableOpacity>
                         </View>

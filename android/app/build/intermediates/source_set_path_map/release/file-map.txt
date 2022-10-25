@@ -24,27 +24,29 @@ com.isocialwalkapp-jetified-react-native-0.70.3-release-22 C:\Users\abbas\.gradl
 com.isocialwalkapp-fragment-1.3.6-23 C:\Users\abbas\.gradle\caches\transforms-3\d7aa1f198091ea1cc50dc1c26600633f\transformed\fragment-1.3.6\res
 com.isocialwalkapp-jetified-play-services-basement-18.1.0-24 C:\Users\abbas\.gradle\caches\transforms-3\ea51e9565e00dfcc01c5228a0311af20\transformed\jetified-play-services-basement-18.1.0\res
 com.isocialwalkapp-jetified-drawee-2.5.0-25 C:\Users\abbas\.gradle\caches\transforms-3\f871fb77c088eda10a778a68cf4c2659\transformed\jetified-drawee-2.5.0\res
-com.isocialwalkapp-material-1.1.0-26 C:\Users\abbas\.gradle\caches\transforms-3\ff7f9e1ea9c2e709fffb9e018f2252cf\transformed\material-1.1.0\res
-com.isocialwalkapp-pngs-27 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\pngs\release
-com.isocialwalkapp-react-28 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\react\release
-com.isocialwalkapp-resValues-29 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\resValues\release
-com.isocialwalkapp-rs-30 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\rs\release
-com.isocialwalkapp-mergeReleaseResources-31 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\intermediates\incremental\release\mergeReleaseResources\merged.dir
-com.isocialwalkapp-mergeReleaseResources-32 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\intermediates\incremental\release\mergeReleaseResources\stripped.dir
-com.isocialwalkapp-merged_res-33 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\intermediates\merged_res\release
-com.isocialwalkapp-main-34 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\src\main\res
-com.isocialwalkapp-release-35 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\src\release\res
-com.isocialwalkapp-packaged_res-36 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-async-storage\async-storage\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-37 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-clipboard\clipboard\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-38 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\datetimepicker\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-39 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\slider\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-40 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-gesture-handler\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-41 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-image-picker\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-42 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-maps\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-43 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-pager-view\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-44 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-safe-area-context\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-45 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-screens\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-46 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-share\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-47 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-svg\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-48 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-vector-icons\android\build\intermediates\packaged_res\release
-com.isocialwalkapp-packaged_res-49 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-view-shot\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-jetified-core-splashscreen-1.0.0-26 C:\Users\abbas\.gradle\caches\transforms-3\f9c4d369224e901d6fb6605d9c665696\transformed\jetified-core-splashscreen-1.0.0\res
+com.isocialwalkapp-material-1.1.0-27 C:\Users\abbas\.gradle\caches\transforms-3\ff7f9e1ea9c2e709fffb9e018f2252cf\transformed\material-1.1.0\res
+com.isocialwalkapp-pngs-28 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\pngs\release
+com.isocialwalkapp-react-29 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\react\release
+com.isocialwalkapp-resValues-30 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\resValues\release
+com.isocialwalkapp-rs-31 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\generated\res\rs\release
+com.isocialwalkapp-mergeReleaseResources-32 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\intermediates\incremental\release\mergeReleaseResources\merged.dir
+com.isocialwalkapp-mergeReleaseResources-33 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\intermediates\incremental\release\mergeReleaseResources\stripped.dir
+com.isocialwalkapp-merged_res-34 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\build\intermediates\merged_res\release
+com.isocialwalkapp-main-35 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\src\main\res
+com.isocialwalkapp-release-36 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android\app\src\release\res
+com.isocialwalkapp-packaged_res-37 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-async-storage\async-storage\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-38 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-clipboard\clipboard\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-39 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\datetimepicker\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-40 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\slider\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-41 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-bootsplash\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-42 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-gesture-handler\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-43 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-image-picker\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-44 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-maps\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-45 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-pager-view\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-46 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-safe-area-context\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-47 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-screens\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-48 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-share\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-49 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-svg\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-50 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-vector-icons\android\build\intermediates\packaged_res\release
+com.isocialwalkapp-packaged_res-51 G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-view-shot\android\build\intermediates\packaged_res\release

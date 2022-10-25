@@ -19,6 +19,8 @@ import com.reactnativecommunity.clipboard.ClipboardPackage;
 import com.reactcommunity.rndatetimepicker.RNDateTimePickerPackage;
 // @react-native-community/slider
 import com.reactnativecommunity.slider.ReactSliderPackage;
+// react-native-bootsplash
+import com.zoontek.rnbootsplash.RNBootSplashPackage;
 // react-native-gesture-handler
 import com.swmansion.gesturehandler.RNGestureHandlerPackage;
 // react-native-image-picker
@@ -90,6 +92,7 @@ public class PackageList {
       new ClipboardPackage(),
       new RNDateTimePickerPackage(),
       new ReactSliderPackage(),
+      new RNBootSplashPackage(),
       new RNGestureHandlerPackage(),
       new ImagePickerPackage(),
       new MapsPackage(),

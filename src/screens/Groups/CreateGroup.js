@@ -158,6 +158,7 @@ const CreateGroup = ({navigation}) => {
             <TextInput
               style={styles.textInput}
               placeholder={'Enter Group Name'}
+              autoFocus
               value={groupName}
               onChangeText={txt => setGroupName(txt)}
             />

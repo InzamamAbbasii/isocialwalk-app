@@ -1,9 +1,18 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 
 const AccountCreated = ({navigation}) => {
+  const left_arrow = require('../../../assets/images/left-arrow.png');
   return (
     <View style={styles.container}>
+      <View style={styles.headerView}>
+        <TouchableOpacity
+          style={{padding: 10, paddingLeft: 0}}
+          onPress={() => navigation?.goBack()}>
+          <Image source={left_arrow} style={{width: 14, height: 24}} />
+        </TouchableOpacity>
+      </View>
+
       <Text
         style={{
           color: '#000000',
@@ -21,7 +30,11 @@ const AccountCreated = ({navigation}) => {
         // onPress={() => navigation.navigate('TabNavigation')}
         onPress={() => navigation.navigate('DrawerTest')}>
         <Text
-          style={{color: '#ffffff', fontSize: 17, fontFamily: 'Rubik-Regular'}}>
+          style={{
+            color: '#ffffff',
+            fontSize: 17,
+            fontFamily: 'Rubik-Regular',
+          }}>
           Proceed to Home
         </Text>
       </TouchableOpacity>
@@ -35,6 +48,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -47,5 +61,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 6,
     width: '56%',
+  },
+  headerView: {
+    marginTop: 20,
+    position: 'absolute',
+    top: 0,
+    left: 20,
   },
 });

@@ -102,7 +102,7 @@ const CustomBarChart = ({
             {/* middle axis */}
 
             <Line
-              x1="30" //line statring point
+              x1="30" //line starting point
               y1={y(middleValue) * -1}
               x2={graphWidth - 52} // line ending point
               y2={y(middleValue) * -1}
@@ -160,7 +160,7 @@ const CustomBarChart = ({
             {item.value}
           </Text>
         ))}
-        {/* percentage lable */}
+        {/* percentage label */}
 
         {isPercentageVisible &&
           data.map(item => (

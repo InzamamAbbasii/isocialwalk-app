@@ -413,7 +413,7 @@ const Home = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
             style={{
               color: '#000305',
               fontSize: 24,
-              fontFamily: 'PlusJakartaDisplay-Bold',
+              fontFamily: 'PlusJakartaDisplay-Regular',
             }}>
             Jonathan
           </Text>
@@ -453,18 +453,18 @@ const Home = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                       <Text
                         style={{
                           color: '#38acff',
-                          fontSize: 38,
-                          fontFamily: 'PlusJakartaDisplay-Bold',
+                          fontSize: 36,
+                          // fontFamily: 'Rubik-Regular',
                         }}>
                         {fill}
                       </Text>
                       <Text
                         style={{
                           color: '#000305',
-                          fontSize: 14,
+                          fontSize: 14.5,
                           fontFamily: 'PlusJakartaDisplay-Regular',
                         }}>
-                        Total amount of steps
+                        Total Amount of Steps
                       </Text>
                     </View>
                   )}
@@ -746,18 +746,18 @@ const Home = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                           <Text
                             style={{
                               color: '#38acff',
-                              fontSize: 38,
-                              fontFamily: 'PlusJakartaDisplay-Bold',
+                              fontSize: 36,
+                              // fontFamily: 'PlusJakartaDisplay-Bold',
                             }}>
                             {fill}
                           </Text>
                           <Text
                             style={{
                               color: '#000305',
-                              fontSize: 14,
+                              fontSize: 14.5,
                               fontFamily: 'PlusJakartaDisplay-Regular',
                             }}>
-                            Total amount of steps
+                            Total Amount of Steps
                           </Text>
                         </View>
                       )}

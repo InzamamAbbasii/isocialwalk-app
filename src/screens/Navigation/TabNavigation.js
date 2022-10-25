@@ -6,6 +6,10 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 import Home from '../Home';
 import Groups from '../Groups/Groups';
@@ -80,8 +84,10 @@ const TabNavigation = ({
                   <Image
                     source={require('../../../assets/images/home-inactive1.png')}
                     style={{
-                      height: 25,
-                      width: 29,
+                      // height: 25,
+                      // width: 29,
+                      height: hp(3),
+                      width: wp(8),
                       tintColor: '#38ACFF',
                       resizeMode: 'contain',
                     }}
@@ -100,8 +106,10 @@ const TabNavigation = ({
                 <Image
                   source={require('../../../assets/images/home-inactive1.png')}
                   style={{
-                    height: 25,
-                    width: 25,
+                    height: hp(3),
+                    width: wp(8),
+                    // height: 25,
+                    // width: 25,
                     position: 'relative',
                     top: 5,
                   }}
@@ -138,8 +146,10 @@ const TabNavigation = ({
                   <Image
                     source={require('../../../assets/images/friends-dark.png')}
                     style={{
-                      height: 25,
-                      width: 29,
+                      // height: 25,
+                      // width: 29,
+                      height: hp(3),
+                      width: wp(10),
                       tintColor: '#38ACFF',
                       resizeMode: 'contain',
                     }}
@@ -158,8 +168,10 @@ const TabNavigation = ({
                 <Image
                   source={require('../../../assets/images/friends-dark.png')}
                   style={{
-                    height: 25,
-                    width: 29,
+                    // height: 25,
+                    // width: 29,
+                    height: hp(3),
+                    width: wp(8),
                     position: 'relative',
                     top: 5,
                   }}
@@ -195,8 +207,10 @@ const TabNavigation = ({
                   <Image
                     source={require('../../../assets/images/chat-inactive.png')}
                     style={{
-                      height: 25,
-                      width: 29,
+                      // height: 25,
+                      // width: 29,
+                      height: hp(3),
+                      width: wp(8),
                       tintColor: '#38ACFF',
                       resizeMode: 'contain',
                     }}
@@ -215,8 +229,10 @@ const TabNavigation = ({
                 <Image
                   source={require('../../../assets/images/chat-inactive.png')}
                   style={{
-                    height: 25,
-                    width: 29,
+                    // height: 25,
+                    // width: 29,
+                    height: hp(3),
+                    width: wp(8),
                     position: 'relative',
                     top: 5,
                   }}
@@ -311,8 +327,10 @@ const TabNavigation = ({
                   <Image
                     source={require('../../../assets/images/trophy-dark.png')}
                     style={{
-                      height: 25,
-                      width: 29,
+                      // height: 25,
+                      // width: 29,
+                      height: hp(3),
+                      width: wp(8),
                       tintColor: '#38ACFF',
                       resizeMode: 'contain',
                     }}
@@ -331,8 +349,10 @@ const TabNavigation = ({
                 <Image
                   source={require('../../../assets/images/trophy-dark.png')}
                   style={{
-                    height: 25,
-                    width: 29,
+                    // height: 25,
+                    // width: 29,
+                    height: hp(3),
+                    width: wp(8),
                     position: 'relative',
                     top: 5,
                   }}

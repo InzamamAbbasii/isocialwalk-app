@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.isocialwalkapp-mergeReleaseResources-31:/values-pl/values-pl.xml",
+            "outputFile": "com.isocialwalkapp-mergeReleaseResources-32:/values-pl/values-pl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\abbas\\.gradle\\caches\\transforms-3\\ea51e9565e00dfcc01c5228a0311af20\\transformed\\jetified-play-services-basement-18.1.0\\res\\values-pl\\values.xml",

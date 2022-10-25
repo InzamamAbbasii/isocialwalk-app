@@ -12,6 +12,7 @@ import {
   SystemMessage,
   Actions,
 } from 'react-native-gifted-chat';
+import uuid from 'react-native-uuid';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Header from '../../Reuseable Components/Header';
 
@@ -20,6 +21,7 @@ const Conversations = ({navigation, route}) => {
   const [isSearch, setIsSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [userId, setUserId] = useState(route.params.user.id);
+  console.log(route.params.user.id);
   useEffect(() => {
     // console.log(route.params.user.id);
     setMessages([
@@ -208,14 +210,28 @@ const Conversations = ({navigation, route}) => {
           },
           image: res.assets[0].uri,
         };
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, obj),
-        );
+        // setMessages(previousMessages =>
+        //   GiftedChat.append(previousMessages, obj),
+        // );
         // onSend(obj);
-        // onSend({image: res.assets[0].uri});
+        // onSend({_id: uuid.v4(), image: res.assets[0].uri});
+        let obj1 = {
+          _id: uuid.v4(),
+          // _id: id,
+          text: '',
+          createdAt: new Date(),
+          user: {
+            _id: userId,
+            name: 'React Native',
+            // avatar: 'https://placeimg.com/140/140/any',
+          },
+          image: res.assets[0].uri,
+        };
+        onSend(obj1);
       })
       .catch(error => console.log(error));
   };
+
   const handleGallery = async () => {
     console.log('image picker');
     var options = {
@@ -238,11 +254,23 @@ const Conversations = ({navigation, route}) => {
           },
           image: res.assets[0].uri,
         };
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, obj),
-        );
+        // setMessages(previousMessages =>
+        //   GiftedChat.append(previousMessages, obj),
+        // );
         // onSend(obj);
-        // onSend({image: res.assets[0].uri});
+        let obj1 = {
+          _id: uuid.v4(),
+          // _id: id,
+          text: '',
+          createdAt: new Date(),
+          user: {
+            _id: userId,
+            name: 'React Native',
+            // avatar: 'https://placeimg.com/140/140/any',
+          },
+          image: res.assets[0].uri,
+        };
+        onSend(obj1);
       })
       .catch(error => console.log(error));
   };
@@ -315,11 +343,11 @@ const Conversations = ({navigation, route}) => {
           messages={messages}
           placeholder={'Type something...'}
           onSend={messages => {
-            console.log(messages);
             onSend(messages);
           }}
           user={{
             _id: userId,
+            // _id: 1,
           }}
           showUserAvatar={false}
           // isCustomViewBottom={false}
@@ -428,6 +456,7 @@ const styles = StyleSheet.create({
     // marginTop: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
+    // zIndex: 999,
   },
 
   searchView: {

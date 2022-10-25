@@ -52,6 +52,19 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
+      name="androidx.core:core-splashscreen:1.0.0@aar"
+      jars="C:\Users\abbas\.gradle\caches\transforms-3\f9c4d369224e901d6fb6605d9c665696\transformed\jetified-core-splashscreen-1.0.0\jars\classes.jar"
+      resolved="androidx.core:core-splashscreen:1.0.0"
+      folder="C:\Users\abbas\.gradle\caches\transforms-3\f9c4d369224e901d6fb6605d9c665696\transformed\jetified-core-splashscreen-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
       name="com.facebook.react:hermes-engine:0.70.3:release@aar"
       jars="C:\Users\abbas\.gradle\caches\transforms-3\e7992c0cd608647e4be12089322ffffb\transformed\jetified-hermes-engine-0.70.3-release\jars\classes.jar"
       resolved="com.facebook.react:hermes-engine:0.70.3"
@@ -95,6 +108,19 @@
       jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\datetimepicker\android\build\.transforms\2bb8355489987a19adc02d69fe542f9a\transformed\out\jars\classes.jar"
       resolved="isocialwalkApp:react-native-community_datetimepicker:unspecified"
       folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\@react-native-community\datetimepicker\android\build\.transforms\2bb8355489987a19adc02d69fe542f9a\transformed\out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\android@@:react-native-bootsplash::release"
+      jars="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-bootsplash\android\build\.transforms\9ba4cd99969c5f918996efbefac1b471\transformed\out\jars\classes.jar"
+      resolved="isocialwalkApp:react-native-bootsplash:unspecified"
+      folder="G:\MTechub\Project 2\isocialwalkApp Clone\isocialwalk-app\node_modules\react-native-bootsplash\android\build\.transforms\9ba4cd99969c5f918996efbefac1b471\transformed\out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

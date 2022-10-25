@@ -427,7 +427,7 @@ const Chat = ({
       <SwipeListView
         data={chatList}
         renderItem={(data, rowMap) => (
-          <TouchableOpacity
+          <Pressable
             onPress={() =>
               navigation.navigate('Conversations', {
                 user: data.item,
@@ -492,7 +492,7 @@ const Chat = ({
                 </View>
               )}
             </View>
-          </TouchableOpacity>
+          </Pressable>
         )}
         // disableLeftSwipe={true}
 

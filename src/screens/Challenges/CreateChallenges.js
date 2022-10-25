@@ -23,34 +23,42 @@ const CreateChallenges = ({navigation, route}) => {
     {
       id: 0,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 1,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 2,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 3,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 4,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 5,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 6,
       group_name: 'Naomi',
+      selected: false,
     },
     {
       id: 7,
       group_name: 'Naomi',
+      selected: false,
     },
   ]);
 
@@ -91,10 +99,14 @@ const CreateChallenges = ({navigation, route}) => {
   //setps list
   const [isMetricopen, setIsMetricopen] = useState(false);
   const [metricList, setMetricList] = useState([
-    {label: 'Total Steps', value: 'Total Steps'},
+    // {label: 'Total Steps', value: 'Total Steps'},
+    {label: '1000', value: '1000'},
+    {label: '30000', value: '3000'},
+    {label: '5000', value: '5000'},
   ]);
 
-  const [selectedMetric, setselectedMetric] = useState(metricList[0]?.value);
+  const [selectedMetric, setselectedMetric] = useState(null);
+  // const [selectedMetric, setselectedMetric] = useState(metricList[0]?.value);
 
   const [isStartDatePickerShow, setIsStartDatePickerShow] = useState(false);
   const [isEndDatePickerShow, setIsEndDatePickerShow] = useState(false);
@@ -121,6 +133,23 @@ const CreateChallenges = ({navigation, route}) => {
       })
       .catch(error => console.log(error));
   };
+
+  const handleAddMember = id => {
+    const newData = membersList.map(item => {
+      if (id === item.id) {
+        return {
+          ...item,
+          selected: !item.selected,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setMembersList(newData);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -188,6 +217,7 @@ const CreateChallenges = ({navigation, route}) => {
             <Text style={styles.textInputHeading}>Challenge Name</Text>
             <TextInput
               style={styles.textInput}
+              autoFocus
               placeholder={'Enter Challenge Name'}
             />
           </View>
@@ -423,6 +453,7 @@ const CreateChallenges = ({navigation, route}) => {
                 zIndex={999}
                 open={isMetricopen}
                 value={selectedMetric}
+                placeholder="Total Steps"
                 items={metricList}
                 setOpen={setIsMetricopen}
                 setValue={setselectedMetric}
@@ -467,7 +498,7 @@ const CreateChallenges = ({navigation, route}) => {
           </View>
         </View>
         {/* ----------------------------------Create Challenge Form END------------------------------------------ */}
-        <View>
+        <View style={{}}>
           <Text
             style={{
               color: '#000000',
@@ -481,35 +512,41 @@ const CreateChallenges = ({navigation, route}) => {
               marginVertical: 15,
               paddingBottom: 10,
               alignSelf: 'center',
+              flex: 1,
             }}>
             <FlatList
               data={membersList}
               numColumns={3}
-              scrollEnabled={false}
+              // scrollEnabled={false}
               showsVerticalScrollIndicator={false}
               keyExtractor={(item, index) => index.toString()}
               renderItem={item => {
                 return (
-                  <View
+                  <TouchableOpacity
+                    onPress={() => handleAddMember(item.item.id)}
                     style={{
                       ...styles.cardView,
                       justifyContent: 'center',
                       width: '28.5%',
+                      // backgroundColor: item.item.selected ? 'red' : 'pink',
+                      borderWidth: item.item.selected ? 1 : 0,
                     }}>
                     <Image
                       source={require('../../../assets/images/friend-profile.png')}
                       style={{marginVertical: 8, width: 44, height: 44}}
                     />
                     <Text style={styles.cardText}>{item.item.group_name}</Text>
-                  </View>
+                  </TouchableOpacity>
                 );
               }}
             />
           </View>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => navigation.goBack()}>
+            <Text style={styles.btnText}>Create Group</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.btn}>
-          <Text style={styles.btnText}>Create Group</Text>
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -551,6 +588,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginVertical: 10,
     overflow: 'hidden',
+    borderColor: '#38acff',
   },
   cardText: {
     color: '#040103',

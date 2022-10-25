@@ -1,3 +1,4 @@
+import {roundToNearestMinutes} from 'date-fns';
 import React, {useState} from 'react';
 import {
   StyleSheet,
@@ -9,13 +10,14 @@ import {
   StatusBar,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 const AuthScreen = ({navigation}) => {
   const [index, setIndex] = useState(0);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const [isPasswordShow, setIsPasswordShow] = useState(false);
   const [invalidEmail, setInvalidEmail] = useState(false);
   const [invalidPassword, setInvalidPassword] = useState(false);
 
@@ -26,7 +28,9 @@ const AuthScreen = ({navigation}) => {
     if (password.length === 0) {
       setInvalidPassword(true);
     } else {
-      navigation.navigate('Verification');
+      navigation.navigate('Verification', {
+        email,
+      });
     }
   };
   const handleLogin = () => {
@@ -35,6 +39,8 @@ const AuthScreen = ({navigation}) => {
     }
     if (password.length === 0) {
       setInvalidPassword(true);
+    } else {
+      navigation.navigate('DrawerTest');
     }
   };
   const handleonTabChange = () => {
@@ -70,15 +76,20 @@ const AuthScreen = ({navigation}) => {
           <Text
             style={{
               color: '#000',
-              fontWeight: 'bold',
-              // fontFamily: 'Rubik-Bold',
-              fontSize: 24,
-              marginTop: 10,
-              marginBottom: 5,
+              // fontWeight: 'bold',
+              fontFamily: 'PlusJakartaDisplay-Bold',
+              fontSize: 20,
+              marginTop: 20,
+              marginBottom: 10,
             }}>
             Create your account
           </Text>
-          <Text style={{color: '#000', fontFamily: 'Rubik-Regular'}}>
+          <Text
+            style={{
+              marginBottom: 20,
+              color: '#000',
+              fontFamily: 'Rubik-Regular',
+            }}>
             Signup with Email for an account
           </Text>
 
@@ -96,6 +107,7 @@ const AuthScreen = ({navigation}) => {
                 ...styles.textInput,
                 borderColor: invalidEmail ? '#D66262' : '#ccc',
               }}
+              autoFocus
               placeholder={'Enter your Email'}
               value={email}
               onChangeText={txt => setEmail(txt)}
@@ -115,15 +127,37 @@ const AuthScreen = ({navigation}) => {
               }}>
               Password
             </Text>
-            <TextInput
-              style={{
-                ...styles.textInput,
-                borderColor: invalidPassword ? '#D66262' : '#ccc',
-              }}
-              placeholder={'Enter your Password'}
-              value={password}
-              onChangeText={txt => setPassword(txt)}
-            />
+            <View>
+              <TextInput
+                style={{
+                  ...styles.textInput,
+                  paddingRight: 45,
+                  borderColor: invalidPassword ? '#D66262' : '#ccc',
+                }}
+                secureTextEntry={!isPasswordShow}
+                placeholder={'Enter your Password'}
+                value={password}
+                onChangeText={txt => setPassword(txt)}
+              />
+              <TouchableOpacity
+                onPress={() => setIsPasswordShow(!isPasswordShow)}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: 0,
+                  bottom: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 30,
+                }}>
+                <Entypo
+                  name={isPasswordShow ? 'eye' : 'eye-with-line'}
+                  color={'#000'}
+                  size={20}
+                  style={{}}
+                />
+              </TouchableOpacity>
+            </View>
             {invalidPassword && (
               <Text style={styles.errorText}>
                 Enter a password with a cap, small letter, symbol and a number
@@ -185,14 +219,14 @@ const AuthScreen = ({navigation}) => {
           <Text
             style={{
               color: '#000',
-              fontWeight: 'bold',
-              fontSize: 24,
-              marginTop: 10,
-              marginBottom: 5,
+              fontFamily: 'PlusJakartaDisplay-Bold',
+              fontSize: 20,
+              marginTop: 20,
+              marginBottom: 10,
             }}>
             Welcome back !
           </Text>
-          <Text style={{color: '#000', fontWeight: '400'}}>
+          <Text style={{marginBottom: 15, color: '#000', fontWeight: '400'}}>
             Sign in to access your account
           </Text>
 
@@ -205,6 +239,9 @@ const AuthScreen = ({navigation}) => {
                 ...styles.textInput,
                 borderColor: invalidEmail ? '#D66262' : '#ccc',
               }}
+              autoFocus={true}
+              value={email}
+              onChangeText={txt => setEmail(txt)}
               placeholder={'Enter your Email'}
             />
             {invalidEmail && (
@@ -215,13 +252,37 @@ const AuthScreen = ({navigation}) => {
           </View>
           <View style={styles.textInputView}>
             <Text style={{color: '#000', marginVertical: 5}}>Password</Text>
-            <TextInput
-              style={{
-                ...styles.textInput,
-                borderColor: invalidPassword ? '#D66262' : '#ccc',
-              }}
-              placeholder={'Enter your Password'}
-            />
+            <View>
+              <TextInput
+                style={{
+                  ...styles.textInput,
+                  paddingRight: 45,
+                  borderColor: invalidPassword ? '#D66262' : '#ccc',
+                }}
+                secureTextEntry={!isPasswordShow}
+                placeholder={'Enter your Password'}
+                value={password}
+                onChangeText={txt => setPassword(txt)}
+              />
+              <TouchableOpacity
+                onPress={() => setIsPasswordShow(!isPasswordShow)}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: 0,
+                  bottom: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 30,
+                }}>
+                <Entypo
+                  name={isPasswordShow ? 'eye' : 'eye-with-line'}
+                  color={'#000'}
+                  size={20}
+                  style={{}}
+                />
+              </TouchableOpacity>
+            </View>
             {invalidPassword && (
               <Text style={styles.errorText}>
                 Enter a password with a cap, small letter, symbol and a number
@@ -268,7 +329,7 @@ const AuthScreen = ({navigation}) => {
                 source={require('../../assets/images/apple.png')}
                 style={{width: 20, height: 20, marginRight: 10}}
               />
-              <Text style={styles.socialBtnText}>Signup with Apple ID</Text>
+              <Text style={styles.socialBtnText}>Log in with Apple ID</Text>
             </TouchableOpacity>
             <TouchableOpacity
               // onPress={() => navigation.navigate('TabNavigation')}
@@ -283,7 +344,7 @@ const AuthScreen = ({navigation}) => {
                   tintColor: '#FFF',
                 }}
               />
-              <Text style={styles.socialBtnText}>Signup with Facebook</Text>
+              <Text style={styles.socialBtnText}>Log in with Facebook</Text>
             </TouchableOpacity>
             <TouchableOpacity
               // onPress={() => navigation.navigate('TabNavigation')}
@@ -293,7 +354,7 @@ const AuthScreen = ({navigation}) => {
                 source={require('../../assets/images/google.png')}
                 style={{width: 20, height: 20, marginRight: 10}}
               />
-              <Text style={styles.socialBtnText}>Signup with Google</Text>
+              <Text style={styles.socialBtnText}>Log in with Google</Text>
             </TouchableOpacity>
           </View>
         </View>

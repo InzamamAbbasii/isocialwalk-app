@@ -99,7 +99,6 @@ const Notification = ({navigation}) => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     flex: 1,
-                    // backgroundColor: 'red',
                   }}>
                   <Image
                     source={item.item.avater}

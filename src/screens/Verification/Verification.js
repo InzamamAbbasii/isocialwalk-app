@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import OtpInputs from 'react-native-otp-inputs';
-const Verification = ({navigation}) => {
+const Verification = ({navigation, route}) => {
+  let {email} = route.params;
   const left_arrow = require('../../../assets/images/left-arrow.png');
   const [optCode, setOptCode] = useState('');
   const [invalidOTP, setInvalidOTP] = useState(false);
@@ -43,7 +44,7 @@ const Verification = ({navigation}) => {
             style={{
               color: '#000000',
               fontSize: 24,
-              marginTop: 15,
+              marginTop: 50,
               // fontWeight: 'bold',
               fontFamily: 'Rubik-Bold',
             }}>
@@ -56,10 +57,10 @@ const Verification = ({navigation}) => {
               color: '#000000',
               width: '75%',
               fontSize: 16,
-              marginTop: 8,
+              marginTop: 15,
               fontFamily: 'Rubik-Regular',
             }}>
-            A verification was sent to abbasiinzamam2@gmail.com
+            A verification was sent to {email}
           </Text>
           <Text
             style={{
@@ -81,7 +82,7 @@ const Verification = ({navigation}) => {
             onCodeChanged={code => {
               setOptCode(code);
             }}
-            autoFocusOnLoad={false}
+            autoFocusOnLoad={true}
             placeholderCharacter={''}
             placeholderTextColor={'#ABA7AF'}
             codeInputFieldStyle={{

@@ -19,37 +19,38 @@ const GroupDetail = ({navigation}) => {
       id: 0,
       name: 'Me',
       avater: require('../../../assets/images/friend-profile.png'),
+      selected: false,
     },
     {
       id: 1,
       name: 'Nahla',
       avater: require('../../../assets/images/friend-profile.png'),
+      selected: false,
     },
     {
       id: 2,
       name: 'Saffa',
       avater: require('../../../assets/images/friend-profile.png'),
+      selected: false,
     },
     {
       id: 3,
       name: 'Rui',
       avater: require('../../../assets/images/friend-profile.png'),
+      selected: false,
     },
     {
       id: 4,
       name: 'Anum',
       avater: require('../../../assets/images/friend-profile.png'),
+      selected: false,
     },
     {
       id: 5,
       name: 'Zaina',
       avater: require('../../../assets/images/friend-profile.png'),
+      selected: false,
     },
-    // {
-    //   id: 6,
-    //   name: 'Noami',
-    // avater:require('../../../assets/images/friend-profile.png')
-    // },
   ]);
 
   const [allMembersList, setAllMembersList] = useState([
@@ -113,179 +114,34 @@ const GroupDetail = ({navigation}) => {
     setAllMembersList(newData);
   };
 
-  const BottomSheetAddMembers = () => {
-    return (
-      <RBSheet
-        ref={bottomSheetAddMemberRef}
-        openDuration={250}
-        closeOnDragDown={true}
-        closeOnPressMask={false}
-        dragFromTopOnly
-        animationType={'slide'}
-        customStyles={{
-          container: {
-            padding: 5,
-            height: 460,
-            backgroundColor: '#ffffff',
-            borderRadius: 30,
-          },
-          draggableIcon: {
-            backgroundColor: '#003e6b',
-          },
-        }}>
-        <View style={{alignItems: 'center', flex: 1}}>
-          <Text
-            style={{
-              color: '#003e6b',
-              fontSize: 18,
-              textAlign: 'center',
-              fontFamily: 'Rubik-Regular',
-              marginTop: 5,
-            }}>
-            Add Members
-          </Text>
-          <View
-            style={{
-              marginVertical: 15,
-              paddingHorizontal: 20,
-              flex: 1,
-            }}>
-            <FlatList
-              data={allMembersList}
-              numColumns={3}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={item => {
-                return (
-                  <TouchableOpacity
-                    // onPress={() => handleAddMemberSelect(item.item.id)}
-                    style={{
-                      ...styles.bootSheetCardView,
-                      width: '28.9%',
-                      marginVertical: 5,
-                      marginHorizontal: 7,
-                      borderWidth: item.item.selected ? 1 : 0,
-                      borderColor: item.item.selected
-                        ? '#38ACFF'
-                        : 'transparent',
-                    }}>
-                    <Image
-                      source={item.item.avater}
-                      style={{marginVertical: 8, width: 44, height: 44}}
-                    />
-                    <Text
-                      style={{color: '#040103', fontFamily: 'Rubik-Regular'}}>
-                      {item.item.name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          </View>
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#38ACFF',
-              marginBottom: 10,
-              height: 50,
-              width: '92%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 5,
-            }}>
-            <Text
-              style={{
-                color: '#FFF',
-                fontSize: 16,
-                fontFamily: 'Rubik-Regular',
-              }}>
-              Add to group
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </RBSheet>
-    );
+  const handleRemoveMemberSelect = id => {
+    const newData = groupMembersList.map(item => {
+      if (id === item.id) {
+        return {
+          ...item,
+          selected: !item.selected,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setGroupMembersList(newData);
   };
 
-  const BottomSheetRemoveMembers = () => {
-    return (
-      <RBSheet
-        ref={bottomSheetRef}
-        //   height={500}
-        openDuration={250}
-        closeOnDragDown={true}
-        closeOnPressMask={false}
-        animationType={'slide'}
-        customStyles={{
-          container: {
-            padding: 5,
-            height: 460,
-            backgroundColor: '#ffffff',
-            borderRadius: 30,
-          },
-          draggableIcon: {
-            backgroundColor: '#003e6b',
-          },
-        }}>
-        <View style={{alignItems: 'center', flex: 1}}>
-          <Text
-            style={{
-              color: '#003e6b',
-              fontSize: 18,
-              textAlign: 'center',
-              fontFamily: 'Rubik-Regular',
-              marginTop: 5,
-            }}>
-            Remove Member
-          </Text>
-          <View
-            style={{
-              marginVertical: 15,
-              paddingHorizontal: 20,
-              flex: 1,
-            }}>
-            <FlatList
-              data={groupMembersList}
-              numColumns={3}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={item => {
-                return (
-                  <View
-                    style={{
-                      ...styles.bootSheetCardView,
-                      width: '28.9%',
-                      marginVertical: 5,
-                      marginHorizontal: 7,
-                    }}>
-                    <Image
-                      source={item.item.avater}
-                      style={{marginVertical: 8, width: 44, height: 44}}
-                    />
-                    <Text
-                      style={{color: '#040103', fontFamily: 'Rubik-Regular'}}>
-                      {item.item.name}
-                    </Text>
-                  </View>
-                );
-              }}
-            />
-          </View>
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#38ACFF',
-              marginBottom: 10,
-              height: 50,
-              width: '92%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 5,
-              fontFamily: 'Rubik-Regular',
-            }}>
-            <Text style={{color: '#FFF', fontSize: 16}}>Remove from group</Text>
-          </TouchableOpacity>
-        </View>
-      </RBSheet>
-    );
+  const handleRemoveFromGroup = () => {
+    const newData = groupMembersList.filter(item => item.selected === false);
+    setGroupMembersList(newData);
+    bottomSheetRef?.current?.close();
+  };
+
+  const handleAddMemberToGroup = () => {
+    const newData = allMembersList.filter(item => item.selected === true);
+    setGroupMembersList(groupMembersList.concat(newData));
+    const newData1 = allMembersList.filter(item => item.selected === false);
+    setAllMembersList(newData1);
+    bottomSheetAddMemberRef?.current?.close();
   };
   return (
     <View style={styles.container}>
@@ -294,8 +150,6 @@ const GroupDetail = ({navigation}) => {
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}>
-        <BottomSheetAddMembers />
-        <BottomSheetRemoveMembers />
         <View style={{paddingHorizontal: 20}}>
           <Header title={'Carnage Coverage'} navigation={navigation} />
         </View>
@@ -334,6 +188,7 @@ const GroupDetail = ({navigation}) => {
               <Text style={{color: '#FFF', fontSize: 16}}>Add Members</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={() => navigation.goBack()}
               style={{
                 ...styles.btn,
                 backgroundColor: 'transparent',
@@ -422,6 +277,190 @@ const GroupDetail = ({navigation}) => {
             />
           </View>
         </View>
+        {/* ------------------------------------------Remove Member Bottom Sheet---------------------------------------------- */}
+        <RBSheet
+          ref={bottomSheetRef}
+          //   height={500}
+          openDuration={250}
+          closeOnDragDown={true}
+          closeOnPressMask={false}
+          animationType={'slide'}
+          customStyles={{
+            container: {
+              padding: 5,
+              height: 460,
+              backgroundColor: '#ffffff',
+              borderRadius: 30,
+            },
+            draggableIcon: {
+              backgroundColor: '#003e6b',
+            },
+          }}>
+          <View style={{alignItems: 'center', flex: 1}}>
+            <Text
+              style={{
+                color: '#003e6b',
+                fontSize: 18,
+                textAlign: 'center',
+                fontFamily: 'Rubik-Regular',
+                marginTop: 5,
+              }}>
+              Remove Member
+            </Text>
+            <View
+              style={{
+                marginVertical: 15,
+                paddingHorizontal: 20,
+                flex: 1,
+                // backgroundColor: 'red',
+                width: '100%',
+              }}>
+              <FlatList
+                data={groupMembersList}
+                numColumns={3}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={item => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => handleRemoveMemberSelect(item.item.id)}
+                      style={{
+                        ...styles.bootSheetCardView,
+                        width: '28.9%',
+                        marginVertical: 5,
+                        marginHorizontal: 7,
+                        borderWidth: item.item.selected ? 1 : 0,
+                        borderColor: item.item.selected
+                          ? '#38ACFF'
+                          : 'transparent',
+                      }}>
+                      <Image
+                        source={item.item.avater}
+                        style={{marginVertical: 8, width: 44, height: 44}}
+                      />
+                      <Text
+                        style={{color: '#040103', fontFamily: 'Rubik-Regular'}}>
+                        {item.item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => handleRemoveFromGroup()}
+              style={{
+                backgroundColor: '#38ACFF',
+                marginBottom: 10,
+                height: 50,
+                width: '92%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+                fontFamily: 'Rubik-Regular',
+              }}>
+              <Text style={{color: '#FFF', fontSize: 16}}>
+                Remove from group
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </RBSheet>
+
+        {/* ------------------------------------------Add Member Bottom Sheet-------------------------------------------- */}
+        <RBSheet
+          ref={bottomSheetAddMemberRef}
+          openDuration={250}
+          closeOnDragDown={true}
+          closeOnPressMask={false}
+          dragFromTopOnly
+          animationType={'slide'}
+          customStyles={{
+            container: {
+              padding: 5,
+              height: 460,
+              backgroundColor: '#ffffff',
+              borderRadius: 30,
+            },
+            draggableIcon: {
+              backgroundColor: '#003e6b',
+            },
+          }}>
+          <View
+            style={{
+              alignItems: 'center',
+              flex: 1,
+            }}>
+            <Text
+              style={{
+                color: '#003e6b',
+                fontSize: 18,
+                textAlign: 'center',
+                fontFamily: 'Rubik-Regular',
+                marginTop: 5,
+              }}>
+              Add Members
+            </Text>
+            <View
+              style={{
+                marginVertical: 15,
+                paddingHorizontal: 20,
+                flex: 1,
+                width: '100%',
+              }}>
+              <FlatList
+                data={allMembersList}
+                numColumns={3}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={item => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => handleAddMemberSelect(item.item.id)}
+                      style={{
+                        ...styles.bootSheetCardView,
+                        width: '28.9%',
+                        marginVertical: 5,
+                        marginHorizontal: 7,
+                        borderWidth: item.item.selected ? 1 : 0,
+                        borderColor: item.item.selected
+                          ? '#38ACFF'
+                          : 'transparent',
+                      }}>
+                      <Image
+                        source={item.item.avater}
+                        style={{marginVertical: 8, width: 44, height: 44}}
+                      />
+                      <Text
+                        style={{color: '#040103', fontFamily: 'Rubik-Regular'}}>
+                        {item.item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => handleAddMemberToGroup()}
+              style={{
+                backgroundColor: '#38ACFF',
+                marginBottom: 10,
+                height: 50,
+                width: '92%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}>
+              <Text
+                style={{
+                  color: '#FFF',
+                  fontSize: 16,
+                  fontFamily: 'Rubik-Regular',
+                }}>
+                Add to group
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </RBSheet>
       </ScrollView>
     </View>
   );

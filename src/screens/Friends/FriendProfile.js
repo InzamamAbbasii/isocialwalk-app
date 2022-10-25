@@ -85,7 +85,7 @@ const FriendProfile = ({navigation}) => {
           <Text
             style={{
               color: '#000000',
-              fontSize: 18,
+              fontSize: 16,
               fontFamily: 'Rubik-Regular',
             }}>
             {selectedType} Performance
@@ -102,7 +102,7 @@ const FriendProfile = ({navigation}) => {
               tintColor: 'white',
             }}
             containerStyle={{
-              width: '38%',
+              width: '37%',
             }}
             dropDownContainerStyle={{
               padding: 0,
@@ -131,18 +131,20 @@ const FriendProfile = ({navigation}) => {
             labelStyle={{
               fontSize: 14,
               textAlign: 'left',
-              paddingLeft: 5,
               color: '#fff',
               fontFamily: 'Rubik-Regular',
             }}
-            style={{
-              height: 35,
-              paddingHorizontal: 10,
-              borderRadius: 5,
-              backgroundColor: '#003E6B',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
+            props={{
+              style: {
+                height: 36,
+                // width: 90,
+                paddingHorizontal: 8,
+                borderRadius: 5,
+                backgroundColor: '#003E6B',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
             }}
           />
         </View>
@@ -324,11 +326,14 @@ const FriendProfile = ({navigation}) => {
               renderItem={(item, index) => {
                 return (
                   <TouchableOpacity
+                    onPress={() => navigation.navigate('GroupDetail')}
                     style={{
                       ...styles.cardView,
                       justifyContent: 'center',
                       height: 125,
-                      width: '28.9%',
+                      // width: '28.9%',
+                      width: '32.9%',
+                      marginRight: 15,
                     }}>
                     <Image
                       source={item.item.avatar}
@@ -373,7 +378,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     // fontWeight: '500',
     fontFamily: 'Rubik-Medium',
-    width: 85,
+    width: 90,
   },
   performanceCard: {
     zIndex: -1,
