@@ -55,6 +55,7 @@ function App() {
     // setTimeout(() => {
     // }, 1000);
     RNBootSplash.hide(); // immediate
+    // cdmeo comment
   }, []);
 
   return (
