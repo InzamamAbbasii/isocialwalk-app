@@ -6,7 +6,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import DrawerNavigations from './src/screens/Navigation/DrawerNavigations';
 
 import Home from './src/screens/Home';
-import SplashScreen from './src/screens/SplashScreen';
+// import SplashScreen from './src/screens/SplashScreen';
 import AuthScreen from './src/screens/AuthScreen';
 import Welcome from './src/screens/Welcome';
 import TabNavigation from './src/screens/Navigation/TabNavigation';
@@ -48,18 +48,14 @@ import Summary from './src/screens/Summary';
 import DaySummary from './src/screens/History/DaySummary';
 
 import DrawerTest from './src/screens/DrawerTest';
-import RNBootSplash from 'react-native-bootsplash';
+
+import SplashScreen from 'react-native-splash-screen';
+
 function App() {
   const Stack = createNativeStackNavigator();
-  useEffect(() => {
-    // setTimeout(() => {
-    // }, 1000);
-    RNBootSplash.hide(); // immediate
-    // cdmeo comment
-  }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer onReady={() => SplashScreen.hide()}>
       <StatusBar backgroundColor={'#FFF'} barStyle={'dark-content'} />
       <Stack.Navigator>
         {/* <Stack.Screen

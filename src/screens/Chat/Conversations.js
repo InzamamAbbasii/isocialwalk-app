@@ -1,7 +1,12 @@
-import {renderToHardwareTextureAndroid} from 'deprecated-react-native-prop-types/DeprecatedViewPropTypes';
 import React, {useState, useCallback, useEffect} from 'react';
-import {StyleSheet, Text, View, Image, TextInput} from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import {
   GiftedChat,
   Send,
@@ -478,7 +483,7 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   btnCancel: {
-    alignSelf: 'flex-end',
+    // alignSelf: 'flex-end',
     justifyContent: 'center',
   },
   btnCancelText: {

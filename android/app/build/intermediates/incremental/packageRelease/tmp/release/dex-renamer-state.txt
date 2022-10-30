@@ -1,7 +1,0 @@
-#Tue Oct 25 19:38:30 PKT 2022
-base.1=G\:\\MTechub\\Project 2\\isocialwalkApp Clone\\isocialwalk-app\\android\\app\\build\\intermediates\\dex\\release\\mergeDexRelease\\classes2.dex
-path.1=classes2.dex
-base.0=G\:\\MTechub\\Project 2\\isocialwalkApp Clone\\isocialwalk-app\\android\\app\\build\\intermediates\\dex\\release\\mergeDexRelease\\classes.dex
-renamed.1=classes2.dex
-renamed.0=classes.dex
-path.0=classes.dex

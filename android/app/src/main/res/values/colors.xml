@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bootsplash_background">#38ACFF</color>
+    <color name="status_bar_color">#38ACFF</color>
 </resources>
