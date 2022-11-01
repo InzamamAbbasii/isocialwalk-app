@@ -90,7 +90,10 @@ const FriendRequest = ({navigation}) => {
               <Text style={styles.btnText}>Approve Request</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => bottomSheetRef?.current?.open()}
+              onPress={() => {
+                // bottomSheetRef?.current?.open();
+                navigation.goBack();
+              }}
               style={{
                 ...styles.btn,
                 backgroundColor: 'transparent',
@@ -123,11 +126,55 @@ const FriendRequest = ({navigation}) => {
             setOpen={setIsTypeOpen}
             setValue={setSelectedType}
             setItems={setPerformanceTypes}
+            // arrowIconStyle={{
+            //   tintColor: 'white',
+            // }}
+            // containerStyle={{
+            //   width: '38%',
+            // }}
+            // dropDownContainerStyle={{
+            //   padding: 0,
+            //   alignSelf: 'center',
+            //   borderWidth: 1,
+            //   borderColor: '#ccc',
+            //   borderRadius: 4,
+            //   zIndex: 999,
+            // }}
+            // showTickIcon={false}
+            // iconContainerStyle={{
+            //   color: '#fff',
+            // }}
+            // selectedItemContainerStyle={{
+            //   backgroundColor: '#0496ff',
+            //   marginHorizontal: 5,
+            // }}
+            // selectedItemLabelStyle={{
+            //   color: '#FFF',
+            // }}
+            // scrollViewProps={{
+            //   showsVerticalScrollIndicator: false,
+            //   showsHorizontalScrollIndicator: false,
+            // }}
+            // labelStyle={{
+            //   fontSize: 14,
+            //   textAlign: 'left',
+            //   paddingLeft: 5,
+            //   color: '#fff',
+            // }}
+            // style={{
+            //   height: 35,
+            //   paddingHorizontal: 10,
+            //   borderRadius: 5,
+            //   backgroundColor: '#003E6B',
+            //   flexDirection: 'row',
+            //   alignItems: 'center',
+            //   justifyContent: 'center',
+            // }}
             arrowIconStyle={{
               tintColor: 'white',
             }}
             containerStyle={{
-              width: '38%',
+              width: '37%',
             }}
             dropDownContainerStyle={{
               padding: 0,
@@ -147,6 +194,7 @@ const FriendRequest = ({navigation}) => {
             }}
             selectedItemLabelStyle={{
               color: '#FFF',
+              fontFamily: 'Rubik-Regular',
             }}
             scrollViewProps={{
               showsVerticalScrollIndicator: false,
@@ -155,17 +203,20 @@ const FriendRequest = ({navigation}) => {
             labelStyle={{
               fontSize: 14,
               textAlign: 'left',
-              paddingLeft: 5,
               color: '#fff',
+              fontFamily: 'Rubik-Regular',
             }}
-            style={{
-              height: 35,
-              paddingHorizontal: 10,
-              borderRadius: 5,
-              backgroundColor: '#003E6B',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
+            props={{
+              style: {
+                height: 36,
+                // width: 90,
+                paddingHorizontal: 8,
+                borderRadius: 5,
+                backgroundColor: '#003E6B',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
             }}
           />
         </View>
@@ -349,7 +400,9 @@ const FriendRequest = ({navigation}) => {
               // height: 530,
               flex: 1.1,
               backgroundColor: '#ffffff',
-              borderRadius: 30,
+              // borderRadius: 30,
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
             },
             draggableIcon: {
               backgroundColor: '#003e6b',
@@ -410,7 +463,10 @@ const FriendRequest = ({navigation}) => {
                   backgroundColor: 'transparent',
                   borderWidth: 1,
                 }}
-                onPress={() => bottomSheetRef?.current?.close()}>
+                onPress={() => {
+                  bottomSheetRef?.current?.close();
+                  navigation.goBack();
+                }}>
                 <Text style={{...styles.btnText, color: '#38ACFF'}}>
                   Ignore Request
                 </Text>

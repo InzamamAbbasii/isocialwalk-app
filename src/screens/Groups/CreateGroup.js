@@ -36,22 +36,22 @@ const CreateGroup = ({navigation}) => {
   const [membersList, setMembersList] = useState([
     {
       id: 0,
-      name: 'Groupname',
+      name: 'Saffa',
       status: false,
     },
     {
       id: 1,
-      name: 'Groupname',
+      name: 'Nahla',
       status: false,
     },
     {
       id: 2,
-      name: 'Groupname',
+      name: 'Naomi',
       status: false,
     },
     {
       id: 3,
-      name: 'Groupname',
+      name: 'Rui',
       status: false,
     },
   ]);
@@ -77,6 +77,7 @@ const CreateGroup = ({navigation}) => {
       setIsValidGroupName(false);
     } else {
       setIsValidGroupName(true);
+      navigation.goBack();
     }
   };
 

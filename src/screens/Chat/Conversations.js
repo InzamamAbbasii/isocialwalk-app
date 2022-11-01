@@ -161,17 +161,21 @@ const Conversations = ({navigation, route}) => {
     return (
       <View
         style={{
-          backgroundColor: '#ffff',
-          height: 280,
+          backgroundColor: '#fff',
+          height: 60,
           alignContent: 'center',
           justifyContent: 'center',
           alignItems: 'center',
+          position: 'relative',
+          left: 0,
+          right: 0,
+          bottom: 9,
         }}>
         <View
           style={{
             backgroundColor: 'red',
             position: 'absolute',
-            top: 55,
+            top: 52,
             left: 18,
             width: '100%',
           }}>
@@ -341,7 +345,7 @@ const Conversations = ({navigation, route}) => {
         </View>
       )}
 
-      <View style={{flex: 1, backgroundColor: '#DAE7F1'}}>
+      <View style={{flex: 0.97, backgroundColor: '#DAE7F1'}}>
         <GiftedChat
           // isTyping
 
@@ -388,6 +392,7 @@ const Conversations = ({navigation, route}) => {
           renderActions={props => {
             return (
               <Actions
+                style={{backgroundColor: 'red', marginBottom: 20}}
                 {...props}
                 options={{
                   ['Open Camera']: props => {
@@ -431,16 +436,6 @@ const Conversations = ({navigation, route}) => {
               </View>
             );
           }}
-          //   renderChatFooter={props => {
-          //     return (
-          //       <View
-          //         style={{
-          //           //   width: 100,
-          //           height: 15,
-          //           backgroundColor: 'red',
-          //         }}></View>
-          //     );
-          //   }}
         />
       </View>
     </View>
@@ -453,7 +448,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingBottom: 30,
+    // paddingBottom: 30,
   },
   headerView: {
     flexDirection: 'row',

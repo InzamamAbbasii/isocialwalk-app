@@ -148,7 +148,7 @@ const FriendProfile = ({navigation}) => {
             }}
           />
         </View>
-        {/* -------------------------Performace Graph------------------------------------ */}
+        {/* -------------------------Performance Graph------------------------------------ */}
         <View style={styles.performanceCard}>
           <View
             style={{
