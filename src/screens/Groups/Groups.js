@@ -15,7 +15,7 @@ import {
 import { captureScreen } from "react-native-view-shot";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
@@ -238,16 +238,21 @@ const Groups = ({
       .catch((error) => console.log(error));
   };
   useEffect(() => {
-    getSuggestedGroupsList();
-    getMyGroups();
-    getMembersList();
+    setLoading(true);
+    setSuggestedGroups([]);
   }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      getSuggestedGroupsList();
+      // getMyGroups();
+      getLogged_in_user_groups();
+      getMembersList();
+    }, [])
+  );
 
   const getSuggestedGroupsList = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-      setLoading(true);
-      setSuggestedGroups([]);
       let data = {
         this_user_id: user_id,
       };
@@ -282,14 +287,11 @@ const Groups = ({
       setLoading(false);
     }
   };
-
-  //TODO: latter on change with this spscifc user groups list
-  const getMyGroups = async () => {
+  const getLogged_in_user_groups = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-    setLoading(true);
-    setGroupList([]);
+
     let data = {
-      created_by_user_id: "9",
+      created_by_user_id: user_id,
     };
     var requestOptions = {
       method: "POST",
@@ -308,18 +310,52 @@ const Groups = ({
             duration: Snackbar.LENGTH_SHORT,
           });
         }
-        // let responseList = [];
-        // if (result[0]?.profile == 'No Friends') {
-        //   console.log('no friend found');
-        // } else if (result[0]?.profile?.length > 0) {
-        //   setFriendsList(result[0]?.profile);
-        // }
       })
-      .catch((error) =>
-        console.log("error in getting my  groups list ::: ", error)
-      )
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.Unable to get groups.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
       .finally(() => setLoading(false));
   };
+  //TODO: latter on change with this spscifc user groups list
+  // const getMyGroups = async () => {
+  //   let user_id = await AsyncStorage.getItem("user_id");
+  //   setLoading(true);
+  //   setGroupList([]);
+  //   let data = {
+  //     created_by_user_id: "9",
+  //   };
+  //   var requestOptions = {
+  //     method: "POST",
+  //     body: JSON.stringify(data),
+  //     redirect: "follow",
+  //   };
+  //   fetch(api.search_group_by_specific_admin, requestOptions)
+  //     .then((response) => response.json())
+  //     .then((result) => {
+  //       if (result?.error == false || result?.error == "false") {
+  //         let list = result?.Groups ? result?.Groups : [];
+  //         setGroupList(list);
+  //       } else {
+  //         Snackbar.show({
+  //           text: result?.Message,
+  //           duration: Snackbar.LENGTH_SHORT,
+  //         });
+  //       }
+  //       // let responseList = [];
+  //       // if (result[0]?.profile == 'No Friends') {
+  //       //   console.log('no friend found');
+  //       // } else if (result[0]?.profile?.length > 0) {
+  //       //   setFriendsList(result[0]?.profile);
+  //       // }
+  //     })
+  //     .catch((error) =>
+  //       console.log("error in getting my  groups list ::: ", error)
+  //     )
+  //     .finally(() => setLoading(false));
+  // };
 
   // useEffect(() => {
   //   const delayDebounceFn = setTimeout(() => {
