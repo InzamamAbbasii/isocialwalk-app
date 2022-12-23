@@ -155,6 +155,7 @@ const GroupDetail = ({ navigation, route }) => {
     });
   };
   const getGroupMembers = (id) => {
+    setGroupMembersList([]);
     let data = {
       id: id,
     };
@@ -172,15 +173,16 @@ const GroupDetail = ({ navigation, route }) => {
           if (membersList?.length > 0) {
             for (const element of membersList) {
               let userInfo = await getUser_Info(element?.user_id);
-
-              let obj = {
-                user_id: element?.user_id,
-                first_name: userInfo ? userInfo?.first_name : "",
-                last_name: userInfo ? userInfo?.last_name : "",
-                profile: userInfo ? userInfo["profile image"] : "",
-                selected: false,
-              };
-              list.push(obj);
+              if (userInfo != false) {
+                let obj = {
+                  user_id: element?.user_id,
+                  first_name: userInfo ? userInfo?.first_name : "",
+                  last_name: userInfo ? userInfo?.last_name : "",
+                  profile: userInfo ? userInfo["profile image"] : "",
+                  selected: false,
+                };
+                list.push(obj);
+              }
             }
             setGroupMembersList(list);
           } else {
@@ -229,6 +231,7 @@ const GroupDetail = ({ navigation, route }) => {
             } else {
               let obj = {
                 id: element, //userid
+                user_id: element, //userid
                 first_name: user_info?.first_name,
                 profile: user_info["profile image"],
                 status: false,
@@ -252,7 +255,7 @@ const GroupDetail = ({ navigation, route }) => {
 
   const handleAddMemberSelect = (id) => {
     const newData = addMembersList.map((item) => {
-      if (id === item.id) {
+      if (id === item.user_id) {
         return {
           ...item,
           selected: !item.selected,
@@ -267,25 +270,81 @@ const GroupDetail = ({ navigation, route }) => {
   };
 
   const handleRemoveMemberSelect = (id) => {
-    const newData = groupMembersList.map((item) => {
-      if (id === item.id) {
-        return {
-          ...item,
-          selected: !item.selected,
-        };
-      } else {
-        return {
-          ...item,
-        };
-      }
-    });
-    setGroupMembersList(newData);
+    if (id) {
+      const newData = groupMembersList.map((item) => {
+        if (id === item?.user_id) {
+          return {
+            ...item,
+            selected: !item.selected,
+          };
+        } else {
+          return {
+            ...item,
+          };
+        }
+      });
+      setGroupMembersList(newData);
+    }
   };
+  const removeMember = (memberId, groupId) => {
+    let data = {
+      user_id: memberId,
+      group_id: groupId,
+    };
+    console.log("data passed to removed ::: ", data);
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
 
+    fetch(api.removemember, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("result of remove member ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          const newData = groupMembersList.filter(
+            (item) => item?.user_id !== memberId
+          );
+          console.log("new Data ::: ", newData);
+          setGroupMembersList(newData);
+          Snackbar.show({
+            text: "Member removed from group successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        } else {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      });
+  };
   const handleRemoveFromGroup = () => {
-    const newData = groupMembersList.filter((item) => item.selected === false);
-    setGroupMembersList(newData);
-    bottomSheetRef?.current?.close();
+    let memberList = groupMembersList
+      ?.filter((item) => item?.selected == true)
+      ?.map((element) => element?.user_id);
+    if (memberList?.length > 0) {
+      setLoading(true);
+      for (const element of memberList) {
+        removeMember(element, groupId);
+      }
+      setLoading(false);
+      // const newData = groupMembersList.filter((item) => item?.selected === false);
+      // setGroupMembersList(newData);
+      bottomSheetRef?.current?.close();
+    } else {
+      Snackbar.show({
+        text: "Please Select Members to remove.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
   };
 
   const handleAddMemberToGroup = () => {
@@ -294,11 +353,15 @@ const GroupDetail = ({ navigation, route }) => {
     // const newData1 = allMembersList.filter((item) => item.selected === false);
     // setAllMembersList(newData1);
     // bottomSheetAddMemberRef?.current?.close();
-    if (groupId != "" && adminId != "") {
-      let memberList = addMembersList
-        ?.filter((item) => item?.selected == true)
-        ?.map((element) => element?.id);
-
+    let memberList = addMembersList
+      ?.filter((item) => item?.selected == true)
+      ?.map((element) => element?.user_id);
+    if (memberList?.length == 0) {
+      Snackbar.show({
+        text: "Please Select memeberes to add in group.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    } else if (groupId != "" && adminId != "") {
       console.log("memberList::::: ", memberList);
 
       setLoading(true);
@@ -551,7 +614,9 @@ const GroupDetail = ({ navigation, route }) => {
                 renderItem={(item) => {
                   return (
                     <TouchableOpacity
-                      onPress={() => handleRemoveMemberSelect(item.item.id)}
+                      onPress={() =>
+                        handleRemoveMemberSelect(item?.item?.user_id)
+                      }
                       style={{
                         ...styles.bootSheetCardView,
                         width: "28.9%",
@@ -564,7 +629,7 @@ const GroupDetail = ({ navigation, route }) => {
                       }}
                     >
                       <Image
-                        source={item.item.avater}
+                        source={require("../../../assets/images/friend-profile.png")}
                         style={{ marginVertical: 8, width: 44, height: 44 }}
                       />
                       <Text
@@ -573,7 +638,7 @@ const GroupDetail = ({ navigation, route }) => {
                           fontFamily: "Rubik-Regular",
                         }}
                       >
-                        {item.item.name}
+                        {item?.item?.first_name}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -653,7 +718,7 @@ const GroupDetail = ({ navigation, route }) => {
                 renderItem={(item) => {
                   return (
                     <TouchableOpacity
-                      onPress={() => handleAddMemberSelect(item.item.id)}
+                      onPress={() => handleAddMemberSelect(item.item.user_id)}
                       style={{
                         ...styles.bootSheetCardView,
                         width: "28.9%",
