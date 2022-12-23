@@ -788,7 +788,11 @@ const Groups = ({
                     renderItem={(item) => {
                       return (
                         <TouchableOpacity
-                          onPress={() => navigation.navigate("GroupDetail")}
+                          onPress={() =>
+                            navigation.navigate("GroupDetail", {
+                              item: item?.item,
+                            })
+                          }
                           style={{
                             ...styles.cardView,
                             justifyContent: "center",
