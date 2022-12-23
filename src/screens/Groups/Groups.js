@@ -409,6 +409,7 @@ const Groups = ({
             }
             setSearchResults(list);
           } else {
+            setSearchResults([]);
             Snackbar.show({
               text: result[0]?.Message,
               duration: Snackbar.LENGTH_SHORT,
