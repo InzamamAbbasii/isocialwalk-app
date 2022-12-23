@@ -289,7 +289,7 @@ const Groups = ({
   };
   const getLogged_in_user_groups = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-
+    setGroupList([]);
     let data = {
       created_by_user_id: user_id,
     };
@@ -301,10 +301,12 @@ const Groups = ({
     fetch(api.search_group_by_specific_admin, requestOptions)
       .then((response) => response.json())
       .then((result) => {
+        console.log("groups list ::: ", result);
         if (result?.error == false || result?.error == "false") {
           let list = result?.Groups ? result?.Groups : [];
           setGroupList(list);
         } else {
+          setGroupList([]);
           Snackbar.show({
             text: result?.Message,
             duration: Snackbar.LENGTH_SHORT,
@@ -376,7 +378,6 @@ const Groups = ({
   }, [searchText]);
 
   const handleSearch = (searchText) => {
-    console.log("text to search group ::  ", searchText);
     if (searchText) {
       setLoading(true);
       let data = {
@@ -390,7 +391,6 @@ const Groups = ({
       fetch(api.search_group, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log('search result of group ":" ', result);
           if (result[0]?.error == false || result[0]?.error == "false") {
             let groupsList = result[0]?.groups ? result[0]?.groups : [];
             // setSearchResults(groupsList);
@@ -667,7 +667,11 @@ const Groups = ({
                     renderItem={(item) => {
                       return (
                         <TouchableOpacity
-                          onPress={() => navigation.navigate("JoinGroup")}
+                          onPress={() =>
+                            navigation.navigate("JoinGroup", {
+                              item: item?.item,
+                            })
+                          }
                           style={{ ...styles.cardView, width: 101 }}
                         >
                           <Image

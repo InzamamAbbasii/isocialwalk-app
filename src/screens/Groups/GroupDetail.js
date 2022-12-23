@@ -413,6 +413,45 @@ const GroupDetail = ({ navigation, route }) => {
         .finally(() => setLoading(false));
     }
   };
+  const handleExitGroup = async () => {
+    if (groupId != "") {
+      let user_id = await AsyncStorage.getItem("user_id");
+      let data = {
+        user_id: user_id,
+        group_id: groupId,
+      };
+      console.log("data passed to removed ::: ", data);
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.removemember, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("result of remove member ", result);
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            navigation.goBack();
+            Snackbar.show({
+              text: "Member removed from group successfully",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        });
+    }
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -466,7 +505,7 @@ const GroupDetail = ({ navigation, route }) => {
               <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.goBack()}
+              onPress={() => handleExitGroup()}
               style={{
                 ...styles.btn,
                 backgroundColor: "transparent",
