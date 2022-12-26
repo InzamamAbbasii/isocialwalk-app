@@ -44,6 +44,7 @@ export const api = {
   getallfriends: BASE_URL + "/friends/getallfriends.php",
   addfriends: BASE_URL + "/friends/addfriends.php",
   approveRequest: BASE_URL + "/friends/updaterequestapprove.php",
+  unApproveRequest: BASE_URL + "/friends/updaterequestunapproved.php",
 
   //challenges
   create_challenge: BASE_URL + "/challenges/create.php",

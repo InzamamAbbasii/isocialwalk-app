@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,31 +11,31 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Pressable,
-} from 'react-native';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import Header from '../../Reuseable Components/Header';
+} from "react-native";
+import RBSheet from "react-native-raw-bottom-sheet";
+import Header from "../../Reuseable Components/Header";
 
-import {api} from '../../constants/api';
-import Loader from '../../Reuseable Components/Loader';
-import Snackbar from 'react-native-snackbar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import moment from 'moment/moment';
+import { api } from "../../constants/api";
+import Loader from "../../Reuseable Components/Loader";
+import Snackbar from "react-native-snackbar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from "moment/moment";
 
-const Notification = ({navigation}) => {
+const Notification = ({ navigation }) => {
   const bottomSheetRef = useRef();
 
   const [loading, setLoading] = useState(false);
 
   ///friend
-  const [selected_friend_id, setSelected_friend_id] = useState('');
-  const [selected_friend_name, setSelected_friend_name] = useState('');
-  const [selected_friend_profile, setSelected_friend_profile] = useState('');
+  const [selected_friend_id, setSelected_friend_id] = useState("");
+  const [selected_friend_name, setSelected_friend_name] = useState("");
+  const [selected_friend_profile, setSelected_friend_profile] = useState("");
 
-  const [selected_noti_id, setSelected_noti_id] = useState('');
+  const [selected_noti_id, setSelected_noti_id] = useState("");
 
   const [isFriendRequestApproved, setIsFriendRequestApproved] = useState(false);
   const [profileImage, setProfileImage] = useState(
-    require('../../../assets/images/friend-profile.png'),
+    require("../../../assets/images/friend-profile.png")
   );
   const [notificationsList, setNotificationsList] = useState([
     // {
@@ -78,27 +78,64 @@ const Notification = ({navigation}) => {
     // let d = moment(date).fromNow();
     // console.log('d :::: ', d);
   }, []);
-
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
+  };
   const getAllNotification = async () => {
-    let user_id = await AsyncStorage.getItem('user_id');
+    let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     setNotificationsList([]);
 
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         to_id: user_id,
       }),
-      redirect: 'follow',
+      redirect: "follow",
     };
     fetch(api.get_notifications, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        if (result?.error == false || result?.error == 'false') {
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == false || result?.error == "false") {
           let notificationList = result?.Notifications
             ? result?.Notifications
             : [];
-          setNotificationsList(notificationList);
+          let list = [];
+          for (const element of notificationList) {
+            let user_info = await getUser_Info(element?.from_id);
+            let obj = {
+              ...element,
+              user_info,
+            };
+            list?.push(obj);
+          }
+          setNotificationsList(list);
         } else {
           Snackbar.show({
             text: result?.Message,
@@ -106,26 +143,26 @@ const Notification = ({navigation}) => {
           });
         }
       })
-      .catch(error => console.log('error', error))
+      .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
   };
-  const getSpecificUserDetail = async id => {
+  const getSpecificUserDetail = async (id) => {
     setLoading(true);
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         user_id: id,
       }),
-      redirect: 'follow',
+      redirect: "follow",
     };
     fetch(api.get_specific_user, requestOptions)
-      .then(response => response.json())
-      .then(result => {
+      .then((response) => response.json())
+      .then((result) => {
         if (result?.length > 0) {
           // console.log('result :: ', result);
           setSelected_friend_id(id);
           setSelected_friend_name(result[0]?.first_name);
-          setSelected_friend_profile(result[0]['profile image']);
+          setSelected_friend_profile(result[0]["profile image"]);
           bottomSheetRef?.current?.open();
         } else {
           Snackbar.show({
@@ -134,35 +171,37 @@ const Notification = ({navigation}) => {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Snackbar.show({
-          text: 'Something went wrong',
+          text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
         });
       })
       .finally(() => setLoading(false));
   };
-  const handleApproveFriend = async friend_id => {
-    console.log('friend id to approve -->', friend_id);
-    let user_id = await AsyncStorage.getItem('user_id');
-    console.log('logged in user id ::', user_id);
+  const handleApproveFriend = async (friend_id) => {
+    console.log("friend id to approve -->", friend_id);
+    let user_id = await AsyncStorage.getItem("user_id");
+    console.log("logged in user id ::", user_id);
     setLoading(true);
     let obj = {
       noti_type_id: selected_noti_id,
-      this_user_id: user_id,
-      friend_user_id: friend_id,
+      // this_user_id: user_id,
+      // friend_user_id: friend_id,
+      this_user_id: friend_id,
+      friend_user_id: user_id,
     };
-    console.log('data pass to approve request ::: ', obj);
+    console.log("data pass to approve request ::: ", obj);
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(obj),
-      redirect: 'follow',
+      redirect: "follow",
     };
     fetch(api.approveRequest, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('approve friend request response :::: ', result);
-        if (result[0]?.error == 'false' || result[0]?.error == false) {
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("approve friend request response :::: ", result);
+        if (result[0]?.error == "false" || result[0]?.error == false) {
           // console.log('result :: ', result);
 
           Snackbar.show({
@@ -177,52 +216,87 @@ const Notification = ({navigation}) => {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Snackbar.show({
-          text: 'Something went wrong',
+          text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
         });
       })
       .finally(() => setLoading(false));
     // setIsFriendRequestApproved(!isFriendRequestApproved);
   };
-  const handleNotificationPress = item => {
+
+  const handleUnApprove_FriendRequest = async (friend_id) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    bottomSheetRef?.current?.close();
+    setLoading(true);
+    let obj = {
+      friend_user_id: user_id,
+      this_user_id: friend_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.unApproveRequest, requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        Snackbar.show({
+          text: "Request Canceled successfully",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .catch((error) => {
+        console.log("error in unapproveing request :: ", error);
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+    // setIsFriendRequestApproved(!isFriendRequestApproved);
+  };
+
+  const handleNotificationPress = (item) => {
     // console.log('item::::', item);
     // console.log('notificatio id ::: ', item?.id);
     setSelected_noti_id(item?.id);
     // bottomSheetRef?.current?.open();
-    if (item?.noti_type == 'friends to friends') {
+    if (item?.noti_type == "friends to friends") {
       getSpecificUserDetail(item?.from_id);
     }
   };
   return (
     <View style={styles.container}>
-      <Header title={'Notifications'} navigation={navigation} />
+      <Header title={"Notifications"} navigation={navigation} />
       {loading && <Loader />}
       {notificationsList.length == 0 ? (
         <View
           style={{
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <Image
-            source={require('../../../assets/images/bell2.png')}
+            source={require("../../../assets/images/bell2.png")}
             style={{
               width: 92,
               height: 113,
-              resizeMode: 'contain',
+              resizeMode: "contain",
             }}
           />
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 16,
               width: 182,
-              textAlign: 'center',
+              textAlign: "center",
               marginVertical: 20,
-              fontFamily: 'Rubik-Regular',
-            }}>
+              fontFamily: "Rubik-Regular",
+            }}
+          >
             All your Notifications will appear here
           </Text>
         </View>
@@ -231,42 +305,44 @@ const Notification = ({navigation}) => {
           style={{
             flex: 1,
             marginTop: 15,
-          }}>
+          }}
+        >
           <FlatList
             data={notificationsList}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={item => {
+            renderItem={(item) => {
               return (
                 <View
                   style={{
-                    flexDirection: 'row',
+                    flexDirection: "row",
                     marginVertical: 15,
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    justifyContent: "space-between",
+                    alignItems: "center",
                     flex: 1,
-                  }}>
-                  {item?.item?.noti_type == 'friends to friends' ? (
+                  }}
+                >
+                  {item?.item?.noti_type == "friends to friends" ? (
                     //friend notification
                     <Image
-                      source={require('../../../assets/images/friend-profile.png')}
+                      source={require("../../../assets/images/friend-profile.png")}
                       style={{
                         height: 60,
                         width: 60,
                       }}
                     />
-                  ) : item?.item?.noti_type == 'user to group' ? (
+                  ) : item?.item?.noti_type == "user to group" ? (
                     //group notification
                     <Image
-                      source={require('../../../assets/images/group-profile2.png')}
+                      source={require("../../../assets/images/group-profile2.png")}
                       style={{
                         height: 60,
                         width: 60,
                       }}
                     />
-                  ) : item?.item?.noti_type == 'user to indiviual challenge' ? (
+                  ) : item?.item?.noti_type == "user to indiviual challenge" ? (
                     //challenge notification
                     <Image
-                      source={require('../../../assets/images/Challenge.png')}
+                      source={require("../../../assets/images/Challenge.png")}
                       style={{
                         height: 60,
                         width: 60,
@@ -274,7 +350,7 @@ const Notification = ({navigation}) => {
                     />
                   ) : (
                     <Image
-                      source={require('../../../assets/images/friend-profile.png')}
+                      source={require("../../../assets/images/friend-profile.png")}
                       style={{
                         height: 60,
                         width: 60,
@@ -293,23 +369,33 @@ const Notification = ({navigation}) => {
                       // item.index === 0 && bottomSheetRef?.current?.open();
                       handleNotificationPress(item?.item);
                     }}
-                    style={{flex: 1, marginLeft: 10}}>
+                    style={{ flex: 1, marginLeft: 10 }}
+                  >
                     <View
                       style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <Text
                         style={{
-                          color: '#000000',
+                          color: "#000000",
                           fontSize: 16,
-                          fontFamily: 'Rubik-Medium',
-                        }}>
+                          fontFamily: "Rubik-Medium",
+                        }}
+                      >
                         {/* {item.item.title} */}
-                        notification title
+
+                        {item?.item?.noti_type == "friends to friends"
+                          ? "Friend Request"
+                          : "other"}
                       </Text>
                       <Text
-                        style={{color: '#838383', fontFamily: 'Rubik-Regular'}}>
+                        style={{
+                          color: "#838383",
+                          fontFamily: "Rubik-Regular",
+                        }}
+                      >
                         {item.item.date}
                       </Text>
                     </View>
@@ -317,14 +403,17 @@ const Notification = ({navigation}) => {
                       style={{
                         // color: item.index == 0 ? '#003e6b' : '#000000',
                         color:
-                          item?.item?.status == 'unread'
-                            ? '#003e6b'
-                            : '#000000',
-                        fontFamily: 'Rubik-Regular',
-                      }}>
+                          item?.item?.status == "unread"
+                            ? "#003e6b"
+                            : "#000000",
+                        fontFamily: "Rubik-Regular",
+                      }}
+                    >
                       {/* {item.item.description} */}
                       {/* notification description */}
-                      {item?.item?.noti_type}
+                      {/* {item?.item?.noti_type} */}
+                      {item?.item?.user_info?.first_name} wants to be your
+                      friend
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -340,27 +429,29 @@ const Notification = ({navigation}) => {
         openDuration={270}
         closeOnDragDown={true}
         closeOnPressMask={false}
-        animationType={'slide'}
+        animationType={"slide"}
         customStyles={{
           container: {
             padding: 5,
-            alignItems: 'center',
+            alignItems: "center",
             // height: 530,
             flex: 1.1,
-            backgroundColor: '#ffffff',
+            backgroundColor: "#ffffff",
             borderRadius: 30,
           },
           draggableIcon: {
-            backgroundColor: '#003e6b',
+            backgroundColor: "#003e6b",
           },
-        }}>
+        }}
+      >
         <Text
           style={{
-            color: '#003e6b',
+            color: "#003e6b",
             fontSize: 18,
-            fontFamily: 'Rubik-Regular',
+            fontFamily: "Rubik-Regular",
             marginTop: 5,
-          }}>
+          }}
+        >
           Friend Request
         </Text>
         <Image
@@ -370,49 +461,54 @@ const Notification = ({navigation}) => {
             marginBottom: 10,
             width: 110,
             height: 110,
-            resizeMode: 'contain',
+            resizeMode: "contain",
           }}
         />
         <Text
           style={{
-            color: '#000000',
+            color: "#000000",
             fontSize: 16,
-            fontFamily: 'Rubik-Medium',
-          }}>
+            fontFamily: "Rubik-Medium",
+          }}
+        >
           {/* Boris Findlay */}
           {selected_friend_name}
         </Text>
         {isFriendRequestApproved ? (
           <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
             <Text
               style={{
                 ...styles.btnText,
                 fontSize: 15,
-                fontFamily: 'Rubik-Medium',
-                color: '#38ACFF',
-              }}>
+                fontFamily: "Rubik-Medium",
+                color: "#38ACFF",
+              }}
+            >
               You and Boris are now friends
             </Text>
           </View>
         ) : (
-          <View style={{width: '100%', alignItems: 'center'}}>
+          <View style={{ width: "100%", alignItems: "center" }}>
             <TouchableOpacity
               style={styles.btnBottomSheet}
               onPress={() =>
                 // setIsFriendRequestApproved(!isFriendRequestApproved)
                 handleApproveFriend(selected_friend_id)
-              }>
+              }
+            >
               <Text style={styles.btnText}>Approve Request</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
                 ...styles.btnBottomSheet,
-                backgroundColor: 'transparent',
+                backgroundColor: "transparent",
                 borderWidth: 1,
               }}
-              onPress={() => bottomSheetRef?.current?.close()}>
-              <Text style={{...styles.btnText, color: '#38ACFF'}}>
+              onPress={() => handleUnApprove_FriendRequest(selected_friend_id)}
+            >
+              <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
                 Ignore Request
               </Text>
             </TouchableOpacity>
@@ -420,11 +516,14 @@ const Notification = ({navigation}) => {
         )}
 
         <TouchableOpacity
-          style={{...styles.btnBottomSheet, backgroundColor: '#003e6b'}}
+          style={{ ...styles.btnBottomSheet, backgroundColor: "#003e6b" }}
           onPress={() => {
-            navigation.navigate('FriendProfile');
+            navigation.navigate("FriendProfile", {
+              id: selected_friend_id,
+            });
             bottomSheetRef?.current?.close();
-          }}>
+          }}
+        >
           <Text style={styles.btnText}>View Profile</Text>
         </TouchableOpacity>
       </RBSheet>
@@ -437,22 +536,22 @@ export default Notification;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
   },
   btnText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 14,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   btnBottomSheet: {
-    backgroundColor: '#38ACFF',
-    borderColor: '#38ACFF',
+    backgroundColor: "#38ACFF",
+    borderColor: "#38ACFF",
     marginHorizontal: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 6,
-    width: '85%',
+    width: "85%",
     height: 45,
     marginVertical: 8,
   },
