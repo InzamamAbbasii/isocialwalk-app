@@ -570,9 +570,13 @@ const Friends = ({
                       return (
                         <TouchableOpacity
                           onPress={() => {
-                            item.index == 0
-                              ? navigation.navigate("FriendRequest")
-                              : navigation.navigate("AddFriend");
+                            // item.index == 0
+                            //   ? navigation.navigate("FriendRequest")
+                            // : navigation.navigate("AddFriend");
+
+                            navigation.navigate("AddFriend", {
+                              id: item?.item?.id,
+                            });
                           }}
                           style={{
                             ...styles.cardView,
