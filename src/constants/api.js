@@ -54,8 +54,9 @@ export const api = {
   //goals
   add_goals: BASE_URL + "/goals/insert.php",
   update_goals: BASE_URL + "/goals/update.php",
-  get_users_goals: BASE_URL + "/goals/getusersgoals.php",
+  get_user_goals: BASE_URL + "/goals/getusersgoals.php",
   get_user_daily_goal: BASE_URL + "/goals/getuserdailgoal.php",
+  update_daily_weekly_goals: BASE_URL + "/goals/updationweekly.php",
 
   //Devices
   connect_device: BASE_URL + "/devices/insert.php",

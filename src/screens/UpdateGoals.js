@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, useCallback} from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,18 +7,18 @@ import {
   Image,
   Animated,
   Pressable,
-} from 'react-native';
-import MenuHeader from '../Reuseable Components/MenuHeader';
+} from "react-native";
+import MenuHeader from "../Reuseable Components/MenuHeader";
 
-import RBSheet from 'react-native-raw-bottom-sheet';
+import RBSheet from "react-native-raw-bottom-sheet";
 // import Slider from 'react-native-slider';
 // var Slider = require('react-native-slider');
 // import Slider from '@react-native-community/slider';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import {api} from '../constants/api';
-import Loader from '../Reuseable Components/Loader';
-import Snackbar from 'react-native-snackbar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import MultiSlider from "@ptomasroos/react-native-multi-slider";
+import { api } from "../constants/api";
+import Loader from "../Reuseable Components/Loader";
+import Snackbar from "react-native-snackbar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const UpdateGoals = ({
   navigation,
@@ -40,29 +40,49 @@ const UpdateGoals = ({
 
   const getUserGoals = async () => {
     try {
-      let user_id = await AsyncStorage.getItem('user_id');
-      console.log('logged in user id :: ', user_id);
+      let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
       let data = {
         this_user_id: user_id,
       };
-      console.log('data tot post  ::: ', data);
-      console.log('url ::: ', api.get_user_goals);
       var requestOptions = {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(data),
-        redirect: 'follow',
+        redirect: "follow",
       };
 
       fetch(api.get_user_goals, requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          console.log('result   : :  ', result);
+        .then((response) => response.json())
+        .then((result) => {
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            let list = result[0]["Goals Info"] ? result[0]["Goals Info"] : [];
+            if (list?.length > 0) {
+              let lastRecord = list?.pop();
+              setDailyGoal(lastRecord?.daily_goal_steps);
+              setWeeklyGoal(lastRecord?.weekly_goal_steps);
+              //also update bottom sheet spinner values
+              setNewDAilyGoals(lastRecord?.daily_goal_steps);
+              setNewWeeklyGoals(lastRecord?.weekly_goal_steps);
+            }
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
         })
-        .catch(error => console.log('error', error))
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong.Unable to get Goals.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
         .finally(() => setLoading(false));
     } catch (error) {
-      console.log('error :', error);
+      Snackbar.show({
+        text: "Something went wrong.Unable to get Goals.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
       setLoading(false);
     }
   };
@@ -70,39 +90,39 @@ const UpdateGoals = ({
   const handleUpdateGoals = async () => {
     bottomSheetRef?.current?.close();
     try {
-      let user_id = await AsyncStorage.getItem('user_id');
+      let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
       let data = {
         user_id: user_id,
-        daily_goal_steps: newDAilyGoals,
-        weekly_goal_steps: newWeeklyGoals,
+        daily_goal_steps1: newDAilyGoals,
+        weekly_goal_steps1: newWeeklyGoals,
       };
       var requestOptions = {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(data),
-        redirect: 'follow',
+        redirect: "follow",
       };
-
-      fetch(api.update_goals, requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          console.log('result   : :  ', result);
-          console.log('daily_goal_steps   : :  ', result[0]?.daily_goal_steps);
-          console.log('length   : :  ', result[0]?.length);
-
-          if (result?.length > 0) {
+      fetch(api.update_daily_weekly_goals, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          if (result[0]?.error == false || result[0]?.error == "false") {
             setDailyGoal(result[0]?.daily_goal_steps);
             setWeeklyGoal(result[0]?.weekly_goal_steps);
             Snackbar.show({
-              text: 'Goals Updated Successfully',
+              text: "Goals Updated Successfully",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
               duration: Snackbar.LENGTH_SHORT,
             });
           }
         })
-        .catch(error => console.log('error', error))
+        .catch((error) => console.log("error", error))
         .finally(() => setLoading(false));
     } catch (error) {
-      console.log('error :', error);
+      console.log("error :", error);
       setLoading(false);
     }
   };
@@ -124,47 +144,50 @@ const UpdateGoals = ({
     <Animated.View
       style={{
         flex: 1,
-        backgroundColor: 'white',
-        position: 'absolute',
+        backgroundColor: "white",
+        position: "absolute",
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
         borderRadius: showMenu ? 15 : 0,
-        transform: [{scale: scale}, {translateX: moveToRight}],
-      }}>
+        transform: [{ scale: scale }, { translateX: moveToRight }],
+      }}
+    >
       <View style={styles.container}>
         {loading && <Loader />}
         {/* <MenuHeader title={'Update Goals'} navigation={navigation} /> */}
         <MenuHeader
-          title={'Updated Goals'}
+          title={"Updated Goals"}
           navigation={navigation}
           onPress={() => handleOpenCustomDrawer()}
         />
-        <View style={{marginTop: 45}}>
-          <View style={{marginVertical: 5}}>
+        <View style={{ marginTop: 45 }}>
+          <View style={{ marginVertical: 5 }}>
             <Text
               style={{
-                color: '#000000',
+                color: "#000000",
                 fontSize: 14,
-                fontFamily: 'Rubik-Regular',
-              }}>
+                fontFamily: "Rubik-Regular",
+              }}
+            >
               Daily Goals
             </Text>
-            <Text style={{...styles.stepsText, marginVertical: 15}}>
+            <Text style={{ ...styles.stepsText, marginVertical: 15 }}>
               {dailyGoal} steps
             </Text>
           </View>
-          <View style={{marginVertical: 5}}>
+          <View style={{ marginVertical: 5 }}>
             <Text
               style={{
-                color: '#000000',
+                color: "#000000",
                 fontSize: 14,
-                fontFamily: 'Rubik-Regular',
-              }}>
+                fontFamily: "Rubik-Regular",
+              }}
+            >
               Weekly Goals
             </Text>
-            <Text style={{...styles.stepsText, marginVertical: 15}}>
+            <Text style={{ ...styles.stepsText, marginVertical: 15 }}>
               {/* 20,000 steps */}
               {weeklyGoal} steps
             </Text>
@@ -172,13 +195,15 @@ const UpdateGoals = ({
 
           <TouchableOpacity
             style={styles.btn}
-            onPress={() => bottomSheetRef?.current?.open()}>
+            onPress={() => bottomSheetRef?.current?.open()}
+          >
             <Text
               style={{
-                color: '#FFF',
+                color: "#FFF",
                 fontSize: 16,
-                fontFamily: 'Rubik-Regular',
-              }}>
+                fontFamily: "Rubik-Regular",
+              }}
+            >
               Update
             </Text>
           </TouchableOpacity>
@@ -189,84 +214,90 @@ const UpdateGoals = ({
             openDuration={250}
             closeOnDragDown={true}
             closeOnPressMask={true}
-            animationType={'slide'}
+            animationType={"slide"}
             customStyles={{
               container: {
                 padding: 5,
-                alignItems: 'center',
+                alignItems: "center",
                 flex: 1,
-                backgroundColor: '#ffffff',
+                backgroundColor: "#ffffff",
                 borderRadius: 30,
               },
               draggableIcon: {
-                backgroundColor: '#003e6b',
+                backgroundColor: "#003e6b",
               },
-            }}>
+            }}
+          >
             <View
               style={{
-                width: '100%',
-                alignItems: 'center',
-              }}>
+                width: "100%",
+                alignItems: "center",
+              }}
+            >
               <Text style={styles.RBTitle}>Steps Goals</Text>
               {/*--------------------------------------- daily goals------------------------------- */}
-              <View style={{marginBottom: 5}}>
-                <View style={{marginVertical: 5, alignItems: 'center'}}>
+              <View style={{ marginBottom: 5 }}>
+                <View style={{ marginVertical: 5, alignItems: "center" }}>
                   <Text
                     style={{
-                      color: '#000000',
+                      color: "#000000",
                       fontSize: 14,
-                      fontFamily: 'Rubik-Regular',
-                    }}>
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
                     Daily Goals:
                   </Text>
                   <Text style={styles.stepsText}>{newDAilyGoals} steps</Text>
                   <MultiSlider
                     min={0}
-                    max={18000}
+                    max={10000}
                     step={1}
-                    values={[newDAilyGoals]}
+                    values={[parseInt(newDAilyGoals)]}
                     markerStyle={styles.sliderMarkerStyle}
                     trackStyle={styles.sliderTrackStyle}
                     selectedStyle={styles.sliderSelectedStyle}
                     unselectedStyle={styles.sliderUnSelectedStyle}
-                    onValuesChange={value => setNewDAilyGoals(value[0])}
+                    onValuesChange={(value) => setNewDAilyGoals(value[0])}
                   />
                 </View>
               </View>
               {/* -----------------------------------weekly goals----------------------------------------- */}
-              <View style={{marginBottom: 5}}>
-                <View style={{marginVertical: 5, alignItems: 'center'}}>
+              <View style={{ marginBottom: 5 }}>
+                <View style={{ marginVertical: 5, alignItems: "center" }}>
                   <Text
                     style={{
-                      color: '#000000',
+                      color: "#000000",
                       fontSize: 14,
-                      fontFamily: 'Rubik-Regular',
-                    }}>
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
                     Weekly Goals:
                   </Text>
                   <Text style={styles.stepsText}>{newWeeklyGoals} steps</Text>
                   <MultiSlider
                     min={0}
-                    max={40000}
+                    max={30000}
                     step={1}
-                    values={[newWeeklyGoals]}
+                    values={[parseInt(newWeeklyGoals)]}
                     markerStyle={styles.sliderMarkerStyle}
                     trackStyle={styles.sliderTrackStyle}
                     selectedStyle={styles.sliderSelectedStyle}
                     unselectedStyle={styles.sliderUnSelectedStyle}
-                    onValuesChange={value => setNewWeeklyGoals(value[0])}
+                    onValuesChange={(value) => setNewWeeklyGoals(value[0])}
                   />
                 </View>
               </View>
               <TouchableOpacity
-                style={{...styles.btn, marginTop: 20, width: '90%'}}
-                onPress={() => handleUpdateGoals()}>
+                style={{ ...styles.btn, marginTop: 20, width: "90%" }}
+                onPress={() => handleUpdateGoals()}
+              >
                 <Text
                   style={{
-                    color: '#FFF',
+                    color: "#FFF",
                     fontSize: 16,
-                    fontFamily: 'Rubik-Regular',
-                  }}>
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
                   Update
                 </Text>
               </TouchableOpacity>
@@ -283,45 +314,45 @@ export default UpdateGoals;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
   },
   stepsText: {
-    color: '#38acff',
+    color: "#38acff",
     fontSize: 24,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   btn: {
-    backgroundColor: '#38ACFF',
+    backgroundColor: "#38ACFF",
     marginTop: 30,
     marginBottom: 40,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 10,
   },
   RBTitle: {
-    color: '#003e6b',
+    color: "#003e6b",
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 10,
     marginTop: 5,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   sliderMarkerStyle: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     height: 20,
     width: 20,
     borderRadius: 20,
     elevation: 5,
-    shadowColor: 'blue',
+    shadowColor: "blue",
   },
   sliderSelectedStyle: {
     // backgroundColor: '#38acff',
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
   sliderUnSelectedStyle: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
   sliderTrackStyle: {
     height: 2.5,
