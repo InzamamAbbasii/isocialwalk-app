@@ -1,5 +1,5 @@
-import {style} from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
-import React, {useState} from 'react';
+import { style } from "deprecated-react-native-prop-types/DeprecatedImagePropType";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,21 +9,28 @@ import {
   Image,
   TextInput,
   ActivityIndicator,
-} from 'react-native';
-import {api} from '../constants/api';
-import Snackbar from 'react-native-snackbar';
-import axios from 'react-native-axios';
-const ForgotPassword = ({navigation}) => {
-  const left_arrow = require('../../assets/images/left-arrow.png');
+} from "react-native";
+import { api } from "../constants/api";
+import Snackbar from "react-native-snackbar";
+import axios from "react-native-axios";
+const ForgotPassword = ({ navigation }) => {
+  const left_arrow = require("../../assets/images/left-arrow.png");
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isInvalidEmail, setIsInvalidEmail] = useState(false);
   const [errorMessage, setErrorMessage] = useState(
-    "The email doesn't look right",
+    "The email doesn't look right"
   );
 
   const handleSend = async () => {
-    if (email.length === 0) {
+    // navigation.navigate("Verification", {
+    //   email: "test",
+    //   code: "1312",
+    // });
+
+    // return;
+
+    if (email?.length === 0) {
       setIsInvalidEmail(true);
       setErrorMessage("The email doesn't look right");
     } else {
@@ -35,17 +42,17 @@ const ForgotPassword = ({navigation}) => {
       };
 
       var requestOptions = {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(data),
-        redirect: 'follow',
+        redirect: "follow",
       };
       fetch(api.forgetpassword, requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          console.log('response :: ', result);
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("response :: ", result);
           if (result[0]) {
             if (result[0]?.error == false) {
-              navigation.navigate('Verification', {
+              navigation.navigate("Verification", {
                 email: result[0]?.sentto,
                 code: result[0]?.code,
               });
@@ -55,74 +62,80 @@ const ForgotPassword = ({navigation}) => {
             }
           }
         })
-        .catch(error => console.log('error', error))
+        .catch((error) => console.log("error", error))
         .finally(() => setLoading(false));
     }
   };
   return (
     <View style={styles.container}>
       <ScrollView
-        style={{flex: 1}}
+        style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: 20,
         }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.headerView}>
           <TouchableOpacity
-            style={{padding: 10, paddingLeft: 0}}
-            onPress={() => navigation?.goBack()}>
-            <Image source={left_arrow} style={{width: 14, height: 24}} />
+            style={{ padding: 10, paddingLeft: 0 }}
+            onPress={() => navigation?.goBack()}
+          >
+            <Image source={left_arrow} style={{ width: 14, height: 24 }} />
           </TouchableOpacity>
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 24,
               marginTop: 40,
               // fontWeight: 'bold',
-              fontFamily: 'Rubik-Bold',
-            }}>
+              fontFamily: "Rubik-Bold",
+            }}
+          >
             Forgot Password
           </Text>
         </View>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 16,
               marginTop: 8,
-              fontFamily: 'Rubik-Regular',
-            }}>
+              fontFamily: "Rubik-Regular",
+            }}
+          >
             Please Provide your account email so that we can send password reset
             code
           </Text>
           <View style={styles.textInputView}>
             <Text
               style={{
-                color: '#000',
+                color: "#000",
                 marginVertical: 10,
-                fontFamily: 'Rubik-Regular',
-              }}>
+                fontFamily: "Rubik-Regular",
+              }}
+            >
               Email Address
             </Text>
             <TextInput
               style={{
                 ...styles.textInput,
-                borderColor: isInvalidEmail ? '#D66262' : '#ccc',
+                borderColor: isInvalidEmail ? "#D66262" : "#ccc",
               }}
-              placeholder={'Enter your Email'}
+              placeholder={"Enter your Email"}
               value={email}
-              onChangeText={txt => setEmail(txt)}
+              onChangeText={(txt) => setEmail(txt)}
             />
             {isInvalidEmail && (
               <Text
                 style={{
-                  color: '#D66262',
+                  color: "#D66262",
                   fontSize: 10,
                   marginLeft: 10,
                   marginTop: 3,
-                  fontFamily: 'Rubik-Regular',
-                }}>
+                  fontFamily: "Rubik-Regular",
+                }}
+              >
                 {errorMessage}
               </Text>
             )}
@@ -131,9 +144,10 @@ const ForgotPassword = ({navigation}) => {
           <TouchableOpacity
             disabled={loading}
             style={styles.btn}
-            onPress={() => handleSend()}>
+            onPress={() => handleSend()}
+          >
             <Text style={styles.btnText}>Send Password Reset Code</Text>
-            {loading && <ActivityIndicator size={'small'} color={'#fff'} />}
+            {loading && <ActivityIndicator size={"small"} color={"#fff"} />}
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -146,7 +160,7 @@ export default ForgotPassword;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   headerView: {
     marginTop: 20,
@@ -156,25 +170,25 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 5,
     paddingHorizontal: 17,
     borderRadius: 5,
   },
   btn: {
-    backgroundColor: '#38ACFF',
+    backgroundColor: "#38ACFF",
     marginTop: 30,
     marginBottom: 40,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 5,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   btnText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
     marginRight: 5,
   },
 });
