@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,127 +11,133 @@ import {
   TextInput,
   Pressable,
   Animated,
-} from 'react-native';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {captureScreen} from 'react-native-view-shot';
-import {useNavigation} from '@react-navigation/native';
+} from "react-native";
+import RBSheet from "react-native-raw-bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { captureScreen } from "react-native-view-shot";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
-const SCREEN_WIDTH = Dimensions.get('screen').width;
+const SCREEN_WIDTH = Dimensions.get("screen").width;
 
-import {api} from '../../constants/api';
-import Loader from '../../Reuseable Components/Loader';
-import Snackbar from 'react-native-snackbar';
+import { api } from "../../constants/api";
+import Loader from "../../Reuseable Components/Loader";
+import Snackbar from "react-native-snackbar";
 
-const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
+const Friends = ({
+  scale,
+  showMenu,
+  setShowMenu,
+  moveToRight,
+  setActiveTab,
+}) => {
   const navigation = useNavigation();
   const bottomSheetRef = useRef();
 
   const [loading, setLoading] = useState(false);
 
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([
-    {
-      id: 0,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 1,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 2,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 3,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 4,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 5,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 6,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 7,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 8,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 9,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 10,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 11,
-      friend_name: 'Username',
-      selected: false,
-    },
-    {
-      id: 12,
-      friend_name: 'Username',
-      selected: false,
-    },
+    // {
+    //   id: 0,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 1,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 2,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 3,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 4,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 5,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 6,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 7,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 8,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 9,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 10,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 11,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
+    // {
+    //   id: 12,
+    //   friend_name: "Username",
+    //   selected: false,
+    // },
   ]);
   const [isSuggestedVisible, setIsSuggestedVisible] = useState(true);
   const [suggestedFriends, setSuggestedFriends] = useState([
-    {
-      id: 0,
-      friend_name: 'Username',
-      status: false,
-    },
-    {
-      id: 1,
-      friend_name: 'Username',
-      status: false,
-    },
-    {
-      id: 2,
-      friend_name: 'Username',
-      status: false,
-    },
-    {
-      id: 3,
-      friend_name: 'Username',
-      status: false,
-    },
-    {
-      id: 4,
-      friend_name: 'Username',
-      status: false,
-    },
+    // {
+    //   id: 0,
+    //   friend_name: "Username",
+    //   status: false,
+    // },
+    // {
+    //   id: 1,
+    //   friend_name: "Username",
+    //   status: false,
+    // },
+    // {
+    //   id: 2,
+    //   friend_name: "Username",
+    //   status: false,
+    // },
+    // {
+    //   id: 3,
+    //   friend_name: "Username",
+    //   status: false,
+    // },
+    // {
+    //   id: 4,
+    //   friend_name: "Username",
+    //   status: false,
+    // },
   ]);
 
   const [friendsList, setFriendsList] = useState([
-    {
-      id: 0,
-      name: 'Saffa',
-      avater: require('../../../assets/images/user1.png'),
-    },
+    // {
+    //   id: 0,
+    //   name: "Saffa",
+    //   avater: require("../../../assets/images/user1.png"),
+    // },
     // {
     //   id: 0,
     //   name: 'Nahla',
@@ -159,8 +165,8 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
     // },
   ]);
 
-  const handleonAdd = async id => {
-    console.log('id ::: ', id);
+  const handleonAdd = async (id) => {
+    console.log("id ::: ", id);
     // const newData = suggestedFriends.map(item => {
     //   if (id == item.id) {
     //     return {
@@ -175,23 +181,23 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
     // });
     // setSuggestedFriends(newData);
 
-    let user_id = await AsyncStorage.getItem('user_id');
+    let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let data = {
       user_id: user_id,
       to_id: id,
     };
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
-      redirect: 'follow',
+      redirect: "follow",
     };
     fetch(api.addfriends, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('resulty  :: ', result);
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("resulty  :: ", result);
         if (result?.error == false) {
-          const newData = suggestedFriends.map(item => {
+          const newData = suggestedFriends.map((item) => {
             if (id == item.id) {
               return {
                 ...item,
@@ -221,12 +227,12 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
         //   setFriendsList(result[0]?.profile);
         // }
       })
-      .catch(error => console.log('error', error))
+      .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
   };
 
-  const handleonSearchItemPress = id => {
-    const newData = searchResults.map(item => {
+  const handleonSearchItemPress = (id) => {
+    const newData = searchResults.map((item) => {
       if (id == item.id) {
         return {
           ...item,
@@ -241,109 +247,164 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
     setSearchResults(newData);
   };
 
-  const handleOpenDrawer = navigation => {
+  const handleOpenDrawer = (navigation) => {
     captureScreen({
-      format: 'jpg',
+      format: "jpg",
     })
-      .then(uri => {
-        AsyncStorage.setItem('Screen', uri.toString());
-        AsyncStorage.setItem('ScreenName', 'Friends');
+      .then((uri) => {
+        AsyncStorage.setItem("Screen", uri.toString());
+        AsyncStorage.setItem("ScreenName", "Friends");
         navigation.openDrawer();
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   };
-  useEffect(() => {
-    getSuggestedFriendsList();
-    // getFriendsList();
-  }, []);
+  // useEffect(() => {
+  //   getSuggestedFriendsList();
+  //   getFriendsList();
+  // }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getSuggestedFriendsList();
+      getFriendsList();
+    }, [])
+  );
 
   const getSuggestedFriendsList = async () => {
     try {
-      let user_id = await AsyncStorage.getItem('user_id');
+      let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
       setSuggestedFriends([]);
       let data = {
         this_user_id: user_id,
       };
       var requestOptions = {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(data),
-        redirect: 'follow',
+        redirect: "follow",
       };
 
       fetch(api.getfriendsuggestions, requestOptions)
-        .then(response => response.json())
-        .then(result => {
+        .then((response) => response.json())
+        .then((result) => {
           let responseList = [];
           if (result?.length > 0) {
-            result.forEach(element => {
+            result.forEach((element) => {
               let obj = {
-                id: element['Friend ID'],
-                firstName: element['First Name'],
-                lastname: element['lastname'],
-                full_name: element['First Name'] + ' ' + element['lastname'],
+                id: element["Friend ID"],
+                firstName: element["First Name"],
+                lastname: element["lastname"],
+                full_name: element["First Name"] + " " + element["lastname"],
                 // status: element?.status,
                 status: false,
                 image: element?.image,
-                active_watch: element['active watch'],
+                active_watch: element["active watch"],
               };
               responseList.push(obj);
             });
           }
           setSuggestedFriends(responseList);
         })
-        .catch(error => console.log('error', error))
+        .catch((error) => console.log("error", error))
         .finally(() => setLoading(false));
     } catch (error) {
-      console.log('error :', error);
+      console.log("error :", error);
       setLoading(false);
     }
   };
 
   const getFriendsList = async () => {
-    let user_id = await AsyncStorage.getItem('user_id');
+    let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     setFriendsList([]);
     let data = {
       this_user_id: user_id,
     };
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
-      redirect: 'follow',
+      redirect: "follow",
     };
     fetch(api.getallfriends, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('friend list :::: ', result);
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("friend list :::: ", result);
         let responseList = [];
-        if (result[0]?.profile == 'No Friends') {
-          console.log('no friend found');
+        if (result[0]?.profile == "No Friends") {
+          console.log("no friend found");
         } else if (result[0]?.profile?.length > 0) {
           setFriendsList(result[0]?.profile);
         }
       })
-      .catch(error => console.log('error', error))
+      .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
   };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch(searchText);
+    }, 1500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchText]);
+
+  const handleSearch = async (searchText) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    if (searchText) {
+      setLoading(true);
+      let data = {
+        this_user_id: user_id,
+        name: searchText,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.search_friend, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            let responseList = result[0]?.friends ? result[0]?.friends : [];
+            setSearchResults(responseList);
+          } else {
+            setSearchResults([]);
+            Snackbar.show({
+              text: result[0]?.Message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => setLoading(false));
+    }
+  };
+
   return (
     <Animated.View
       style={{
         zIndex: 999,
         flex: 1,
-        backgroundColor: 'white',
-        position: 'absolute',
+        backgroundColor: "white",
+        position: "absolute",
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
         borderRadius: showMenu ? 15 : 0,
         // transform: [{scale: scale}, {translateX: moveToRight}],
-      }}>
+      }}
+    >
       <View style={styles.container}>
         <ScrollView
-          contentContainerStyle={{flexGrow: 1}}
-          showsVerticalScrollIndicator={false}>
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
           {loading && <Loader />}
           <View style={styles.headerView}>
             {/* <Pressable onPress={() => handleOpenDrawer(navigation)}> */}
@@ -359,71 +420,80 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                   duration: 300,
                   useNativeDriver: true,
                 }).start();
-                setActiveTab('Friends');
+                setActiveTab("Friends");
                 setShowMenu(!showMenu);
-              }}>
+              }}
+            >
               {/* <Image source={require('../../../assets/images/Line1.png')} />
               <Image
                 source={require('../../../assets/images/Line2.png')}
                 style={{marginTop: 5}}
               /> */}
               <Image
-                source={require('../../../assets/images/menu1.png')}
-                style={{width: 34, height: 17}}
+                source={require("../../../assets/images/menu1.png")}
+                style={{ width: 34, height: 17 }}
               />
             </Pressable>
             <Text style={styles.headerTitle}>Friends</Text>
             <TouchableOpacity onPress={() => bottomSheetRef?.current?.open()}>
               <Image
-                source={require('../../../assets/images/addFriend1.png')}
+                source={require("../../../assets/images/addFriend1.png")}
               />
             </TouchableOpacity>
           </View>
 
-          <View style={{...styles.searchView, marginHorizontal: 20}}>
+          <View style={{ ...styles.searchView, marginHorizontal: 20 }}>
             <TextInput
               style={styles.searchTextInput}
-              placeholder={'Search'}
+              placeholder={"Search"}
               value={searchText}
-              onChangeText={txt => setSearchText(txt)}
+              onChangeText={(txt) => setSearchText(txt)}
             />
             <Image
-              source={require('../../../assets/images/search-small.png')}
-              style={{height: 20, width: 20}}
+              source={require("../../../assets/images/search-small.png")}
+              style={{ height: 20, width: 20 }}
             />
           </View>
           {searchText.length > 0 ? (
-            <View style={{flex: 1, paddingHorizontal: 20}}>
+            <View style={{ flex: 1, paddingHorizontal: 20 }}>
               <Text
                 style={{
-                  color: '#000000',
+                  color: "#000000",
                   fontSize: 16,
-                }}>
+                }}
+              >
                 Search Results
               </Text>
               {/* ----------------------Search Result List ---------------------------- */}
-              <View style={{marginVertical: 15, paddingBottom: 10}}>
+              <View style={{ marginVertical: 15, paddingBottom: 10 }}>
                 <FlatList
                   numColumns={3}
-                  key={'_'}
+                  key={"_"}
                   data={searchResults}
                   showsVerticalScrollIndicator={false}
-                  keyExtractor={(item, index) => '_' + index.toString()}
-                  renderItem={item => {
+                  keyExtractor={(item, index) => "_" + index.toString()}
+                  renderItem={(item) => {
                     return (
-                      <View style={{...styles.cardView, width: '28.9%'}}>
+                      <View
+                        style={{
+                          ...styles.cardView,
+                          height: 105,
+                          width: "28.9%",
+                        }}
+                      >
                         <Image
-                          source={require('../../../assets/images/friend-profile.png')}
-                          style={{marginVertical: 8, width: 44, height: 44}}
+                          source={require("../../../assets/images/friend-profile.png")}
+                          style={{ marginVertical: 8, width: 44, height: 44 }}
                         />
                         <Text style={styles.friend_name}>
-                          {item.item.friend_name}
+                          {item?.item?.first_name}
                         </Text>
-                        <View
+                        {/* <View
                           style={{
-                            justifyContent: 'flex-end',
+                            justifyContent: "flex-end",
                             flex: 1,
-                          }}>
+                          }}
+                        >
                           <TouchableOpacity
                             onPress={() =>
                               handleonSearchItemPress(item.item.id)
@@ -431,15 +501,16 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                             style={{
                               ...styles.cardButton,
                               backgroundColor: item.item.selected
-                                ? '#ccc'
-                                : '#38acff',
+                                ? "#ccc"
+                                : "#38acff",
                               width: item.item.selected ? 70 : 60,
-                            }}>
-                            <Text style={{color: '#ffffff', fontSize: 11}}>
-                              {item.item.selected ? 'Requested' : 'Add'}
+                            }}
+                          >
+                            <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                              {item.item.selected ? "Requested" : "Add"}
                             </Text>
                           </TouchableOpacity>
-                        </View>
+                        </View> */}
                       </View>
                     );
                   }}
@@ -447,34 +518,37 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
               </View>
             </View>
           ) : (
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <View
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   paddingHorizontal: 20,
-                }}>
+                }}
+              >
                 <Text
                   style={{
-                    color: '#000000',
+                    color: "#000000",
                     fontSize: 16,
-                  }}>
+                  }}
+                >
                   Suggested Friends
                 </Text>
 
                 <TouchableOpacity
                   style={styles.btnArrow}
-                  onPress={() => setIsSuggestedVisible(!isSuggestedVisible)}>
+                  onPress={() => setIsSuggestedVisible(!isSuggestedVisible)}
+                >
                   {isSuggestedVisible ? (
                     <Image
-                      source={require('../../../assets/images/arrow-up1.png')}
-                      style={{height: 9, width: 15}}
+                      source={require("../../../assets/images/arrow-up1.png")}
+                      style={{ height: 9, width: 15 }}
                     />
                   ) : (
                     <Image
-                      source={require('../../../assets/images/arrow-down1.png')}
-                      style={{height: 9, width: 15, tintColor: '#000'}}
+                      source={require("../../../assets/images/arrow-down1.png")}
+                      style={{ height: 9, width: 15, tintColor: "#000" }}
                     />
                   )}
                 </TouchableOpacity>
@@ -484,25 +558,31 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                 style={{
                   marginVertical: 15,
                   paddingHorizontal: 10,
-                }}>
+                }}
+              >
                 {isSuggestedVisible && (
                   <FlatList
                     data={suggestedFriends}
                     keyExtractor={(item, index) => index.toString()}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    renderItem={item => {
+                    renderItem={(item) => {
                       return (
                         <TouchableOpacity
                           onPress={() => {
                             item.index == 0
-                              ? navigation.navigate('FriendRequest')
-                              : navigation.navigate('AddFriend');
+                              ? navigation.navigate("FriendRequest")
+                              : navigation.navigate("AddFriend");
                           }}
-                          style={{...styles.cardView, width: 101, height: 137}}>
+                          style={{
+                            ...styles.cardView,
+                            width: 101,
+                            height: 137,
+                          }}
+                        >
                           <Image
-                            source={require('../../../assets/images/friend-profile.png')}
-                            style={{marginVertical: 8, width: 44, height: 44}}
+                            source={require("../../../assets/images/friend-profile.png")}
+                            style={{ marginVertical: 8, width: 44, height: 44 }}
                           />
                           <Text style={styles.friend_name} numberOfLines={1}>
                             {/* {item.item.friend_name} */}
@@ -510,14 +590,18 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                           </Text>
                           <View
                             style={{
-                              justifyContent: 'flex-end',
+                              justifyContent: "flex-end",
                               // flex: 1,
-                            }}>
+                            }}
+                          >
                             {item.item.status == true ? (
                               <TouchableOpacity
                                 onPress={() => handleonAdd(item.item.id)}
-                                style={styles.cardButton}>
-                                <Text style={{color: '#ffffff', fontSize: 11}}>
+                                style={styles.cardButton}
+                              >
+                                <Text
+                                  style={{ color: "#ffffff", fontSize: 11 }}
+                                >
                                   Requested
                                 </Text>
                               </TouchableOpacity>
@@ -526,10 +610,13 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                                 onPress={() => handleonAdd(item.item.id)}
                                 style={{
                                   ...styles.cardButton,
-                                  backgroundColor: '#38acff',
+                                  backgroundColor: "#38acff",
                                   width: 60,
-                                }}>
-                                <Text style={{color: '#ffffff', fontSize: 11}}>
+                                }}
+                              >
+                                <Text
+                                  style={{ color: "#ffffff", fontSize: 11 }}
+                                >
                                   Add
                                 </Text>
                               </TouchableOpacity>
@@ -542,37 +629,43 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                 )}
               </View>
 
-              <View style={{flex: 1}}>
+              <View style={{ flex: 1 }}>
                 <Text
                   style={{
-                    color: '#000000',
+                    color: "#000000",
                     fontSize: 16,
                     paddingHorizontal: 20,
-                    fontFamily: 'Rubik-Regular',
-                  }}>
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
                   Friends
                 </Text>
                 {friendsList.length == 0 ? ( //no friends exist
                   <View
                     style={{
                       flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      alignItems: "center",
+                      justifyContent: "center",
                       paddingHorizontal: 20,
-                    }}>
+                    }}
+                  >
                     <Image
-                      source={require('../../../assets/images/friend1.png')}
-                      style={{backgroundColor: '#FFFF', resizeMode: 'contain'}}
+                      source={require("../../../assets/images/friend1.png")}
+                      style={{
+                        backgroundColor: "#FFFF",
+                        resizeMode: "contain",
+                      }}
                     />
                     <Text
                       style={{
                         width: 159,
-                        textAlign: 'center',
+                        textAlign: "center",
                         fontSize: 16,
-                        color: '#000000',
+                        color: "#000000",
                         marginVertical: 20,
-                        fontFamily: 'Rubik-Regular',
-                      }}>
+                        fontFamily: "Rubik-Regular",
+                      }}
+                    >
                       Added friends would appear here
                     </Text>
                   </View>
@@ -582,30 +675,36 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
                       marginVertical: 15,
                       paddingBottom: 10,
                       paddingHorizontal: 20,
-                    }}>
+                    }}
+                  >
                     <FlatList
                       data={friendsList}
                       numColumns={3}
                       showsVerticalScrollIndicator={false}
                       keyExtractor={(item, index) => index.toString()}
-                      renderItem={item => {
+                      renderItem={(item) => {
                         return (
                           <TouchableOpacity
-                            onPress={() => navigation.navigate('FriendProfile')}
+                            onPress={() => navigation.navigate("FriendProfile")}
                             style={{
                               ...styles.cardView,
-                              justifyContent: 'center',
+                              justifyContent: "center",
                               height: 110,
-                              width: '28.9%',
-                            }}>
+                              width: "28.9%",
+                            }}
+                          >
                             {/* <Image
                               source={item.item.avater}
                               style={{marginVertical: 8, width: 55, height: 55}}
                             /> */}
 
                             <Image
-                              source={require('../../../assets/images/friend-profile.png')}
-                              style={{marginVertical: 8, width: 55, height: 55}}
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 55,
+                                height: 55,
+                              }}
                             />
                             <Text style={styles.cardText}>
                               {/* {item.item.name} */}
@@ -627,50 +726,54 @@ const Friends = ({scale, showMenu, setShowMenu, moveToRight, setActiveTab}) => {
             openDuration={250}
             closeOnDragDown={true}
             closeOnPressMask={false}
-            animationType={'slide'}
+            animationType={"slide"}
             customStyles={{
               container: {
                 padding: 5,
-                alignItems: 'center',
+                alignItems: "center",
                 height: 530,
                 flex: 1,
-                backgroundColor: '#ffffff',
+                backgroundColor: "#ffffff",
                 borderRadius: 30,
               },
               draggableIcon: {
-                backgroundColor: '#003e6b',
+                backgroundColor: "#003e6b",
               },
-            }}>
+            }}
+          >
             <Text
               style={{
-                color: '#003e6b',
+                color: "#003e6b",
                 fontSize: 18,
-                fontFamily: 'Rubik-Regular',
+                fontFamily: "Rubik-Regular",
                 marginTop: 5,
-              }}>
+              }}
+            >
               Invite Friends
             </Text>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('ShareableInvitationLink');
+                navigation.navigate("ShareableInvitationLink");
                 bottomSheetRef?.current?.close();
               }}
               style={{
-                flexDirection: 'row',
+                flexDirection: "row",
                 marginTop: 30,
-                alignItems: 'center',
-              }}>
+                alignItems: "center",
+              }}
+            >
               <Image
-                source={require('../../../assets/images/share-link.png')}
-                style={{width: 30, height: 30}}
+                source={require("../../../assets/images/share-link.png")}
+                style={{ width: 30, height: 30 }}
               />
               <Text
                 style={{
-                  color: '#000000',
+                  color: "#000000",
                   fontSize: 16,
                   marginLeft: 10,
-                  fontFamily: 'Rubik-Regular',
-                }}>
+                  fontFamily: "Rubik-Regular",
+                }}
+              >
                 Shareable invitation Link
               </Text>
             </TouchableOpacity>
@@ -686,77 +789,77 @@ export default Friends;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     // paddingHorizontal: 20,
     paddingTop: 20,
   },
   headerView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     height: 40,
     paddingHorizontal: 20,
   },
-  headerTitle: {color: '#000000', fontSize: 25, fontFamily: 'Rubik-Regular'},
+  headerTitle: { color: "#000000", fontSize: 25, fontFamily: "Rubik-Regular" },
   searchView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     height: 40,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#CCC',
+    borderColor: "#CCC",
     paddingHorizontal: 20,
     marginVertical: 20,
   },
   searchTextInput: {
     flex: 1,
-    borderColor: '#FFFFFF',
+    borderColor: "#FFFFFF",
     paddingVertical: 8,
-    color: '#000000',
+    color: "#000000",
   },
   cardView: {
     height: 137,
     width: 92,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
-    shadowColor: 'blue',
+    shadowColor: "blue",
     elevation: 5,
     padding: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 8,
     marginVertical: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   cardButton: {
-    backgroundColor: '#d8d8d8',
+    backgroundColor: "#d8d8d8",
     width: 70,
     borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 5,
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     padding: 5,
   },
   cardText: {
-    color: '#040103',
-    textAlign: 'center',
+    color: "#040103",
+    textAlign: "center",
     fontSize: 15,
     width: 75,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   friend_name: {
-    color: '#040103',
-    textAlign: 'center',
+    color: "#040103",
+    textAlign: "center",
     fontSize: 13,
     width: 75,
     marginVertical: 5,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   btnArrow: {
     height: 20,
     width: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
