@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,86 +10,88 @@ import {
   FlatList,
   Platform,
   Dimensions,
-} from 'react-native';
-import moment from 'moment/moment';
-import Header from '../../Reuseable Components/Header';
-import DropDownPicker from 'react-native-dropdown-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {api} from '../../constants/api';
-import Snackbar from 'react-native-snackbar';
-import Loader from '../../Reuseable Components/Loader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import moment from "moment/moment";
+import Header from "../../Reuseable Components/Header";
+import DropDownPicker from "react-native-dropdown-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { api } from "../../constants/api";
+import Snackbar from "react-native-snackbar";
+import Loader from "../../Reuseable Components/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const CreateChallenges = ({navigation, route}) => {
+const CreateChallenges = ({ navigation, route }) => {
   const [challengeImage, setchallengeImage] = useState(null);
   const [membersList, setMembersList] = useState([
-    {
-      id: 0,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 1,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 2,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 3,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 4,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 5,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 6,
-      group_name: 'Naomi',
-      selected: false,
-    },
-    {
-      id: 7,
-      group_name: 'Naomi',
-      selected: false,
-    },
+    // {
+    //   id: 0,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 1,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 2,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 3,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 4,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 5,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 6,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
+    // {
+    //   id: 7,
+    //   group_name: "Naomi",
+    //   selected: false,
+    // },
   ]);
+
+  const [groupsList, setGroupsList] = useState([]);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
-    {label: 'Apple', value: 'apple'},
-    {label: 'Banana', value: 'banana'},
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
   ]);
   // challenges list
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [challengeTypes, setChallengeTypes] = useState([
-    {label: 'Individual Challenge', value: 'indiviual'},
-    {label: 'Group Challenge', value: 'group'},
+    { label: "Individual Challenge", value: "indiviual" },
+    { label: "Group Challenge", value: "group" },
   ]);
   const [selectedChallengeType, setSelectedChallengeType] = useState(
-    challengeTypes[0].value,
+    challengeTypes[0].value
   );
 
   //challenges visibility
   const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
   const [challengeVisibilities, setChallengeVisibilities] = useState([
-    {label: 'Public', value: 'public'},
-    {label: 'Private', value: 'private'},
+    { label: "Public", value: "public" },
+    { label: "Private", value: "private" },
   ]);
   const [selectedVisibility, setSelectedVisibility] = useState(
-    challengeVisibilities[0].value,
+    challengeVisibilities[0].value
   );
 
   //challenges entry
@@ -97,18 +99,18 @@ const CreateChallenges = ({navigation, route}) => {
   const [entriesList, setEntriesList] = useState([
     // {label: 'Anyone can join', value: 'Anyone can join'},
     // {label: 'Permission Required', value: 'Permission Required'},
-    {label: 'Anyone can join', value: 'public'},
-    {label: 'Permission Required', value: 'private'},
+    { label: "Anyone can join", value: "public" },
+    { label: "Permission Required", value: "private" },
   ]);
   const [selectedEntry, setSelectedEntry] = useState(entriesList[0]?.value);
 
-  //setps list
+  //steps list
   const [isMetricopen, setIsMetricopen] = useState(false);
   const [metricList, setMetricList] = useState([
     // {label: 'Total Steps', value: 'Total Steps'},
-    {label: '1000', value: '1000'},
-    {label: '30000', value: '3000'},
-    {label: '5000', value: '5000'},
+    { label: "Daily", value: "Daily" },
+    { label: "Weekly", value: "Weekly" },
+    { label: "Monthly", value: "Monthly" },
   ]);
 
   const [selectedMetric, setselectedMetric] = useState(null);
@@ -120,8 +122,144 @@ const CreateChallenges = ({navigation, route}) => {
   const [endDate, setEndDate] = useState(new Date());
 
   const [loading, setLoading] = useState(false);
-  const [challengeName, setChallengeName] = useState('');
-  const [metricNumber, setMetricNumber] = useState('');
+  const [challengeName, setChallengeName] = useState("");
+  const [metricNumber, setMetricNumber] = useState("");
+  useEffect(() => {
+    getAddMembersList();
+    getUserGroups();
+  }, []);
+
+  const getUserGroups = async () => {
+    console.log("gettting logged in user groups deatils s :: ");
+    let user_id = await AsyncStorage.getItem("user_id");
+    // setGroupList([]);
+    let data = {
+      created_by_user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.search_group_by_specific_admin, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        if (result?.error == false || result?.error == "false") {
+          let responseList = result?.Groups ? result?.Groups : [];
+          let list = [];
+          if (responseList?.length > 0) {
+            responseList.forEach((element) => {
+              let obj = {
+                id: element?.id,
+                name: element?.name,
+                profile: element?.image,
+                status: false,
+              };
+              list.push(obj);
+            });
+          } else {
+            Snackbar.show({
+              text: "No Group Found",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+          setGroupsList(list);
+          // setGroupList(list);
+        } else {
+          // setGroupList([]);
+          Snackbar.show({
+            text: result?.Message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error  : ", error);
+        Snackbar.show({
+          text: "Something went wrong.Unable to get groups.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const getAddMembersList = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      this_user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.showmembers, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result[0]?.error == false || result[0]?.error == false) {
+          // console.log("add member list response  ::: ", result);
+          let list = result[0]["array of Members"]
+            ? result[0]["array of Members"]
+            : [];
+          let responseList = [];
+          for (const element of list) {
+            let user_info = await getUser_Info(element);
+            console.log("user info  :::: ", user_info);
+            if (user_info == false) {
+              console.log("user detail not found ....");
+            } else {
+              let obj = {
+                id: element, //userid
+                name: user_info?.first_name,
+                profile: user_info["profile image"],
+                status: false,
+              };
+              responseList.push(obj);
+            }
+          }
+          setMembersList(responseList);
+        } else {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => console.log("error", error))
+      .finally(() => setLoading(false));
+  };
+
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
+  };
 
   const onStartDateChange = (event, value) => {
     setStartDate(value);
@@ -135,22 +273,40 @@ const CreateChallenges = ({navigation, route}) => {
     var options = {
       storageOptions: {
         skipBackup: true,
-        path: 'images',
+        path: "images",
       },
     };
     await launchImageLibrary(options)
-      .then(res => {
+      .then((res) => {
         setchallengeImage(res.assets[0].uri);
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   };
 
-  const handleAddMember = id => {
-    const newData = membersList.map(item => {
+  const handleGroupSelect = (id) => {
+    const newData = groupsList.map((item) => {
       if (id === item.id) {
         return {
           ...item,
-          selected: !item.selected,
+          // selected: !item.selected,
+          status: !item.status,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setGroupsList(newData);
+  };
+  const handleAddMember = (id) => {
+    const newData = membersList.map((item) => {
+      console.log("item : ", item);
+      if (id === item.id) {
+        return {
+          ...item,
+          // selected: !item.selected,
+          status: !item.status,
         };
       } else {
         return {
@@ -164,23 +320,23 @@ const CreateChallenges = ({navigation, route}) => {
   const handleCreateChallenge = async () => {
     if (challengeName?.length == 0) {
       Snackbar.show({
-        text: 'Please Enter Challenge Name',
+        text: "Please Enter Challenge Name",
         duration: Snackbar.LENGTH_SHORT,
       });
     } else if (metricNumber?.length == 0) {
       Snackbar.show({
-        text: 'Please Enter Challenge Metric',
+        text: "Please Enter Challenge Metric",
         duration: Snackbar.LENGTH_SHORT,
       });
     } else if (selectedMetric == null) {
       Snackbar.show({
-        text: 'Please Select Challenge Metric Total Steps.',
+        text: "Please Select Challenge Metric Total Steps.",
         duration: Snackbar.LENGTH_SHORT,
       });
     } else {
-      console.log('handle create challenge...');
+      console.log("handle create challenge...");
 
-      let user_id = await AsyncStorage.getItem('user_id');
+      let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
       let data = {
         created_by_user_id: user_id,
@@ -188,29 +344,29 @@ const CreateChallenges = ({navigation, route}) => {
         challenge_type: selectedChallengeType,
         challenge_visibility: selectedVisibility,
         challenge_privacy: selectedEntry,
-        end_date: moment(new Date(endDate)).format('YYYY-MM-DD'),
-        start_date: moment(new Date(startDate)).format('YYYY-MM-DD'),
+        end_date: moment(new Date(endDate)).format("YYYY-MM-DD"),
+        start_date: moment(new Date(startDate)).format("YYYY-MM-DD"),
         challenge_metric_no: metricNumber,
         challenge_metric_step_type: selectedMetric,
       };
-      console.log('data of create challenge  ::: ', data);
+      console.log("data of create challenge  ::: ", data);
       var requestOptions = {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(data),
-        redirect: 'follow',
+        redirect: "follow",
       };
 
       fetch(api.create_challenge, requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          console.log('response create challenge ::: ', result);
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("response create challenge ::: ", result);
           if (
             result?.error == false ||
             result[0]?.error == false ||
-            result[0]?.error == 'false'
+            result[0]?.error == "false"
           ) {
             Snackbar.show({
-              text: 'Challenge Created successfully!',
+              text: "Challenge Created successfully!",
               duration: Snackbar.LENGTH_SHORT,
             });
           } else {
@@ -220,28 +376,32 @@ const CreateChallenges = ({navigation, route}) => {
             });
           }
         })
-        .catch(error => console.log('error occur in create challenge ', error))
+        .catch((error) =>
+          console.log("error occur in create challenge ", error)
+        )
         .finally(() => setLoading(false));
     }
   };
+
   return (
     <View style={styles.container}>
       <ScrollView
-        style={{flex: 1}}
+        style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: 20,
         }}
-        showsVerticalScrollIndicator={false}>
-        <Header title={'Create Challenge'} navigation={navigation} />
+        showsVerticalScrollIndicator={false}
+      >
+        <Header title={"Create Challenge"} navigation={navigation} />
 
         {loading && <Loader />}
 
-        <View style={{marginVertical: 10, alignItems: 'center'}}>
+        <View style={{ marginVertical: 10, alignItems: "center" }}>
           <View style={{}}>
             {challengeImage == null ? (
               <Image
-                source={require('../../../assets/images/Challenge.png')}
+                source={require("../../../assets/images/Challenge.png")}
                 style={{
                   marginVertical: 10,
                   height: 123,
@@ -250,7 +410,7 @@ const CreateChallenges = ({navigation, route}) => {
               />
             ) : (
               <Image
-                source={{uri: challengeImage}}
+                source={{ uri: challengeImage }}
                 style={{
                   marginVertical: 10,
                   height: 123,
@@ -262,17 +422,18 @@ const CreateChallenges = ({navigation, route}) => {
             <TouchableOpacity
               onPress={() => pickImage()}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 right: 0,
                 top: 20,
-              }}>
+              }}
+            >
               <Image
-                source={require('../../../assets/images/camera.png')}
+                source={require("../../../assets/images/camera.png")}
                 style={{
                   width: 30,
                   height: 28,
                   borderRadius: 30,
-                  resizeMode: 'contain',
+                  resizeMode: "contain",
                 }}
               />
             </TouchableOpacity>
@@ -280,11 +441,12 @@ const CreateChallenges = ({navigation, route}) => {
 
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 17,
-              fontFamily: 'Rubik-Regular',
+              fontFamily: "Rubik-Regular",
               marginTop: 5,
-            }}>
+            }}
+          >
             Challenge image
           </Text>
         </View>
@@ -295,9 +457,9 @@ const CreateChallenges = ({navigation, route}) => {
             <TextInput
               style={styles.textInput}
               autoFocus
-              placeholder={'Enter Challenge Name'}
+              placeholder={"Enter Challenge Name"}
               value={challengeName}
-              onChangeText={txt => setChallengeName(txt)}
+              onChangeText={(txt) => setChallengeName(txt)}
             />
           </View>
           <View style={styles.textInputView}>
@@ -311,23 +473,23 @@ const CreateChallenges = ({navigation, route}) => {
               setValue={setSelectedChallengeType}
               setItems={setChallengeTypes}
               containerStyle={{
-                width: '100%',
+                width: "100%",
               }}
               dropDownContainerStyle={{
                 padding: 0,
-                alignSelf: 'center',
+                alignSelf: "center",
                 borderWidth: 1,
-                borderColor: '#ccc',
+                borderColor: "#ccc",
                 borderRadius: 4,
                 zIndex: 999,
               }}
               showTickIcon={false}
               selectedItemContainerStyle={{
-                backgroundColor: '#0496ff',
+                backgroundColor: "#0496ff",
                 marginHorizontal: 5,
               }}
               selectedItemLabelStyle={{
-                color: '#FFF',
+                color: "#FFF",
               }}
               scrollViewProps={{
                 showsVerticalScrollIndicator: false,
@@ -335,15 +497,15 @@ const CreateChallenges = ({navigation, route}) => {
               }}
               labelStyle={{
                 fontSize: 14,
-                textAlign: 'left',
+                textAlign: "left",
                 paddingLeft: 5,
               }}
               style={{
                 borderRadius: 4,
                 borderWidth: 1,
-                borderColor: '#ccc',
-                alignSelf: 'center',
-                justifyContent: 'center',
+                borderColor: "#ccc",
+                alignSelf: "center",
+                justifyContent: "center",
               }}
             />
           </View>
@@ -358,34 +520,34 @@ const CreateChallenges = ({navigation, route}) => {
               setValue={setSelectedVisibility}
               setItems={setChallengeVisibilities}
               containerStyle={{
-                width: '100%',
+                width: "100%",
               }}
               dropDownContainerStyle={{
                 padding: 0,
-                alignSelf: 'center',
+                alignSelf: "center",
                 borderWidth: 1,
-                borderColor: '#ccc',
+                borderColor: "#ccc",
                 borderRadius: 4,
               }}
               showTickIcon={false}
               selectedItemContainerStyle={{
-                backgroundColor: '#0496ff',
+                backgroundColor: "#0496ff",
                 marginHorizontal: 5,
               }}
               selectedItemLabelStyle={{
-                color: '#FFF',
+                color: "#FFF",
               }}
               labelStyle={{
                 fontSize: 14,
-                textAlign: 'left',
+                textAlign: "left",
                 paddingLeft: 5,
               }}
               style={{
                 borderRadius: 4,
                 borderWidth: 1,
-                borderColor: '#ccc',
-                alignSelf: 'center',
-                justifyContent: 'center',
+                borderColor: "#ccc",
+                alignSelf: "center",
+                justifyContent: "center",
               }}
             />
             {/* <TextInput
@@ -412,34 +574,34 @@ const CreateChallenges = ({navigation, route}) => {
               setValue={setSelectedEntry}
               setItems={setEntriesList}
               containerStyle={{
-                width: '100%',
+                width: "100%",
               }}
               dropDownContainerStyle={{
                 padding: 0,
-                alignSelf: 'center',
+                alignSelf: "center",
                 borderWidth: 1,
-                borderColor: '#ccc',
+                borderColor: "#ccc",
                 borderRadius: 4,
               }}
               showTickIcon={false}
               selectedItemContainerStyle={{
-                backgroundColor: '#0496ff',
+                backgroundColor: "#0496ff",
                 marginHorizontal: 5,
               }}
               selectedItemLabelStyle={{
-                color: '#FFF',
+                color: "#FFF",
               }}
               labelStyle={{
                 fontSize: 14,
-                textAlign: 'left',
+                textAlign: "left",
                 paddingLeft: 5,
               }}
               style={{
                 borderRadius: 4,
                 borderWidth: 1,
-                borderColor: '#ccc',
-                alignSelf: 'center',
-                justifyContent: 'center',
+                borderColor: "#ccc",
+                alignSelf: "center",
+                justifyContent: "center",
               }}
             />
           </View>
@@ -453,29 +615,30 @@ const CreateChallenges = ({navigation, route}) => {
           </View> */}
           <View style={styles.textInputView}>
             <Text style={styles.textInputHeading}>Start Date</Text>
-            <View style={{justifyContent: 'center'}}>
+            <View style={{ justifyContent: "center" }}>
               <TextInput
-                style={{...styles.textInput, paddingRight: 40}}
-                placeholder={'mm/dd/yyyy'}
-                value={moment(new Date(startDate)).format('MM/DD/yyyy')}
+                style={{ ...styles.textInput, paddingRight: 40 }}
+                placeholder={"mm/dd/yyyy"}
+                value={moment(new Date(startDate)).format("MM/DD/yyyy")}
               />
               <TouchableOpacity
                 onPress={() => setIsStartDatePickerShow(true)}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 0,
                   padding: 10,
-                }}>
+                }}
+              >
                 <Image
-                  source={require('../../../assets/images/calender.png')}
-                  style={{width: 15, height: 17}}
+                  source={require("../../../assets/images/calender.png")}
+                  style={{ width: 15, height: 17 }}
                 />
               </TouchableOpacity>
               {isStartDatePickerShow === true && (
                 <DateTimePicker
                   value={startDate}
-                  mode={'date'}
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  mode={"date"}
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
                   is24Hour={true}
                   onChange={onStartDateChange}
                   style={styles.datePicker}
@@ -485,29 +648,30 @@ const CreateChallenges = ({navigation, route}) => {
           </View>
           <View style={styles.textInputView}>
             <Text style={styles.textInputHeading}>End Date</Text>
-            <View style={{justifyContent: 'center'}}>
+            <View style={{ justifyContent: "center" }}>
               <TextInput
-                style={{...styles.textInput, paddingRight: 40}}
-                placeholder={'mm/dd/yyyy'}
-                value={moment(new Date(endDate)).format('MM/DD/yyyy')}
+                style={{ ...styles.textInput, paddingRight: 40 }}
+                placeholder={"mm/dd/yyyy"}
+                value={moment(new Date(endDate)).format("MM/DD/yyyy")}
               />
               <TouchableOpacity
                 onPress={() => setIsEndDatePickerShow(true)}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 0,
                   padding: 10,
-                }}>
+                }}
+              >
                 <Image
-                  source={require('../../../assets/images/calender.png')}
-                  style={{width: 15, height: 17}}
+                  source={require("../../../assets/images/calender.png")}
+                  style={{ width: 15, height: 17 }}
                 />
               </TouchableOpacity>
               {isEndDatePickerShow === true && (
                 <DateTimePicker
                   value={endDate}
-                  mode={'date'}
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  mode={"date"}
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
                   is24Hour={true}
                   onChange={onEndDateChange}
                   style={styles.datePicker}
@@ -519,12 +683,13 @@ const CreateChallenges = ({navigation, route}) => {
           <View style={styles.textInputView}>
             <Text style={styles.textInputHeading}>Challenge Metric</Text>
             <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
               <TextInput
-                style={{...styles.textInput, flex: 1, marginRight: 20}}
-                placeholder={'Number'}
+                style={{ ...styles.textInput, flex: 1, marginRight: 20 }}
+                placeholder={"Number"}
                 value={metricNumber}
-                onChangeText={txt => setMetricNumber(txt)}
+                onChangeText={(txt) => setMetricNumber(txt)}
               />
               {/* <TextInput
                 style={{...styles.textInput, flex: 1}}
@@ -545,18 +710,18 @@ const CreateChallenges = ({navigation, route}) => {
                 }}
                 dropDownContainerStyle={{
                   padding: 0,
-                  alignSelf: 'center',
+                  alignSelf: "center",
                   borderWidth: 1,
-                  borderColor: '#ccc',
+                  borderColor: "#ccc",
                   borderRadius: 4,
                 }}
                 showTickIcon={false}
                 selectedItemContainerStyle={{
-                  backgroundColor: '#0496ff',
+                  backgroundColor: "#0496ff",
                   marginHorizontal: 5,
                 }}
                 selectedItemLabelStyle={{
-                  color: '#FFF',
+                  color: "#FFF",
                 }}
                 scrollViewProps={{
                   showsVerticalScrollIndicator: false,
@@ -564,15 +729,15 @@ const CreateChallenges = ({navigation, route}) => {
                 }}
                 labelStyle={{
                   fontSize: 14,
-                  textAlign: 'left',
+                  textAlign: "left",
                   paddingLeft: 5,
                 }}
                 style={{
                   borderRadius: 4,
                   borderWidth: 1,
-                  borderColor: '#ccc',
-                  alignSelf: 'center',
-                  justifyContent: 'center',
+                  borderColor: "#ccc",
+                  alignSelf: "center",
+                  justifyContent: "center",
                 }}
               />
             </View>
@@ -582,41 +747,50 @@ const CreateChallenges = ({navigation, route}) => {
         <View style={{}}>
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 17,
-              fontFamily: 'Rubik-Regular',
-            }}>
-            Add Members
+              fontFamily: "Rubik-Regular",
+            }}
+          >
+            Add {selectedChallengeType == "group" ? "Group" : "Members"}
           </Text>
           <View
             style={{
               marginVertical: 15,
               paddingBottom: 10,
-              alignSelf: 'center',
+              alignSelf: "center",
               flex: 1,
-            }}>
+              width: "100%",
+            }}
+          >
             <FlatList
-              data={membersList}
+              data={selectedChallengeType == "group" ? groupsList : membersList}
               numColumns={3}
               // scrollEnabled={false}
               showsVerticalScrollIndicator={false}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={item => {
+              renderItem={(item) => {
                 return (
                   <TouchableOpacity
-                    onPress={() => handleAddMember(item.item.id)}
+                    onPress={() =>
+                      selectedChallengeType == "group"
+                        ? handleGroupSelect(item?.item?.id)
+                        : handleAddMember(item.item.id)
+                    }
                     style={{
                       ...styles.cardView,
-                      justifyContent: 'center',
-                      width: '28.5%',
-                      // backgroundColor: item.item.selected ? 'red' : 'pink',
-                      borderWidth: item.item.selected ? 1 : 0,
-                    }}>
+                      justifyContent: "center",
+                      width: "28.5%",
+                      // width: 300,
+                      // backgroundColor: item.item.selected ? "red" : "pink",
+                      borderWidth: item.item.status ? 1 : 0,
+                    }}
+                  >
                     <Image
-                      source={require('../../../assets/images/friend-profile.png')}
-                      style={{marginVertical: 8, width: 44, height: 44}}
+                      source={require("../../../assets/images/friend-profile.png")}
+                      style={{ marginVertical: 8, width: 44, height: 44 }}
                     />
-                    <Text style={styles.cardText}>{item.item.group_name}</Text>
+                    <Text style={styles.cardText}>{item?.item?.name}</Text>
                   </TouchableOpacity>
                 );
               }}
@@ -640,21 +814,21 @@ export default CreateChallenges;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   textInputView: {
     marginVertical: 12,
   },
   textInputHeading: {
-    color: '#000000',
+    color: "#000000",
     fontSize: 17,
     marginVertical: 5,
     marginBottom: 15,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 9,
     paddingHorizontal: 17,
     borderRadius: 5,
@@ -662,32 +836,32 @@ const styles = StyleSheet.create({
   cardView: {
     height: 110,
     width: 92,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
-    shadowColor: 'blue',
+    shadowColor: "blue",
     elevation: 5,
     padding: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 8,
     marginVertical: 10,
-    overflow: 'hidden',
-    borderColor: '#38acff',
+    overflow: "hidden",
+    borderColor: "#38acff",
   },
   cardText: {
-    color: '#040103',
-    textAlign: 'center',
+    color: "#040103",
+    textAlign: "center",
     fontSize: 13,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
 
   btn: {
-    backgroundColor: '#38acff',
+    backgroundColor: "#38acff",
     marginTop: 30,
     marginBottom: 40,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 10,
   },
-  btnText: {color: '#ffffff', fontSize: 17},
+  btnText: { color: "#ffffff", fontSize: 17 },
 });

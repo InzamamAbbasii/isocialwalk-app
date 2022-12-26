@@ -145,10 +145,10 @@ const CreateGroup = ({ navigation }) => {
       .then((result) => {
         // console.log("update group image response ::  ::   ", result);
         // if (result[0]?.error == false) {
-        Snackbar.show({
-          text: result[0]?.message,
-          duration: Snackbar.LENGTH_SHORT,
-        });
+        // Snackbar.show({
+        //   text: result[0]?.message,
+        //   duration: Snackbar.LENGTH_SHORT,
+        // });
         // }
       })
       .catch((error) =>
@@ -203,6 +203,10 @@ const CreateGroup = ({ navigation }) => {
               // adminid, groupId, memberList
               handleAddMembertoGroup(user_id, result?.id, memberList);
             }
+            Snackbar.show({
+              text: "Group Created Successfully!",
+              duration: Snackbar.LENGTH_SHORT,
+            });
           } else {
             Snackbar.show({
               text: result?.message,
