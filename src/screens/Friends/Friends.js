@@ -332,11 +332,20 @@ const Friends = ({
         let responseList = [];
         if (result[0]?.profile == "No Friends") {
           console.log("no friend found");
+          Snackbar.show({
+            text: "No Friend Found",
+            duration: Snackbar.LENGTH_SHORT,
+          });
         } else if (result[0]?.profile?.length > 0) {
           setFriendsList(result[0]?.profile);
         }
       })
-      .catch((error) => console.log("error", error))
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.Unable to get friend list.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
       .finally(() => setLoading(false));
   };
 
