@@ -520,6 +520,7 @@ const Notification = ({ navigation }) => {
           onPress={() => {
             navigation.navigate("FriendRequest", {
               id: selected_friend_id,
+              selected_noti_id: selected_noti_id,
             });
             bottomSheetRef?.current?.close();
           }}
