@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, { useRef, useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,89 +9,101 @@ import {
   FlatList,
   Alert,
   StatusBar,
-} from 'react-native';
-import Home from './Home';
-import Chat from './Chat/Chat';
-import History from './History/History';
-import ChangePassword from './ChangePassword';
-import ConnectDevices from './ConnectDevices';
-import PrivacyPolicy from './PrivacyPolicy';
-import UpdateGoals from './UpdateGoals';
-import UpdateProfile from './UpdateProfile';
+} from "react-native";
+import Home from "./Home";
+import Chat from "./Chat/Chat";
+import History from "./History/History";
+import ChangePassword from "./ChangePassword";
+import ConnectDevices from "./ConnectDevices";
+import PrivacyPolicy from "./PrivacyPolicy";
+import UpdateGoals from "./UpdateGoals";
+import UpdateProfile from "./UpdateProfile";
 
-import CustomTab from './CustomTab';
-import TabNavigation from './Navigation/TabNavigation';
+import CustomTab from "./CustomTab";
+import TabNavigation from "./Navigation/TabNavigation";
 import {
   useFocusEffect,
   useIsFocused,
   useNavigationState,
-} from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const DrawerTest = ({navigation, route}) => {
+const DrawerTest = ({ navigation, route }) => {
   const [showMenu, setShowMenu] = useState(false);
   const moveToRight = useRef(new Animated.Value(1)).current;
   const scale = useRef(new Animated.Value(1)).current;
   const [selectedMenuItem, setSelectedMenuItem] = useState(0);
-  const [activeTab, setActiveTab] = useState('Home');
-  const homeIcon = require('../../assets/images/home-inactive1.png');
-  const friendIcon = require('../../assets/images/friends-dark.png');
-  const chatIcon = require('../../assets/images/chat-inactive.png');
-  const groupsIcon = require('../../assets/images/group-dark.png');
-  const challengesIcon = require('../../assets/images/trophy-light.png');
+  const [activeTab, setActiveTab] = useState("Home");
+  const homeIcon = require("../../assets/images/home-inactive1.png");
+  const friendIcon = require("../../assets/images/friends-dark.png");
+  const chatIcon = require("../../assets/images/chat-inactive.png");
+  const groupsIcon = require("../../assets/images/group-dark.png");
+  const challengesIcon = require("../../assets/images/trophy-light.png");
 
-  const [firstName, setFirstName] = useState('');
+  const [firstName, setFirstName] = useState("");
 
   const [menuList, setMenuList] = useState([
     {
-      title: 'Home',
-      icon: require('../../assets/images/home1.png'),
+      title: "Home",
+      icon: require("../../assets/images/home1.png"),
     },
     {
-      title: 'History',
-      icon: require('../../assets/images/history.png'),
+      title: "History",
+      icon: require("../../assets/images/history.png"),
     },
     {
-      title: 'Change Password',
-      icon: require('../../assets/images/lock.png'),
+      title: "Change Password",
+      icon: require("../../assets/images/lock.png"),
     },
     {
-      title: 'ConnectDevices',
-      icon: require('../../assets/images/connectedDevices.png'),
+      title: "ConnectDevices",
+      icon: require("../../assets/images/connectedDevices.png"),
     },
     {
-      title: 'Privacy Policy',
-      icon: require('../../assets/images/privacy.png'),
+      title: "Privacy Policy",
+      icon: require("../../assets/images/privacy.png"),
     },
 
     {
-      title: 'Updated Goals',
-      icon: require('../../assets/images/goals.png'),
+      title: "Updated Goals",
+      icon: require("../../assets/images/goals.png"),
     },
   ]);
 
-  const handleLogout = props =>
+  const handleLogout = (props) =>
     Alert.alert(
-      'Log out',
+      "Log out",
       `Are you sure you want to logout from isocialWalk?`,
       [
         {
-          text: 'No',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
         },
         {
-          text: 'Yes',
+          text: "Yes",
           onPress: async () => {
             await AsyncStorage.clear();
-            navigation.navigate('AuthScreen');
+            navigation.replace("AuthScreen");
+            Animated.timing(scale, {
+              toValue: showMenu ? 1 : 0.8,
+              duration: 300,
+              useNativeDriver: true,
+            }).start();
+            Animated.timing(moveToRight, {
+              toValue: showMenu ? 0 : 230,
+              duration: 300,
+              useNativeDriver: true,
+            }).start();
+            setActiveTab("Home");
+            setShowMenu(!showMenu);
           },
         },
-      ],
+      ]
     );
 
   const getUser = async () => {
-    let user_info = await AsyncStorage.getItem('user');
+    let user_info = await AsyncStorage.getItem("user");
 
     if (user_info != null) {
       let parse = JSON.parse(user_info);
@@ -104,11 +116,11 @@ const DrawerTest = ({navigation, route}) => {
   useFocusEffect(
     React.useCallback(() => {
       getUser();
-    }, []),
+    }, [])
   );
   useEffect(() => {
     setTimeout(() => {
-      StatusBar.setBackgroundColor(showMenu ? '#38ACFF' : '#fff');
+      StatusBar.setBackgroundColor(showMenu ? "#38ACFF" : "#fff");
     }, 200);
   }, [showMenu]);
 
@@ -116,11 +128,12 @@ const DrawerTest = ({navigation, route}) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: 'green',
-      }}>
+        backgroundColor: "green",
+      }}
+    >
       {/* <StatusBar backgroundColor={showMenu ? '#38ACFF' : '#fff'} /> */}
       {/* menu */}
-      <View style={{flex: 1, backgroundColor: '#38ACFF'}}>
+      <View style={{ flex: 1, backgroundColor: "#38ACFF" }}>
         <TouchableOpacity
           onPress={() => {
             setSelectedMenuItem(-1);
@@ -138,29 +151,30 @@ const DrawerTest = ({navigation, route}) => {
             setShowMenu(!showMenu);
           }}
           style={{
-            flexDirection: 'row',
+            flexDirection: "row",
             marginLeft: 10,
-            alignItems: 'center',
+            alignItems: "center",
             marginBottom: 15,
             marginTop: 120,
             // marginTop: ,
-          }}>
+          }}
+        >
           <Image
-            source={require('../../assets/images/friend-profile.png')}
+            source={require("../../assets/images/friend-profile.png")}
             style={{
               width: 55,
               height: 55,
               borderRadius: 55,
-              resizeMode: 'contain',
+              resizeMode: "contain",
               marginLeft: 8,
             }}
           />
-          <Text style={{color: '#002138', marginLeft: 10, fontSize: 16}}>
+          <Text style={{ color: "#002138", marginLeft: 10, fontSize: 16 }}>
             {/* Jonathan */}
             {firstName}
           </Text>
         </TouchableOpacity>
-        <View style={{paddingBottom: 220}}>
+        <View style={{ paddingBottom: 220 }}>
           <FlatList
             data={menuList}
             keyExtractor={(item, index) => index.toString()}
@@ -182,26 +196,27 @@ const DrawerTest = ({navigation, route}) => {
                     }).start();
                     setShowMenu(!showMenu);
                   }}
-                  style={styles.drawerItemView}>
+                  style={styles.drawerItemView}
+                >
                   {item.index == 0 ? (
                     <Image
                       source={
-                        activeTab === 'Home'
+                        activeTab === "Home"
                           ? homeIcon
-                          : activeTab === 'Friends'
+                          : activeTab === "Friends"
                           ? friendIcon
-                          : activeTab === 'Chat'
+                          : activeTab === "Chat"
                           ? chatIcon
-                          : activeTab === 'Groups'
+                          : activeTab === "Groups"
                           ? groupsIcon
-                          : activeTab === 'Challenges'
+                          : activeTab === "Challenges"
                           ? challengesIcon
                           : homeIcon
                       }
                       style={{
                         ...styles.drawerIcon,
                         tintColor:
-                          selectedMenuItem == item.index ? '#002138' : '#fff',
+                          selectedMenuItem == item.index ? "#002138" : "#fff",
                       }}
                     />
                   ) : (
@@ -210,15 +225,16 @@ const DrawerTest = ({navigation, route}) => {
                       style={{
                         ...styles.drawerIcon,
                         tintColor:
-                          selectedMenuItem == item.index ? '#002138' : '#fff',
+                          selectedMenuItem == item.index ? "#002138" : "#fff",
                       }}
                     />
                   )}
                   <Text
                     style={{
                       color:
-                        selectedMenuItem == item.index ? '#002138' : '#fff',
-                    }}>
+                        selectedMenuItem == item.index ? "#002138" : "#fff",
+                    }}
+                  >
                     {item.index == 0 ? activeTab : item.item.title}
                   </Text>
                 </TouchableOpacity>
@@ -228,9 +244,10 @@ const DrawerTest = ({navigation, route}) => {
               return (
                 <TouchableOpacity
                   onPress={() => handleLogout()}
-                  style={styles.drawerItemView}>
+                  style={styles.drawerItemView}
+                >
                   <Image
-                    source={require('../../assets/images/logout1.png')}
+                    source={require("../../assets/images/logout1.png")}
                     style={styles.drawerIcon}
                   />
                   <Text style={styles.drawerItemText}>Logout</Text>
@@ -307,18 +324,18 @@ const styles = StyleSheet.create({
     padding: 10,
     marginLeft: 20,
     marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   drawerIcon: {
     width: 20,
     height: 20,
     marginRight: 10,
-    resizeMode: 'contain',
-    tintColor: '#fff',
+    resizeMode: "contain",
+    tintColor: "#fff",
   },
   drawerItemText: {
-    color: '#fff',
+    color: "#fff",
   },
 });
 
