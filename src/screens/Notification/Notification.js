@@ -518,7 +518,7 @@ const Notification = ({ navigation }) => {
         <TouchableOpacity
           style={{ ...styles.btnBottomSheet, backgroundColor: "#003e6b" }}
           onPress={() => {
-            navigation.navigate("FriendProfile", {
+            navigation.navigate("FriendRequest", {
               id: selected_friend_id,
             });
             bottomSheetRef?.current?.close();
