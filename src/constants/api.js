@@ -68,4 +68,11 @@ export const api = {
 
   //ranking
   get_user_ranking: BASE_URL + "/ranking/usersranking.php",
+
+  //history
+  get_history_of_specific_date: BASE_URL + "/history/historyofspecificdate.php",
+  get_history_of_specific_year: BASE_URL + "/history/historyofspecificyear.php",
+  get_history_btw_two_dates:
+    BASE_URL + "/history/historybetweentwospecificdates.php",
+  get_history_of_week: BASE_URL + "/history/historyofweek.php",
 };
