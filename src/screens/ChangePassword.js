@@ -1,4 +1,4 @@
-import React, {useState, useRef, useCallback} from 'react';
+import React, { useState, useRef, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,20 +8,24 @@ import {
   Image,
   Animated,
   TextInput,
-} from 'react-native';
-import {toast, Toasts, ToastPosition} from '@backpackapp-io/react-native-toast';
-import MenuHeader from '../Reuseable Components/MenuHeader';
+} from "react-native";
+import {
+  toast,
+  Toasts,
+  ToastPosition,
+} from "@backpackapp-io/react-native-toast";
+import MenuHeader from "../Reuseable Components/MenuHeader";
 
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
-import {api} from '../constants/api';
-import Snackbar from 'react-native-snackbar';
-import Loader from '../Reuseable Components/Loader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native-responsive-screen";
+import { api } from "../constants/api";
+import Snackbar from "react-native-snackbar";
+import Loader from "../Reuseable Components/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Entypo from 'react-native-vector-icons/Entypo';
+import Entypo from "react-native-vector-icons/Entypo";
 
 const ChangePassword = ({
   navigation,
@@ -32,15 +36,15 @@ const ChangePassword = ({
 }) => {
   const toastRef = useRef();
   const [loading, setLoading] = useState(false);
-  const [oldPassword, setOldPassword] = useState('');
-  const [invalidOldPassword, setInvalidOldPassword] = useState('');
-  const [password, setPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState("");
+  const [invalidOldPassword, setInvalidOldPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [isInvalidPassword, setIsInvalidPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isInvalidConfirmPassword, setIsInvalidConfirmPassword] =
     useState(false);
 
-  const [confirmPassErrorMSG, setConfirmPassErrorMSG] = useState('');
+  const [confirmPassErrorMSG, setConfirmPassErrorMSG] = useState("");
 
   const [isoldPasswordVisible, setIsoldPasswordVisible] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -62,7 +66,7 @@ const ChangePassword = ({
   };
 
   const handleUpdate = async () => {
-    console.log('update......');
+    console.log("update......");
     setInvalidOldPassword(false);
     setIsInvalidPassword(false);
     setIsInvalidConfirmPassword(false);
@@ -73,19 +77,19 @@ const ChangePassword = ({
     } else if (confirmPassword.length === 0) {
       setIsInvalidConfirmPassword(true);
       setConfirmPassErrorMSG(
-        'Enter a password with a cap, small letter, symbol and a number',
+        "Enter a password with a cap, small letter, symbol and a number"
       );
     } else if (password !== confirmPassword) {
-      console.log('password and confirm password not matchedrd....');
+      console.log("password and confirm password not matchedrd....");
       setIsInvalidConfirmPassword(true);
-      setConfirmPassErrorMSG('New Password and confirm password not matched.');
+      setConfirmPassErrorMSG("New Password and confirm password not matched.");
     } else {
-      console.log('old password :::: ', oldPassword);
-      console.log('new password :::: ', password);
+      console.log("old password :::: ", oldPassword);
+      console.log("new password :::: ", password);
       setIsInvalidPassword(false);
       try {
-        let user_id = await AsyncStorage.getItem('user_id');
-        console.log('logged in user id :: ', user_id);
+        let user_id = await AsyncStorage.getItem("user_id");
+        console.log("logged in user id :: ", user_id);
         setLoading(true);
         let data = {
           id: user_id,
@@ -93,31 +97,31 @@ const ChangePassword = ({
           password: password,
         };
         var requestOptions = {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify(data),
-          redirect: 'follow',
+          redirect: "follow",
         };
 
         fetch(api.updatepassword, requestOptions)
-          .then(response => response.json())
-          .then(result => {
-            console.log('result   : :  ', result);
-            if (result[0]?.error == true || result[0]?.error == 'true') {
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("result   : :  ", result);
+            if (result[0]?.error == true || result[0]?.error == "true") {
               Snackbar.show({
                 text: result[0]?.message,
                 duration: Snackbar.LENGTH_SHORT,
               });
             } else {
               Snackbar.show({
-                text: 'Password Updated Successfully',
+                text: "Password Updated Successfully",
                 duration: Snackbar.LENGTH_SHORT,
               });
             }
           })
-          .catch(error => console.log('error', error))
+          .catch((error) => console.log("error", error))
           .finally(() => setLoading(false));
       } catch (error) {
-        console.log('error :', error);
+        console.log("error :", error);
         setLoading(false);
       }
 
@@ -152,53 +156,55 @@ const ChangePassword = ({
     <Animated.View
       style={{
         flex: 1,
-        backgroundColor: 'white',
-        position: 'absolute',
+        backgroundColor: "white",
+        position: "absolute",
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
         borderRadius: showMenu ? 15 : 0,
-        transform: [{scale: scale}, {translateX: moveToRight}],
-      }}>
+        transform: [{ scale: scale }, { translateX: moveToRight }],
+      }}
+    >
       <View style={styles.container}>
         <Toasts />
         {loading && <Loader />}
         <MenuHeader
-          title={'Change Password'}
+          title={"Change Password"}
           navigation={navigation}
           onPress={() => handleOpenCustomDrawer()}
         />
-        <View style={{flex: 1, marginTop: 30}}>
+        <View style={{ flex: 1, marginTop: 30 }}>
           <View style={styles.textInputView}>
             <Text style={styles.textInputHeading}> Old Password</Text>
             <View>
               <TextInput
                 style={{
                   ...styles.textInput,
-                  borderColor: invalidOldPassword ? '#D66262' : '#ccc',
+                  borderColor: invalidOldPassword ? "#D66262" : "#ccc",
                 }}
                 autoFocus
-                placeholder={'Enter Old Password'}
+                placeholder={"Enter Old Password"}
                 value={oldPassword}
                 secureTextEntry={!isoldPasswordVisible}
-                onChangeText={txt => setOldPassword(txt)}
+                onChangeText={(txt) => setOldPassword(txt)}
               />
 
               <TouchableOpacity
                 onPress={() => setIsoldPasswordVisible(!isoldPasswordVisible)}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 10,
                   top: 0,
                   bottom: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   width: 30,
-                }}>
+                }}
+              >
                 <Entypo
-                  name={isoldPasswordVisible ? 'eye' : 'eye-with-line'}
-                  color={'#000'}
+                  name={isoldPasswordVisible ? "eye" : "eye-with-line"}
+                  color={"#000"}
                   size={20}
                   style={{}}
                 />
@@ -217,27 +223,28 @@ const ChangePassword = ({
               <TextInput
                 style={{
                   ...styles.textInput,
-                  borderColor: isInvalidPassword ? '#D66262' : '#ccc',
+                  borderColor: isInvalidPassword ? "#D66262" : "#ccc",
                 }}
-                placeholder={'Enter New Password'}
+                placeholder={"Enter New Password"}
                 value={password}
                 secureTextEntry={!isPasswordVisible}
-                onChangeText={txt => setPassword(txt)}
+                onChangeText={(txt) => setPassword(txt)}
               />
               <TouchableOpacity
                 onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 10,
                   top: 0,
                   bottom: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   width: 30,
-                }}>
+                }}
+              >
                 <Entypo
-                  name={isoldPasswordVisible ? 'eye' : 'eye-with-line'}
-                  color={'#000'}
+                  name={isoldPasswordVisible ? "eye" : "eye-with-line"}
+                  color={"#000"}
                   size={20}
                   style={{}}
                 />
@@ -256,29 +263,30 @@ const ChangePassword = ({
               <TextInput
                 style={{
                   ...styles.textInput,
-                  borderColor: isInvalidConfirmPassword ? '#D66262' : '#ccc',
+                  borderColor: isInvalidConfirmPassword ? "#D66262" : "#ccc",
                 }}
-                placeholder={'Enter Confirm Password'}
+                placeholder={"Enter Confirm Password"}
                 value={confirmPassword}
                 secureTextEntry={!isConfirmPasswordVisible}
-                onChangeText={txt => setConfirmPassword(txt)}
+                onChangeText={(txt) => setConfirmPassword(txt)}
               />
               <TouchableOpacity
                 onPress={() =>
                   setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
                 }
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 10,
                   top: 0,
                   bottom: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   width: 30,
-                }}>
+                }}
+              >
                 <Entypo
-                  name={isConfirmPasswordVisible ? 'eye' : 'eye-with-line'}
-                  color={'#000'}
+                  name={isConfirmPasswordVisible ? "eye" : "eye-with-line"}
+                  color={"#000"}
                   size={20}
                   style={{}}
                 />
@@ -304,43 +312,43 @@ export default ChangePassword;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
   },
   errorText: {
-    color: '#D66262',
+    color: "#D66262",
     fontSize: 10,
     marginLeft: 10,
     marginTop: 3,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   textInputView: {
     marginVertical: 15,
   },
   textInputHeading: {
-    color: '#000',
+    color: "#000",
     marginVertical: 7,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 5,
     paddingHorizontal: 17,
     borderRadius: 5,
   },
   btn: {
-    backgroundColor: '#38ACFF',
+    backgroundColor: "#38ACFF",
     marginTop: 20,
     marginBottom: 40,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 5,
   },
   btnText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
 });
