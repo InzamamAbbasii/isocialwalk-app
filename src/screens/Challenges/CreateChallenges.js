@@ -197,11 +197,12 @@ const CreateChallenges = ({ navigation, route }) => {
       redirect: "follow",
     };
 
-    fetch(api.showmembers, requestOptions)
+    fetch(api.show_challenge_participants, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
         if (result[0]?.error == false || result[0]?.error == false) {
           // console.log("add member list response  ::: ", result);
+          console.log("cjhallgennge paticipatns list :: ", result);
           let list = result[0]["array of Members"]
             ? result[0]["array of Members"]
             : [];
