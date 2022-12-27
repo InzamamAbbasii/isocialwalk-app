@@ -322,6 +322,57 @@ const CreateChallenges = ({ navigation, route }) => {
     setMembersList(newData);
   };
 
+  const handleAddGroup_In_Challenge = (adminid, challengeId) => {
+    let selectedGroupList = groupsList
+      ?.filter((item) => item?.status == true)
+      ?.map((element) => element?.id);
+
+    console.log("selected groups ::: ", selectedGroupList);
+    if (selectedGroupList?.length > 0) {
+      selectedGroupList.forEach((element) => {
+        console.log("group id  :: ", element);
+
+        //adding group to challenge one by one
+        setLoading(true);
+
+        let data = {
+          challenge_id: challengeId,
+          group_id: element, //selected group id
+          user_id: adminid,
+        };
+        console.log("data pass  to add members in challgee api  : ", data);
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+
+        fetch(api.add_group_to_Challenge, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("add group response :::: ", result);
+            if (result[0]?.error == false || result[0]?.error == "false") {
+              console.log("group is added to challnge successfully");
+            } else {
+              Snackbar.show({
+                text: result[0]?.message,
+                duration: Snackbar.LENGTH_SHORT,
+              });
+            }
+          })
+          .catch((error) => {
+            console.log("error in add groups  ::::  ", error);
+            Snackbar.show({
+              text: "Something went wrong.Group is not added to challenge.",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          })
+          .finally(() => setLoading(false));
+      });
+    } else {
+      console.log("no group is selected to add in challenge");
+    }
+  };
   const handleAddMemberstoChallenge = (adminid, challengeId) => {
     console.log("adminid, challengeId :::: ", adminid, challengeId);
     let selectedMembersList = membersList
@@ -423,7 +474,11 @@ const CreateChallenges = ({ navigation, route }) => {
             result[0]?.error == "false"
           ) {
             handleUploadImage(result["challenge id"]);
-            handleAddMemberstoChallenge(user_id, result["challenge id"]);
+            if (selectedChallengeType == "group") {
+              handleAddGroup_In_Challenge(user_id, result["challenge id"]);
+            } else {
+              handleAddMemberstoChallenge(user_id, result["challenge id"]);
+            }
             Snackbar.show({
               text: "Challenge Created successfully!",
               duration: Snackbar.LENGTH_SHORT,
