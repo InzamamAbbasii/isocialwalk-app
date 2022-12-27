@@ -23,6 +23,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CreateChallenges = ({ navigation, route }) => {
   const [challengeImage, setchallengeImage] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [fileType, setFileType] = useState("");
   const [membersList, setMembersList] = useState([
     // {
     //   id: 0,
@@ -278,6 +280,9 @@ const CreateChallenges = ({ navigation, route }) => {
     };
     await launchImageLibrary(options)
       .then((res) => {
+        console.log("images selected :: ", res.assets[0]?.fileName);
+        setFileName(res.assets[0]?.fileName);
+        setFileType(res.assets[0]?.type);
         setchallengeImage(res.assets[0].uri);
       })
       .catch((error) => console.log(error));
@@ -317,8 +322,60 @@ const CreateChallenges = ({ navigation, route }) => {
     setMembersList(newData);
   };
 
+  const handleAddMemberstoChallenge = (adminid, challengeId) => {
+    console.log("adminid, challengeId :::: ", adminid, challengeId);
+    let selectedMembersList = membersList
+      ?.filter((item) => item?.status == true)
+      ?.map((element) => element?.id);
+
+    if (selectedMembersList?.length > 0) {
+      setLoading(true);
+
+      let data = {
+        user_id: selectedMembersList,
+        challenge_id: challengeId,
+        created_by_user_id: adminid,
+      };
+      console.log("data pass  to add members in challgee api  : ", data);
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.add_participants_to_Challenge, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("add memebrs response :::: ", result);
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            console.log("memebers are added to group successfully");
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log("error in add members  ::::  ", error);
+          Snackbar.show({
+            text: "Something went wrong.Members are not added to challenge.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => setLoading(false));
+    } else {
+      console.log("not member is selected to add in challenge");
+    }
+  };
+
   const handleCreateChallenge = async () => {
-    if (challengeName?.length == 0) {
+    if (challengeImage == null) {
+      Snackbar.show({
+        text: "Please Upload Challenge Image",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    } else if (challengeName?.length == 0) {
       Snackbar.show({
         text: "Please Enter Challenge Name",
         duration: Snackbar.LENGTH_SHORT,
@@ -365,6 +422,8 @@ const CreateChallenges = ({ navigation, route }) => {
             result[0]?.error == false ||
             result[0]?.error == "false"
           ) {
+            handleUploadImage(result["challenge id"]);
+            handleAddMemberstoChallenge(user_id, result["challenge id"]);
             Snackbar.show({
               text: "Challenge Created successfully!",
               duration: Snackbar.LENGTH_SHORT,
@@ -382,7 +441,44 @@ const CreateChallenges = ({ navigation, route }) => {
         .finally(() => setLoading(false));
     }
   };
+  const handleUploadImage = (id) => {
+    if (id) {
+      console.log("id pass to upload challenge image :::: ", id);
+      setLoading(true);
 
+      let formData = new FormData();
+      formData.append("id", id);
+      let obj = {
+        uri: challengeImage,
+        type: fileType,
+        name: fileName,
+      };
+      console.log("image obj  : ", obj);
+      formData.append("image", obj);
+
+      console.log("formdata   :::  : ", formData);
+      // body.append('Content-Type', 'image/png');
+      var requestOptions = {
+        method: "POST",
+        body: formData,
+        redirect: "follow",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
+      };
+
+      fetch(api.upload_challenge_image, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("challenge image upload response  ::: ", result);
+        })
+        .catch((error) =>
+          console.log("error in uploading group image :: ", error)
+        )
+        .finally(() => setLoading(false));
+    }
+  };
   return (
     <View style={styles.container}>
       <ScrollView
