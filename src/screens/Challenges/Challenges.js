@@ -16,7 +16,7 @@ import {
 
 import { captureScreen } from "react-native-view-shot";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
@@ -118,39 +118,93 @@ const Challenges = ({
     // },
   ]);
   const [challengesList, setChallengesList] = useState([
-    {
-      id: 0,
-      name: "Carnage Coverage",
-    },
-    {
-      id: 1,
-      name: "Carnage Coverage",
-    },
-    {
-      id: 2,
-      name: "Carnage Coverage",
-    },
-    {
-      id: 3,
-      name: "Carnage Coverage",
-    },
-    {
-      id: 4,
-      name: "Carnage Coverage",
-    },
-    {
-      id: 5,
-      name: "Carnage Coverage",
-    },
-    {
-      id: 6,
-      name: "Carnage Coverage",
-    },
+    // {
+    //   id: 0,
+    //   name: "Carnage Coverage",
+    // },
+    // {
+    //   id: 1,
+    //   name: "Carnage Coverage",
+    // },
+    // {
+    //   id: 2,
+    //   name: "Carnage Coverage",
+    // },
+    // {
+    //   id: 3,
+    //   name: "Carnage Coverage",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Carnage Coverage",
+    // },
+    // {
+    //   id: 5,
+    //   name: "Carnage Coverage",
+    // },
+    // {
+    //   id: 6,
+    //   name: "Carnage Coverage",
+    // },
   ]);
 
   useEffect(() => {
     getSuggestedChallengesList();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getLogged_in_user_Challenges();
+    }, [])
+  );
+  const getLogged_in_user_Challenges = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      created_by_user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.get_admin_challenges, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == false || result?.error == "false") {
+          // console.log("add member list response  ::: ", result);
+          let list = result?.Challenges ? result?.Challenges : [];
+          setChallengesList(list);
+          // let responseList = [];
+          // for (const element of list) {
+          //   let obj = {
+          //     id: element?.id,
+          //     created_by_user_id: element?.created_by_user_id,
+          //     image: element?.image,
+          //     name: element?.name,
+          //     challenge_type: element?.challenge_type,
+          //     challenge_visibility: element?.challenge_visibility,
+          //     challenge_privacy: element?.challenge_privacy,
+          //     start_date: element?.start_date,
+          //     end_date: element?.end_date,
+          //     challenge_metric_no: element?.challenge_metric_no,
+          //     challenge_metric_step_type: element?.challenge_metric_step_type,
+          //     status: false,
+          //   };
+          //   responseList.push(obj);
+          // }
+          // console.log("response list", responseList);
+        } else {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => console.log("error", error))
+      .finally(() => setLoading(false));
+  };
 
   const getSuggestedChallengesList = async () => {
     try {
@@ -186,7 +240,7 @@ const Challenges = ({
               responseList.push(obj);
             });
           }
-          console.log("suggested challenges :: ", responseList);
+
           setSuggestedChallenges(responseList);
         })
         .catch((error) => console.log("error", error))
@@ -538,7 +592,11 @@ const Challenges = ({
                   renderItem={(item) => {
                     return (
                       <TouchableOpacity
-                        onPress={() => navigation.navigate("ChallengesDetail")}
+                        onPress={() =>
+                          navigation.navigate("ChallengesDetail", {
+                            item: item?.item,
+                          })
+                        }
                         style={{ ...styles.cardView, width: "28.7%" }}
                       >
                         <Image
@@ -637,7 +695,9 @@ const Challenges = ({
                       return (
                         <TouchableOpacity
                           onPress={() =>
-                            navigation.navigate("ChallengesDetail")
+                            navigation.navigate("ChallengesDetail", {
+                              item: item?.item,
+                            })
                           }
                           style={{
                             ...styles.cardView,
@@ -755,7 +815,9 @@ const Challenges = ({
                         return (
                           <TouchableOpacity
                             onPress={() =>
-                              navigation.navigate("ChallengesDetail")
+                              navigation.navigate("ChallengesDetail", {
+                                item: item?.item,
+                              })
                             }
                             style={{
                               ...styles.cardView,
