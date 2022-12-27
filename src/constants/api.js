@@ -58,6 +58,7 @@ export const api = {
   add_group_to_Challenge:
     BASE_URL + "/challenges/addgroupparticipantsnotify.php",
   get_admin_challenges: BASE_URL + "/challenges/searchbyspecificadmin.php",
+  show_challenge_participants: BASE_URL + "/challenges/showparticipants.php",
 
   //goals
   add_goals: BASE_URL + "/goals/insert.php",
@@ -74,6 +75,7 @@ export const api = {
 
   //ranking
   get_user_ranking: BASE_URL + "/ranking/usersranking.php",
+  get_user_weekly_ranking: BASE_URL + "/ranking/weekranking.php",
 
   //history
   get_history_of_specific_date: BASE_URL + "/history/historyofspecificdate.php",

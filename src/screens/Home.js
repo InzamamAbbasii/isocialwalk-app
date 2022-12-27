@@ -22,6 +22,8 @@ import Loader from "../Reuseable Components/Loader";
 import { api } from "../constants/api";
 import Snackbar from "react-native-snackbar";
 
+import moment from "moment";
+
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
   const navigation = useNavigation();
@@ -33,6 +35,157 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
   const [currentHour, setCurrentHour] = useState(0);
 
   const [loading, setLoading] = useState(false);
+
+  const [kcal, setKcal] = useState("");
+  const [distance, setDistance] = useState("");
+  const [time, setTime] = useState("");
+  const [todaySteps, setTodaySteps] = useState(0);
+  const [todaySteps_Percentage, setTodaySteps_Percentage] = useState(0.0);
+  const [chartData, setChartData] = useState([
+    { label: "MON", percentage: "135.75%", value: 5430 },
+    { label: "TUE", percentage: "155.95%", value: 6238 },
+    { label: "WED", percentage: "153.20%", value: 6128 },
+    { label: "THU", percentage: "221.22%", value: 8849 },
+    { label: "FRI", percentage: "253.25%", value: 10130 },
+    { label: "SAT", percentage: "223.57%", value: 8943 },
+    { label: "SUN", percentage: "57.85%", value: 2314 },
+  ]);
+  const [todayRankingList, setTodayRankingList] = useState([
+    // {
+    //   id: 0,
+    //   name: "Me",
+    //   steps: 9000,
+    //   flag: "3k",
+    //   avater: require("../../assets/images/user1.png"),
+    // },
+    // {
+    //   id: 1,
+    //   name: "Nahla",
+    //   steps: 8000,
+    //   flag: "4k",
+    //   avater: require("../../assets/images/user2.png"),
+    // },
+    // {
+    //   id: 2,
+    //   name: "Saffa",
+    //   steps: 7000,
+    //   flag: "1k",
+    //   avater: require("../../assets/images/user3.png"),
+    // },
+    // {
+    //   id: 3,
+    //   name: "Rui",
+    //   steps: 6000,
+    //   flag: "2k",
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 4,
+    //   name: "Anum",
+    //   steps: 5000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 5,
+    //   name: "Zaina",
+    //   steps: 4000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 6,
+    //   name: "Noami",
+    //   steps: 3000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 7,
+    //   name: "Noami",
+    //   steps: 2000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 8,
+    //   name: "Noami",
+    //   steps: 1000,
+    //   flag: "1k",
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 9,
+    //   name: "Noami",
+    //   steps: 500,
+    //   flag: "1k",
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+  ]);
+  const [weekRankingList, setWeekRankingList] = useState([
+    // {
+    //   id: 0,
+    //   name: "Me",
+    //   steps: 9000,
+    //   flag: "3k",
+    //   avater: require("../../assets/images/user1.png"),
+    // },
+    // {
+    //   id: 1,
+    //   name: "Nahla",
+    //   steps: 8000,
+    //   flag: "4k",
+    //   avater: require("../../assets/images/user2.png"),
+    // },
+    // {
+    //   id: 2,
+    //   name: "Saffa",
+    //   steps: 7000,
+    //   flag: "1k",
+    //   avater: require("../../assets/images/user3.png"),
+    // },
+    // {
+    //   id: 3,
+    //   name: "Rui",
+    //   steps: 6000,
+    //   flag: "2k",
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 4,
+    //   name: "Anum",
+    //   steps: 5000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 5,
+    //   name: "Zaina",
+    //   steps: 4000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 6,
+    //   name: "Noami",
+    //   steps: 3000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 7,
+    //   name: "Noami",
+    //   steps: 2000,
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 8,
+    //   name: "Noami",
+    //   steps: 1000,
+    //   flag: "1k",
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 9,
+    //   name: "Noami",
+    //   steps: 500,
+    //   flag: "1k",
+    //   avater: require("../../assets/images/friend-profile.png"),
+    // },
+  ]);
 
   const getUser = async () => {
     let user_info = await AsyncStorage.getItem("user");
@@ -47,14 +200,345 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
     React.useCallback(() => {
       getUser();
       greeting();
-      getRanking();
+      // getRanking();
     }, [])
   );
 
-  const greeting = () => {
-    let d = new Date();
-    let time = d.getHours();
-    setCurrentHour(time);
+  useEffect(() => {
+    let todayDate = moment(new Date()).format("YYYY-MM-DD");
+    getHistoryOfSpecificDate(todayDate);
+    getHistoryOfWeek();
+    getDailyRanking();
+    getWeeklyRanking();
+  }, []);
+
+  //gettting user daily goal info...
+  const getUserDailyGoal = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        let data = {
+          this_user_id: user_id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+        fetch(api.get_user_daily_goal, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result[0]?.error == false || result[0]?.error == "false") {
+              let steps = result[0]["Daily Goal Steps"]
+                ? result[0]["Daily Goal Steps"]
+                : "0";
+              resolve(steps);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            resolve(false);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+  const getHistoryOfSpecificDate = async (date) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      user_id: user_id,
+      date: date,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_history_of_specific_date, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          let responseList = result[0]?.History ? result[0]?.History : [];
+          let list = [];
+          if (responseList?.length > 0) {
+            // let obj = {
+            //   id: responseList[0]?.id,
+            //   user_id: responseList[0]?.user_id,
+            //   calories_burnt: responseList[0]?.calories_burnt,
+            //   distancecovered: responseList[0]?.distancecovered,
+            //   time_taken: responseList[0]?.time_taken,
+            //   avg_speed: responseList[0]?.avg_speed,
+            //   avg_pace: responseList[0]?.avg_pace,
+            //   date: responseList[0]?.date,
+            //   steps: responseList[0]?.steps,
+            //   weekly_steps_id: responseList[0]?.weekly_steps_id,
+            // };
+            setKcal(responseList[0]?.calories_burnt);
+            setDistance(responseList[0]?.distancecovered);
+            setTime(responseList[0]?.time_taken);
+            let daily_goal_steps = await getUserDailyGoal();
+            let today_steps = parseInt(responseList[0]?.steps);
+            let daily_goal = parseInt(daily_goal_steps);
+            console.log("total steps : ", total_steps);
+            console.log("daily goals", daily_goal);
+
+            setTodaySteps(today_steps);
+            let percentage = (today_steps / daily_goal) * 100;
+
+            setTodaySteps_Percentage(percentage?.toFixed(2));
+          } else {
+            Snackbar.show({
+              text: "No Record Found.",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+          // setHistoryList(list);
+        } else {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const getHistoryOfWeek = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_history_of_week, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          let responseList = result[0]?.History ? result[0]?.History : [];
+
+          let week_days_list = await getWeekDays();
+          let list = [];
+          week_days_list?.forEach((element) => {
+            let filter = responseList?.filter(
+              (item) => item?.date == element?.date
+            );
+            // { label: "SUN", percentage: "57.85%", value: 2314 },
+            let obj = {
+              label: element?.name,
+              percentage: "",
+              value: filter[0]?.steps ? parseInt(filter[0]?.steps) : 0,
+            };
+            list.push(obj);
+          });
+          setChartData(list);
+        } else {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+  //get current week day name and date (MON to SUN)
+  const getWeekDays = () => {
+    return new Promise((resolve, reject) => {
+      let daysList = [];
+      Array.from(Array(7).keys()).map((idx) => {
+        const d = new Date();
+        d.setDate(d.getDate() - d.getDay() + idx);
+        let obj = {
+          name: moment(d).format("ddd"),
+          date: moment(d).format("YYYY-MM-DD"),
+        };
+        daysList.push(obj);
+        resolve(daysList);
+      });
+    });
+  };
+
+  //get daily ranking
+  const getDailyRanking = async () => {
+    try {
+      let user_id = await AsyncStorage.getItem("user_id");
+      setLoading(true);
+      let data = {
+        this_user_id: user_id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.get_user_ranking, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          if (result == null) {
+            //no record found
+          } else {
+            let list = [];
+            for (const element of result) {
+              if (element?.error == false || element?.error == "false") {
+                let friend_id = element["friend user id"];
+                let user_info = await getUser_Info(friend_id);
+                let obj = {
+                  daily_step_record_id: element["Daily Steps Records id"],
+                  friend_user_id: friend_id,
+                  friend_user_name: element["Friend user name"],
+                  date: element?.Date,
+                  calories_burnt: element?.calories_burnt,
+                  avg_pace: element?.avg_pace,
+                  avg_speed: element?.avg_speed,
+                  steps: element?.steps,
+                  distance_covered: element?.distance_covered,
+                  time_taken: element?.["Time Taken"],
+                  user_info: user_info,
+                };
+                list.push(obj);
+              } else {
+                //no ranking found for today
+              }
+            }
+            list.sort(function (a, b) {
+              return b?.steps - a?.steps;
+            });
+            if (list.length > 0) {
+              let largest_step = list[0]?.steps;
+              let newData = list?.map((item, index) => {
+                let percentage = (item?.steps / largest_step) * 100;
+                return {
+                  ...item,
+                  percentage: percentage.toFixed(2),
+                };
+              });
+              setTodayRankingList(newData);
+            } else {
+              setTodayRankingList([]);
+            }
+          }
+        })
+        .catch((error) => console.log("error in getting ranking ::: ", error))
+        .finally(() => setLoading(false));
+    } catch (error) {
+      console.log("error :", error);
+      setLoading(false);
+    }
+  };
+
+  //get weekly ranking
+  const getWeeklyRanking = async () => {
+    try {
+      let user_id = await AsyncStorage.getItem("user_id");
+      setLoading(true);
+      let data = {
+        this_user_id: user_id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.get_user_weekly_ranking, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          if (result == null) {
+            //no record found
+          } else {
+            let list = [];
+            let count = 0;
+            for (const element of result) {
+              let friend_id = element["user id"];
+              if (friend_id === null) {
+                //do nothing
+              } else if (element?.error == false || element?.error == "false") {
+                let user_info = await getUser_Info(friend_id);
+                let obj = {
+                  id: element?.id,
+                  friend_user_id: friend_id,
+                  steps: element?.steps,
+                  user_info: user_info,
+                };
+                list.push(obj);
+              } else {
+                //no ranking found for today
+              }
+            }
+            if (list?.length > 0) {
+              list.sort(function (a, b) {
+                return b?.steps - a?.steps;
+              });
+
+              let largest_step = list[0]?.steps;
+              let newData = list.map((item, index) => {
+                let percentage = (item?.steps / largest_step) * 100;
+                return {
+                  ...item,
+                  percentage: percentage.toFixed(2),
+                };
+              });
+              setWeekRankingList(newData);
+            } else {
+              setWeekRankingList([]);
+            }
+          }
+        })
+        .catch((error) => console.log("error in getting ranking ::: ", error))
+        .finally(() => setLoading(false));
+    } catch (error) {
+      console.log("error :", error);
+      setLoading(false);
+    }
+  };
+  //getting specific  user info
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
   };
 
   const getRanking = async () => {
@@ -85,6 +569,11 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
     }
   };
 
+  const greeting = () => {
+    let d = new Date();
+    let time = d.getHours();
+    setCurrentHour(time);
+  };
   const handleonTabChange = () => {
     setIndex(index == 0 ? 1 : 0);
   };
@@ -121,151 +610,6 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
     },
   ]);
 
-  const [todayRankingList, setTodayRankingList] = useState([
-    {
-      id: 0,
-      name: "Me",
-      steps: 9000,
-      flag: "3k",
-      avater: require("../../assets/images/user1.png"),
-    },
-    {
-      id: 1,
-      name: "Nahla",
-      steps: 8000,
-      flag: "4k",
-      avater: require("../../assets/images/user2.png"),
-    },
-    {
-      id: 2,
-      name: "Saffa",
-      steps: 7000,
-      flag: "1k",
-      avater: require("../../assets/images/user3.png"),
-    },
-    {
-      id: 3,
-      name: "Rui",
-      steps: 6000,
-      flag: "2k",
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 4,
-      name: "Anum",
-      steps: 5000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 5,
-      name: "Zaina",
-      steps: 4000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 6,
-      name: "Noami",
-      steps: 3000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 7,
-      name: "Noami",
-      steps: 2000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 8,
-      name: "Noami",
-      steps: 1000,
-      flag: "1k",
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 9,
-      name: "Noami",
-      steps: 500,
-      flag: "1k",
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-  ]);
-  const [weekRankingList, setWeekRankingList] = useState([
-    {
-      id: 0,
-      name: "Me",
-      steps: 9000,
-      flag: "3k",
-      avater: require("../../assets/images/user1.png"),
-    },
-    {
-      id: 1,
-      name: "Nahla",
-      steps: 8000,
-      flag: "4k",
-      avater: require("../../assets/images/user2.png"),
-    },
-    {
-      id: 2,
-      name: "Saffa",
-      steps: 7000,
-      flag: "1k",
-      avater: require("../../assets/images/user3.png"),
-    },
-    {
-      id: 3,
-      name: "Rui",
-      steps: 6000,
-      flag: "2k",
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 4,
-      name: "Anum",
-      steps: 5000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 5,
-      name: "Zaina",
-      steps: 4000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 6,
-      name: "Noami",
-      steps: 3000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 7,
-      name: "Noami",
-      steps: 2000,
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 8,
-      name: "Noami",
-      steps: 1000,
-      flag: "1k",
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 9,
-      name: "Noami",
-      steps: 500,
-      flag: "1k",
-      avater: require("../../assets/images/friend-profile.png"),
-    },
-  ]);
-  const chartData = [
-    { label: "MON", percentage: "135.75%", value: 5430 },
-    { label: "TUE", percentage: "155.95%", value: 6238 },
-    { label: "WED", percentage: "153.20%", value: 6128 },
-    { label: "THU", percentage: "221.22%", value: 8849 },
-    { label: "FRI", percentage: "253.25%", value: 10130 },
-    { label: "SAT", percentage: "223.57%", value: 8943 },
-    { label: "SUN", percentage: "57.85%", value: 2314 },
-  ];
   const EmptyTodayRankingView = () => {
     return (
       <View style={{ flexDirection: "row", marginBottom: 10 }}>
@@ -300,15 +644,16 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
               fontFamily: "PlusJakartaDisplay-Bold",
             }}
           >
-            0
+            {/* 0 */}
+            {todaySteps}
           </Text>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image
               source={require("../../assets/images/flag.png")}
               style={{ marginRight: 3, height: 15, width: 15 }}
             />
             <Text style={{ color: "#a9a9a9" }}>3k</Text>
-          </View>
+          </View> */}
         </View>
         <TouchableOpacity
           onPress={() => navigation.navigate("Friends")}
@@ -377,15 +722,16 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
               fontFamily: "PlusJakartaDisplay-Bold",
             }}
           >
-            0
+            {/* 0 */}
+            {todaySteps}
           </Text>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image
               source={require("../../assets/images/flag.png")}
               style={{ marginRight: 3, height: 15, width: 15 }}
             />
             <Text style={{ color: "#a9a9a9" }}>3k</Text>
-          </View>
+          </View> */}
         </View>
         <TouchableOpacity
           onPress={() => navigation.navigate("Friends")}
@@ -531,9 +877,11 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                 <AnimatedCircularProgress
                   size={200}
                   width={10}
-                  fill={0}
+                  // fill={0}
+                  fill={todaySteps_Percentage}
                   tintColor="#38ACFF"
                   backgroundColor="#E2E2E2"
+                  rotation={360}
                 >
                   {(fill) => (
                     <View style={{ alignItems: "center" }}>
@@ -544,7 +892,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           // fontFamily: 'Rubik-Regular',
                         }}
                       >
-                        {fill}
+                        {/* {fill} */}
+                        {todaySteps}
                       </Text>
                       <Text
                         style={{
@@ -574,7 +923,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       fontFamily: "Rubik-Regular",
                     }}
                   >
-                    0 kcal
+                    {/* 0 kcal */}
+                    {kcal} kcal
                   </Text>
                   <View
                     style={{
@@ -613,7 +963,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       fontFamily: "Rubik-Regular",
                     }}
                   >
-                    0 km
+                    {distance} km
                   </Text>
 
                   <View
@@ -652,7 +1002,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       fontFamily: "Rubik-Regular",
                     }}
                   >
-                    0:01 h
+                    {/* 0:01 h */}
+                    {time} h
                   </Text>
                   <View
                     style={{
@@ -754,14 +1105,16 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               rotation={360}
                               size={55}
                               width={2.5}
-                              fill={80}
+                              // fill={80}
+                              fill={parseInt(item?.item?.percentage)}
                               // tintColor="#38ACFF"
                               tintColor={itemColor}
                               backgroundColor="#eee"
                             >
                               {(fill) => (
                                 <Image
-                                  source={item.item.avater}
+                                  // source={item.item.avater}
+                                  source={require("../../assets/images/friend-profile.png")}
                                   style={{
                                     marginVertical: 8,
                                     width: 44,
@@ -771,7 +1124,9 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               )}
                             </AnimatedCircularProgress>
                           </View>
-                          <Text style={styles.cardText}>{item.item.name}</Text>
+                          <Text style={styles.cardText}>
+                            {item.item.friend_user_name}
+                          </Text>
                           <Text
                             style={{
                               ...styles.cardText,
@@ -781,7 +1136,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           >
                             {item.item.steps}
                           </Text>
-                          <View
+                          {/* <View
                             style={{
                               flexDirection: "row",
                               justifyContent: "center",
@@ -805,7 +1160,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                             >
                               {item.item.flag}
                             </Text>
-                          </View>
+                          </View> */}
                         </View>
                       );
                     }}
@@ -849,9 +1204,11 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                     <AnimatedCircularProgress
                       size={200}
                       width={10}
-                      fill={0}
+                      // fill={0}
+                      fill={todaySteps_Percentage}
                       tintColor="#38ACFF"
                       backgroundColor="#E2E2E2"
+                      rotation={360}
                     >
                       {(fill) => (
                         <View style={{ alignItems: "center" }}>
@@ -862,7 +1219,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               // fontFamily: 'PlusJakartaDisplay-Bold',
                             }}
                           >
-                            {fill}
+                            {/* {fill} */}
+                            {todaySteps}
                           </Text>
                           <Text
                             style={{
@@ -1097,14 +1455,17 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               rotation={360}
                               size={55}
                               width={2.5}
-                              fill={80}
+                              // fill={80}
+
+                              fill={parseInt(item?.item?.percentage)}
                               // tintColor="#38ACFF"
                               tintColor={itemColor}
                               backgroundColor="#eee"
                             >
                               {(fill) => (
                                 <Image
-                                  source={item.item.avater}
+                                  // source={item.item.avater}
+                                  source={require("../../assets/images/friend-profile.png")}
                                   style={{
                                     marginVertical: 8,
                                     width: 44,
@@ -1114,7 +1475,9 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               )}
                             </AnimatedCircularProgress>
                           </View>
-                          <Text style={styles.cardText}>{item.item.name}</Text>
+                          <Text style={styles.cardText}>
+                            {item?.item?.user_info?.first_name}
+                          </Text>
                           <Text
                             style={{
                               ...styles.cardText,
@@ -1124,7 +1487,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           >
                             {item.item.steps}
                           </Text>
-                          <View
+                          {/* <View
                             style={{
                               flexDirection: "row",
                               justifyContent: "center",
@@ -1148,7 +1511,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                             >
                               {item.item.flag}
                             </Text>
-                          </View>
+                          </View> */}
                         </View>
                       );
                     }}
@@ -1212,7 +1575,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           fontFamily: "PlusJakartaDisplay-Bold",
                         }}
                       >
-                        0
+                        {/* 0 */}
+                        {todaySteps}
                       </Text>
                     </View>
                   ) : (
@@ -1262,14 +1626,16 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                   rotation={360}
                                   size={55}
                                   width={2.5}
-                                  fill={80}
+                                  // fill={80}
+                                  fill={parseInt(item?.item?.percentage)}
                                   // tintColor="#38ACFF"
                                   tintColor={itemColor}
                                   backgroundColor="#eee"
                                 >
                                   {(fill) => (
                                     <Image
-                                      source={item.item.avater}
+                                      // source={item.item.avater}
+                                      source={require("../../assets/images/friend-profile.png")}
                                       style={{
                                         marginVertical: 8,
                                         width: 44,
@@ -1280,7 +1646,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                 </AnimatedCircularProgress>
                               </View>
                               <Text style={styles.cardText}>
-                                {item.item.name}
+                                {item.item.friend_user_name}
                               </Text>
                               <Text
                                 style={{
@@ -1333,7 +1699,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           fontFamily: "PlusJakartaDisplay-Bold",
                         }}
                       >
-                        0
+                        {/* 0 */}
+                        {todaySteps}
                       </Text>
                     </View>
                   ) : (
@@ -1383,14 +1750,16 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                   rotation={360}
                                   size={55}
                                   width={2.5}
-                                  fill={80}
+                                  // fill={80}
+                                  fill={parseInt(item?.item?.percentage)}
                                   // tintColor="#38ACFF"
                                   tintColor={itemColor}
                                   backgroundColor="#eee"
                                 >
                                   {(fill) => (
                                     <Image
-                                      source={item.item.avater}
+                                      // source={item.item.avater}
+                                      source={require("../../assets/images/friend-profile.png")}
                                       style={{
                                         marginVertical: 8,
                                         width: 44,
@@ -1401,7 +1770,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                 </AnimatedCircularProgress>
                               </View>
                               <Text style={styles.cardText}>
-                                {item.item.name}
+                                {item.item?.user_info?.first_name}
                               </Text>
                               <Text
                                 style={{
