@@ -55,6 +55,8 @@ export const api = {
   search_challenges: BASE_URL + "/challenges/search.php",
   upload_challenge_image: BASE_URL + "/challenges/image.php",
   add_participants_to_Challenge: BASE_URL + "/challenges/addparticipants.php",
+  add_group_to_Challenge:
+    BASE_URL + "/challenges/addgroupparticipantsnotify.php",
 
   //goals
   add_goals: BASE_URL + "/goals/insert.php",
