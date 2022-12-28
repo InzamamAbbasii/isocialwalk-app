@@ -585,6 +585,7 @@ const Friends = ({
 
                             navigation.navigate("AddFriend", {
                               id: item?.item?.id,
+                              user: item?.item,
                             });
                           }}
                           style={{
