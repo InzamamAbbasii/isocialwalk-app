@@ -29,6 +29,7 @@ export const api = {
   search_group: BASE_URL + "/groups/search.php",
   get_specific_group_members:
     BASE_URL + "/groups/getmembersinspecificgroup.php",
+  get_group_detail: BASE_URL + "/groups/getsinglegroupinfo.php",
 
   //notifications
   getAllGroup_notifications: BASE_URL + "/notifications/getallgroup.php",
