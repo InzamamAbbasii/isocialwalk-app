@@ -32,17 +32,27 @@ import { setLoginUserDetail, setUserForChat } from "../../redux/actions";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import { api } from "../../constants/api";
+import moment from "moment";
 
 const FriendProfile = ({ navigation, route }) => {
   const dispatch = useDispatch();
 
   const [userId, setUserId] = useState("");
-  const [firstName, setFirstName] = useState("Saffa");
-  const [lastName, setLastName] = useState("Saffa");
-  const [fullName, setFullName] = useState("Saffa");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [profileImage, setProfileImage] = useState("");
 
   const [dailySteps, setDailySteps] = useState("0");
+
+  //chart
+  const [labels, setLabels] = useState([]);
+  //my history
+  const [myTotalSteps, setMyTotalSteps] = useState("0");
+  const [myHistory, setMyHistory] = useState([]);
+  //friend history
+  const [friendTotalSteps, setFriendTotalSteps] = useState("0");
+  const [friendHistory, setFriendHistory] = useState([]);
 
   const [commonGroupsList, setCommonGroupsList] = useState([
     {
@@ -69,19 +79,39 @@ const FriendProfile = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route?.params) {
-      console.log("params :: ", route?.params?.user);
-      console.log("full_name :: ");
       setUserId(route?.params?.user?.id);
       getUserDailyGoal(route?.params?.user?.id);
+      let todayDay = moment(new Date()).format("ddd");
+
+      getMyWeeklyRanking(todayDay);
+      getFriendWeeklyRanking(route?.params?.user?.id, todayDay);
+
+      getUser_Info(route?.params?.user?.id);
+
       // setFullName(route?.params?.user?.full_name);
       // setFirstName(route?.params?.user?.firstName);
       // setLastName(route?.params?.user?.lastname);
       // setProfileImage(route?.params?.user?.image);
-
-      getUser_Info(route?.params?.user?.id);
     }
   }, [route?.params]);
+  const hanldeOnPerformaceTypeChange = (value) => {
+    if (value == "Month") {
+      //getting month history
+      getMyMonthlyHistory();
+      getFriendMonthlyHistory(userId);
+    } else if (value == "Week") {
+      //getting week history
+      getMyWeeklyRanking();
+      getFriendWeeklyRanking(userId);
+    } else {
+      //getting day history
 
+      let todayDay = moment(new Date()).format("ddd");
+
+      getMyWeeklyRanking(todayDay);
+      getFriendWeeklyRanking(userId, todayDay);
+    }
+  };
   const getUser_Info = (id) => {
     try {
       setLoading(true);
@@ -166,6 +196,289 @@ const FriendProfile = ({ navigation, route }) => {
       });
     }
   };
+
+  //get logged in user weekly ranking
+  const getMyWeeklyRanking = async (todayDay) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_history_of_week, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        let responseList = result[0]?.History ? result[0]?.History : [];
+        let week_days_list = await getWeekDays();
+        let dayNameList = [];
+        let dayStepsList = [];
+        let total_steps = 0;
+        week_days_list?.forEach((element) => {
+          let filter = responseList?.filter(
+            (item) => item?.date == element?.date
+          );
+          dayNameList.push(element?.name);
+          let steps = filter[0]?.steps ? parseInt(filter[0]?.steps) : 0;
+          if (!todayDay) {
+            total_steps += steps;
+          } else {
+            if (todayDay == element?.name) {
+              total_steps += steps;
+            }
+          }
+          dayStepsList.push(steps);
+        });
+
+        setLabels(dayNameList);
+        setMyTotalSteps(total_steps);
+        setMyHistory(dayStepsList);
+
+        setLoading(false);
+        // } else {
+        //   Snackbar.show({
+        //     text: result[0]?.message,
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+      })
+      .catch((error) => {
+        console.log("error : ", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //get friend/selected   user weekly ranking
+  const getFriendWeeklyRanking = async (friendid, todayDay) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      user_id: friendid,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_history_of_week, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        let responseList = result[0]?.History ? result[0]?.History : [];
+        let week_days_list = await getWeekDays();
+        let dayNameList = [];
+        let dayStepsList = [];
+        let total_steps = 0;
+        week_days_list?.forEach((element) => {
+          let filter = responseList?.filter(
+            (item) => item?.date == element?.date
+          );
+          dayNameList.push(element?.name);
+          let steps = filter[0]?.steps ? parseInt(filter[0]?.steps) : 0;
+          dayStepsList.push(steps);
+          if (!todayDay) {
+            total_steps += steps;
+          } else {
+            if (todayDay == element?.name) {
+              total_steps += steps;
+            }
+          }
+        });
+        setLabels(dayNameList);
+        setFriendHistory(dayStepsList);
+        setFriendTotalSteps(total_steps);
+      })
+      .catch((error) => {
+        console.log("error : ", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //get friend/selected   user current month history
+  const getFriendMonthlyHistory = async (friendid) => {
+    let thisMonthDaysList = await daysInThisMonth();
+    let monthStartDate = thisMonthDaysList[0]?.date;
+    let monthEndDate = thisMonthDaysList[thisMonthDaysList?.length - 1]?.date;
+    setLoading(true);
+    let data = {
+      user_id: friendid,
+      date: monthEndDate,
+      sub_date: monthStartDate,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_history_btw_two_dates, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        console.log("result :: ", result);
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        let responseList = result[0]?.History ? result[0]?.History : [];
+        let list = [];
+        // if (responseList?.length > 0) {
+        // let list = [];
+        let dayNameList = [];
+        let dayStepsList = [];
+        let total_steps = 0;
+        thisMonthDaysList?.forEach((element) => {
+          let filter = responseList?.filter(
+            (item) => item?.date == element?.date
+          );
+          dayNameList.push(element?.date);
+          let steps = filter[0]?.steps ? parseInt(filter[0]?.steps) : 0;
+          dayStepsList.push(steps);
+          total_steps += steps;
+        });
+        setLabels(dayNameList);
+        setFriendTotalSteps(total_steps);
+        setFriendHistory(dayStepsList);
+        // } else {
+        //   Snackbar.show({
+        //     text: "No Record Found.",
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+        // } else {
+        //   Snackbar.show({
+        //     text: result[0]?.message,
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+      })
+      .catch((error) => {
+        console.log("error in getting history of specific date", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const getMyMonthlyHistory = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    let todayDate = moment(new Date()).format("YYYY-MM-DD");
+
+    let thisMonthDaysList = await daysInThisMonth();
+    console.log("days in this month :: ", thisMonthDaysList);
+    let monthStartDate = thisMonthDaysList[0]?.date;
+    let monthEndDate = thisMonthDaysList[thisMonthDaysList?.length - 1]?.date;
+    console.log("month start date   ::: ", monthStartDate);
+    console.log("month start date   ::: ", monthEndDate);
+    setLoading(true);
+    let data = {
+      user_id: user_id,
+      date: monthEndDate,
+      sub_date: monthStartDate,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_history_btw_two_dates, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        console.log("result :: ", result);
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        let responseList = result[0]?.History ? result[0]?.History : [];
+        // let list = [];
+        // if (responseList?.length > 0) {
+        let list = [];
+        let dayNameList = [];
+        let dayStepsList = [];
+        let total_steps = 0;
+        thisMonthDaysList?.forEach((element) => {
+          let filter = responseList?.filter(
+            (item) => item?.date == element?.date
+          );
+          dayNameList.push(element?.date);
+          let steps = filter[0]?.steps ? parseInt(filter[0]?.steps) : 0;
+          dayStepsList.push(steps);
+          total_steps += steps;
+        });
+        setLabels(dayNameList);
+        setMyTotalSteps(total_steps);
+        setMyHistory(dayStepsList);
+        // } else {
+        //   Snackbar.show({
+        //     text: "No Record Found.",
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+        // } else {
+        //   Snackbar.show({
+        //     text: result[0]?.message,
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+      })
+      .catch((error) => {
+        console.log("error in getting history of specific date", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+  //get current week day name and date (MON to SUN)
+  const getWeekDays = () => {
+    return new Promise((resolve, reject) => {
+      let daysList = [];
+      Array.from(Array(7).keys()).map((idx) => {
+        const d = new Date();
+        d.setDate(d.getDate() - d.getDay() + idx);
+        let obj = {
+          name: moment(d).format("ddd"),
+          date: moment(d).format("YYYY-MM-DD"),
+        };
+        daysList.push(obj);
+        resolve(daysList);
+      });
+    });
+  };
+
+  //getting current month date and day name
+  const daysInThisMonth = () => {
+    return new Promise((resolve, reject) => {
+      try {
+        var now = new Date();
+        var daysInMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        ).getDate();
+        let monthDaysList = [];
+        for (let i = 1; i <= daysInMonth; i++) {
+          var d = new Date(now.getFullYear(), now.getMonth(), i);
+          let obj = {
+            name: moment(d).format("ddd"),
+            date: moment(d).format("YYYY-MM-DD"),
+          };
+          monthDaysList.push(obj);
+        }
+        resolve(monthDaysList);
+      } catch (error) {
+        resolve([]);
+      }
+    });
+  };
+
   const handleUnfriend = async () => {
     console.log("selected user  id  ", userId);
     let user_id = await AsyncStorage.getItem("user_id");
@@ -429,7 +742,6 @@ const FriendProfile = ({ navigation, route }) => {
       >
         <Header title={firstName} navigation={navigation} />
         {loading && <Loader />}
-
         <TouchableOpacity
           onPress={() => handleChatPress(userId)}
           // onPress={() => alert(userId)}
@@ -504,6 +816,7 @@ const FriendProfile = ({ navigation, route }) => {
             setOpen={setIsTypeOpen}
             setValue={setSelectedType}
             setItems={setPerformanceTypes}
+            onChangeValue={(item) => hanldeOnPerformaceTypeChange(item)}
             arrowIconStyle={{
               tintColor: "white",
             }}
@@ -573,6 +886,17 @@ const FriendProfile = ({ navigation, route }) => {
               }}
             >
               <View>
+                {myTotalSteps >= friendTotalSteps && (
+                  <Image
+                    source={require("../../../assets/images/crown.png")}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      resizeMode: "contain",
+                      alignSelf: "center",
+                    }}
+                  />
+                )}
                 <Image
                   source={require("../../../assets/images/friend-profile.png")}
                   style={{ width: 60, height: 60 }}
@@ -591,7 +915,8 @@ const FriendProfile = ({ navigation, route }) => {
                     fontFamily: "Rubik-Medium",
                   }}
                 >
-                  39,283
+                  {/* 39,283 */}
+                  {myTotalSteps}
                 </Text>
                 <Text
                   style={{
@@ -628,7 +953,8 @@ const FriendProfile = ({ navigation, route }) => {
                     fontFamily: "Rubik-Medium",
                   }}
                 >
-                  94,434
+                  {friendTotalSteps}
+                  {/* 94,434 */}
                 </Text>
                 <Text
                   style={{
@@ -637,19 +963,23 @@ const FriendProfile = ({ navigation, route }) => {
                     fontFamily: "Rubik-Regular",
                   }}
                 >
-                  Saffa
+                  {/* Saffa */}
+                  {firstName}
                 </Text>
               </View>
               <View>
-                <Image
-                  source={require("../../../assets/images/crown.png")}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    resizeMode: "contain",
-                    alignSelf: "center",
-                  }}
-                />
+                {friendTotalSteps >= myTotalSteps && (
+                  <Image
+                    source={require("../../../assets/images/crown.png")}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      resizeMode: "contain",
+                      alignSelf: "center",
+                    }}
+                  />
+                )}
+
                 <Image
                   source={require("../../../assets/images/user1.png")}
                   style={{ width: 60, height: 60 }}
@@ -660,24 +990,37 @@ const FriendProfile = ({ navigation, route }) => {
 
           {/* ------------------------------------graph------------------------------------------- */}
 
-          <View style={{}}>
+          <ScrollView
+            horizontal={true}
+            contentOffset={{ x: 10000, y: 0 }} // i needed the scrolling to start from the end not the start
+            style={{}}
+          >
             <LineChart
               data={{
-                labels: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
+                // labels: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
+                // labels: weekLabels,
+                labels: labels,
                 datasets: [
                   {
-                    data: [10, 20, 5, 15, 45, 30, 20, 9],
+                    // data: [10, 20, 5, 15, 45, 30, 20, 9],
+                    // data: weeklyHistory, //logged in user history
+                    data: myHistory, //logged in user history
                     color: (opacity = 1) => `#38ACFF`, // optional
                     strokeWidth: 2,
                   },
                   {
-                    data: [15, 10, 20, 8, 30, 3, 50, 25],
+                    // data: [15, 10, 20, 8, 30, 3, 50, 25],
+                    // data: weeklyFriendHistory, //friend history
+                    data: friendHistory, //friend history
                     color: (opacity = 1) => `#003E6B`, // optional
                     strokeWidth: 2,
                   },
                 ],
               }}
-              width={Dimensions.get("window").width - 80} // from react-native
+              verticalLabelRotation={-40}
+              // width={Dimensions.get("window").width - 80} // from react-native
+              width={(labels?.length * Dimensions.get("window").width) / 8} // from react-native
+              // xLabelsOffset={10}
               height={160}
               withDots={true}
               withInnerLines={false}
@@ -694,16 +1037,18 @@ const FriendProfile = ({ navigation, route }) => {
                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 style: {
                   borderRadius: 16,
+                  backgroundColor: "red",
+                  padding: 10,
                 },
               }}
-              //   bezier
+              // bezier
               style={{
                 paddingRight: 13,
                 paddingLeft: 15,
                 marginTop: 15,
               }}
             />
-          </View>
+          </ScrollView>
           {/* ------------------------------------graph------------------------------------------- */}
         </View>
         {/* -----------------------------Common Groups------------------------------------------ */}
