@@ -42,13 +42,13 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
   const [todaySteps, setTodaySteps] = useState(0);
   const [todaySteps_Percentage, setTodaySteps_Percentage] = useState(0.0);
   const [chartData, setChartData] = useState([
-    { label: "MON", percentage: "135.75%", value: 5430 },
-    { label: "TUE", percentage: "155.95%", value: 6238 },
-    { label: "WED", percentage: "153.20%", value: 6128 },
-    { label: "THU", percentage: "221.22%", value: 8849 },
-    { label: "FRI", percentage: "253.25%", value: 10130 },
-    { label: "SAT", percentage: "223.57%", value: 8943 },
-    { label: "SUN", percentage: "57.85%", value: 2314 },
+    // { label: "MON", percentage: "135.75%", value: 5430 },
+    // { label: "TUE", percentage: "155.95%", value: 6238 },
+    // { label: "WED", percentage: "153.20%", value: 6128 },
+    // { label: "THU", percentage: "221.22%", value: 8849 },
+    // { label: "FRI", percentage: "253.25%", value: 10130 },
+    // { label: "SAT", percentage: "223.57%", value: 8943 },
+    // { label: "SUN", percentage: "57.85%", value: 2314 },
   ]);
   const [todayRankingList, setTodayRankingList] = useState([
     // {
@@ -232,6 +232,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
               let steps = result[0]["Daily Goal Steps"]
                 ? result[0]["Daily Goal Steps"]
                 : "0";
+
               resolve(steps);
             } else {
               resolve(false);
@@ -282,12 +283,11 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
             let daily_goal_steps = await getUserDailyGoal();
             let today_steps = parseInt(responseList[0]?.steps);
             let daily_goal = parseInt(daily_goal_steps);
-            console.log("total steps : ", total_steps);
+            console.log("total steps : ", today_steps);
             console.log("daily goals", daily_goal);
 
             setTodaySteps(today_steps);
             let percentage = (today_steps / daily_goal) * 100;
-
             setTodaySteps_Percentage(percentage?.toFixed(2));
           } else {
             Snackbar.show({
@@ -304,6 +304,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
         }
       })
       .catch((error) => {
+        console.log("error in getting history of specific date", error);
+
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,

@@ -698,7 +698,11 @@ const Friends = ({
                       renderItem={(item) => {
                         return (
                           <TouchableOpacity
-                            onPress={() => navigation.navigate("FriendProfile")}
+                            onPress={() =>
+                              navigation.navigate("FriendProfile", {
+                                user: item?.item,
+                              })
+                            }
                             style={{
                               ...styles.cardView,
                               justifyContent: "center",

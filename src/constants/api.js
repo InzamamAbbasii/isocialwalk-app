@@ -46,6 +46,7 @@ export const api = {
   approveRequest: BASE_URL + "/friends/updaterequestapprove.php",
   unApproveRequest: BASE_URL + "/friends/updaterequestunapproved.php",
   search_friend: BASE_URL + "/friends/search.php",
+  unFriend: BASE_URL + "/friends/unfriend.php",
 
   //challenges
   create_challenge: BASE_URL + "/challenges/create.php",
@@ -59,6 +60,8 @@ export const api = {
     BASE_URL + "/challenges/addgroupparticipantsnotify.php",
   get_admin_challenges: BASE_URL + "/challenges/searchbyspecificadmin.php",
   show_challenge_participants: BASE_URL + "/challenges/showparticipants.php",
+  approve_individual_challenge:
+    BASE_URL + "/challenges/updatenotificationschallengeindiviual.php",
 
   //goals
   add_goals: BASE_URL + "/goals/insert.php",
