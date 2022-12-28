@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,11 +11,11 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Pressable,
-} from 'react-native';
-import Header from '../../Reuseable Components/Header';
-import DropDownPicker from 'react-native-dropdown-picker';
+} from "react-native";
+import Header from "../../Reuseable Components/Header";
+import DropDownPicker from "react-native-dropdown-picker";
 
-import {LineChart} from 'react-native-chart-kit';
+import { LineChart } from "react-native-chart-kit";
 import {
   getDatabase,
   get,
@@ -25,40 +25,43 @@ import {
   push,
   update,
   off,
-} from 'firebase/database';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch} from 'react-redux';
-import {setLoginUserDetail, setUserForChat} from '../../redux/actions';
-import Loader from '../../Reuseable Components/Loader';
-import Snackbar from 'react-native-snackbar';
+} from "firebase/database";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import { setLoginUserDetail, setUserForChat } from "../../redux/actions";
+import Loader from "../../Reuseable Components/Loader";
+import Snackbar from "react-native-snackbar";
+import { api } from "../../constants/api";
 
-const FriendProfile = ({navigation, route}) => {
+const FriendProfile = ({ navigation, route }) => {
   const dispatch = useDispatch();
 
-  const [userId, setUserId] = useState('');
-  const [firstName, setFirstName] = useState('Saffa');
-  const [lastName, setLastName] = useState('Saffa');
-  const [fullName, setFullName] = useState('Saffa');
-  const [profileImage, setProfileImage] = useState('');
+  const [userId, setUserId] = useState("");
+  const [firstName, setFirstName] = useState("Saffa");
+  const [lastName, setLastName] = useState("Saffa");
+  const [fullName, setFullName] = useState("Saffa");
+  const [profileImage, setProfileImage] = useState("");
+
+  const [dailySteps, setDailySteps] = useState("0");
 
   const [commonGroupsList, setCommonGroupsList] = useState([
     {
       id: 0,
-      name: 'Carnage Coverage',
-      avatar: require('../../../assets/images/friend-profile.png'),
+      name: "Carnage Coverage",
+      avatar: require("../../../assets/images/friend-profile.png"),
     },
     {
       id: 1,
-      name: 'GhostRunners',
-      avatar: require('../../../assets/images/friend-profile.png'),
+      name: "GhostRunners",
+      avatar: require("../../../assets/images/friend-profile.png"),
     },
   ]);
 
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [performanceTypes, setPerformanceTypes] = useState([
-    {label: 'This Day', value: 'Day'},
-    {label: 'This Week', value: 'Week'},
-    {label: 'This Month', value: 'Month'},
+    { label: "This Day", value: "Day" },
+    { label: "This Week", value: "Week" },
+    { label: "This Month", value: "Month" },
   ]);
   const [selectedType, setSelectedType] = useState(performanceTypes[0]?.value);
 
@@ -66,24 +69,150 @@ const FriendProfile = ({navigation, route}) => {
 
   useEffect(() => {
     if (route?.params) {
-      console.log('params :: ', route?.params?.user);
-      console.log('full_name :: ');
+      console.log("params :: ", route?.params?.user);
+      console.log("full_name :: ");
       setUserId(route?.params?.user?.id);
-      setFullName(route?.params?.user?.full_name);
-      setFirstName(route?.params?.user?.firstName);
-      setLastName(route?.params?.user?.lastname);
-      setProfileImage(route?.params?.user?.image);
+      getUserDailyGoal(route?.params?.user?.id);
+      // setFullName(route?.params?.user?.full_name);
+      // setFirstName(route?.params?.user?.firstName);
+      // setLastName(route?.params?.user?.lastname);
+      // setProfileImage(route?.params?.user?.image);
+
+      getUser_Info(route?.params?.user?.id);
     }
   }, [route?.params]);
 
+  const getUser_Info = (id) => {
+    try {
+      setLoading(true);
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify({
+          user_id: id,
+        }),
+        redirect: "follow",
+      };
+      fetch(api.get_specific_user, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            // resolve(result[0]);
+            let fullName = result[0]?.first_name + " " + result[0]?.last_name;
+            setFullName(fullName);
+            setFirstName(result[0]?.first_name);
+            setLastName(result[0]?.last_name);
+            setProfileImage(result[0]["profile image"]);
+          } else {
+            //user not found
+            Snackbar.show({
+              text: "User Detail not found",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log("error in getting user detail ::", error);
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => setLoading(false));
+    } catch (error) {
+      console.log("error occur in getting user profile detail ::", error);
+      Snackbar.show({
+        text: "Something went wrong",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+      setLoading(false);
+    }
+  };
+  //get user daily goals steps
+  const getUserDailyGoal = async () => {
+    try {
+      let user_id = await AsyncStorage.getItem("user_id");
+      let data = {
+        this_user_id: user_id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.get_user_daily_goal, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            let steps = result[0]["Daily Goal Steps"]
+              ? result[0]["Daily Goal Steps"]
+              : "0";
+            setDailySteps(steps);
+          } else {
+            console.log("result  :: ", result);
+          }
+        })
+        .catch((error) => {
+          console.log("error in getting user daily goal ::", error);
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        });
+    } catch (error) {
+      console.log("error in getting user daily goals : ", error);
+      Snackbar.show({
+        text: "Something went wrong",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+  const handleUnfriend = async () => {
+    console.log("selected user  id  ", userId);
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let obj = {
+      // from_id: user_id,
+      // to_id: userId,
+
+      from_id: userId,
+      to_id: user_id,
+    };
+    console.log("data pass to unfriend ::", obj);
+
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.unFriend, requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        console.log("unfriend result ::", result);
+
+        // Snackbar.show({
+        //   text: "Request Canceled successfully",
+        //   duration: Snackbar.LENGTH_SHORT,
+        // });
+        // navigation?.goBack();
+      })
+      .catch((error) => {
+        console.log("error in unapproveing request :: ", error);
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
   //---------------------------------------------CHATTING USING FIREBASE START---------------------------------------------------------
 
-  const handleChatPress = async user_id => {
+  const handleChatPress = async (user_id) => {
     if (userId) {
       onAddFriend(user_id);
     } else {
       Snackbar.show({
-        text: 'Something went wrong.User Not found',
+        text: "Something went wrong.User Not found",
         duration: Snackbar.LENGTH_SHORT,
       });
     }
@@ -96,24 +225,24 @@ const FriendProfile = ({navigation, route}) => {
         const database = getDatabase();
         //first check if the user registered before
         const newUserObj = {
-          id: id ? id : '',
-          name: name ? name : '',
-          email: email ? email : '',
+          id: id ? id : "",
+          name: name ? name : "",
+          email: email ? email : "",
         };
         set(ref(database, `users/${id}`), newUserObj);
         resolve(true);
       } catch (error) {
-        console.log('error while creating new user', error);
+        console.log("error while creating new user", error);
         resolve(false);
       }
     });
   };
-  const onAddFriend = async selected_user_id => {
+  const onAddFriend = async (selected_user_id) => {
     try {
       setLoading(true);
       //find user and add it to my friends and also add me to his friends
       let loggedinFirebaseuser = await AsyncStorage.getItem(
-        'LoggedInUserFirebaseDetail',
+        "LoggedInUserFirebaseDetail"
       );
       if (loggedinFirebaseuser != null) {
         loggedinFirebaseuser = JSON.parse(loggedinFirebaseuser);
@@ -126,7 +255,7 @@ const FriendProfile = ({navigation, route}) => {
         let result = await createUser(
           loggedinFirebaseuser?.id,
           loggedinFirebaseuser?.name,
-          loggedinFirebaseuser?.email,
+          loggedinFirebaseuser?.email
         );
         loggedinFirebaseuser = await findUser(loggedinFirebaseuser?.id);
       }
@@ -135,7 +264,7 @@ const FriendProfile = ({navigation, route}) => {
 
       let user = await findUser(selected_user_id);
       if (user == null) {
-        let result = await createUser(selected_user_id, firstName, '');
+        let result = await createUser(selected_user_id, firstName, "");
         user = await findUser(selected_user_id);
       }
 
@@ -145,21 +274,21 @@ const FriendProfile = ({navigation, route}) => {
           ///-------------------------------------------------
           let loggedin_user = await findUser(loggedinFirebaseuser?.id);
           let filter = loggedin_user?.friends?.filter(
-            element => element?.id == selected_user_id,
+            (element) => element?.id == selected_user_id
           );
           if (filter.length > 0) {
             dispatch(setUserForChat(filter[0]));
             dispatch(setLoginUserDetail(loggedin_user));
-            navigation.navigate('Conversations');
+            navigation.navigate("Conversations");
           } else {
             let obj = {
-              chatroomId: '',
-              name: '',
+              chatroomId: "",
+              name: "",
               id: 0,
             };
             dispatch(setUserForChat(obj));
             dispatch(setLoginUserDetail(loggedin_user));
-            navigation.navigate('Conversations');
+            navigation.navigate("Conversations");
           }
           setLoading(false);
           return;
@@ -168,30 +297,31 @@ const FriendProfile = ({navigation, route}) => {
 
         if (
           loggedinFirebaseuser?.friends &&
-          loggedinFirebaseuser?.friends.findIndex(f => f?.id === user?.id) >= 0
+          loggedinFirebaseuser?.friends.findIndex((f) => f?.id === user?.id) >=
+            0
         ) {
           // don't let user add a user twice
 
           ///-------------------------------------------------
           let loggedin_user = await findUser(loggedinFirebaseuser?.id);
           let filter = loggedin_user?.friends?.filter(
-            element => element?.id == selected_user_id,
+            (element) => element?.id == selected_user_id
           );
           // console.log('loggedin_user......', loggedin_user);
           // console.log('filter......', filter[0]);
           if (filter.length > 0) {
             dispatch(setUserForChat(filter[0]));
             dispatch(setLoginUserDetail(loggedin_user));
-            navigation.navigate('Conversations');
+            navigation.navigate("Conversations");
           } else {
             let obj = {
-              chatroomId: '',
-              name: '',
+              chatroomId: "",
+              name: "",
               id: 0,
             };
             dispatch(setUserForChat(obj));
             dispatch(setLoginUserDetail(loggedin_user));
-            navigation.navigate('Conversations');
+            navigation.navigate("Conversations");
           }
           setLoading(false);
           return;
@@ -199,7 +329,7 @@ const FriendProfile = ({navigation, route}) => {
         }
         // create a chatroom and store the chatroom id
 
-        const newChatroomRef = push(ref(database, 'chatrooms'), {
+        const newChatroomRef = push(ref(database, "chatrooms"), {
           firstUser: loggedinFirebaseuser?.name,
           secondUser: user?.name,
           firstUserId: loggedinFirebaseuser?.id,
@@ -245,31 +375,31 @@ const FriendProfile = ({navigation, route}) => {
         };
         //update loggedin user in async storage
         await AsyncStorage.setItem(
-          'LoggedInUserFirebaseDetail',
-          JSON.stringify(loggedin_user_Obj),
+          "LoggedInUserFirebaseDetail",
+          JSON.stringify(loggedin_user_Obj)
         );
         update(
           ref(database, `users/${loggedinFirebaseuser?.id}`),
-          loggedin_user_Obj,
+          loggedin_user_Obj
         );
         ///-------------------------------------------------
         let loggedin_user = await findUser(loggedinFirebaseuser?.id);
         let filter = loggedin_user?.friends?.filter(
-          element => element?.id == selected_user_id,
+          (element) => element?.id == selected_user_id
         );
         if (filter.length > 0) {
           dispatch(setUserForChat(filter[0]));
           dispatch(setLoginUserDetail(loggedin_user));
-          navigation.navigate('Conversations');
+          navigation.navigate("Conversations");
         } else {
           let obj = {
-            chatroomId: '',
-            name: '',
+            chatroomId: "",
+            name: "",
             id: 0,
           };
           dispatch(setUserForChat(obj));
           dispatch(setLoginUserDetail(loggedin_user));
-          navigation.navigate('Conversations');
+          navigation.navigate("Conversations");
         }
         setLoading(false);
         return;
@@ -279,8 +409,8 @@ const FriendProfile = ({navigation, route}) => {
       console.error(error);
     }
   };
-  const findUser = async id => {
-    console.log('find user name...', id);
+  const findUser = async (id) => {
+    console.log("find user name...", id);
     const database = getDatabase();
     const mySnapshot = await get(ref(database, `users/${id}`));
     return mySnapshot.val();
@@ -295,7 +425,8 @@ const FriendProfile = ({navigation, route}) => {
         contentContainerStyle={{
           flexGrow: 1,
         }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <Header title={firstName} navigation={navigation} />
         {loading && <Loader />}
 
@@ -303,57 +434,66 @@ const FriendProfile = ({navigation, route}) => {
           onPress={() => handleChatPress(userId)}
           // onPress={() => alert(userId)}
           style={{
-            position: 'absolute',
+            position: "absolute",
             right: 0,
             top: 20,
-          }}>
+          }}
+        >
           <Image
-            source={require('../../../assets/images/chat1.png')}
-            style={{width: 25, height: 25}}
+            source={require("../../../assets/images/chat1.png")}
+            style={{ width: 25, height: 25 }}
           />
         </TouchableOpacity>
         <View
           style={{
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
             marginVertical: 20,
             paddingLeft: 30,
-          }}>
+          }}
+        >
           <Image
-            source={require('../../../assets/images/user1.png')}
-            style={{width: 110, height: 110, resizeMode: 'contain'}}
+            source={require("../../../assets/images/friend-profile.png")}
+            style={{ width: 110, height: 110, resizeMode: "contain" }}
           />
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 18,
               marginVertical: 10,
-              fontFamily: 'Rubik-Medium',
-            }}>
+              fontFamily: "Rubik-Medium",
+            }}
+          >
             {/* Saffa Waller */}
             {fullName}
           </Text>
           <Text
             style={{
-              color: '#4C7897',
+              color: "#4C7897",
               fontSize: 16,
-              fontFamily: 'Rubik-Regular',
-            }}>
-            Daily Goal: 8,500 Steps
+              fontFamily: "Rubik-Regular",
+            }}
+          >
+            Daily Goal: {dailySteps}Steps
           </Text>
+          <TouchableOpacity style={styles.btn} onPress={() => handleUnfriend()}>
+            <Text style={{ color: "#FFF", fontSize: 16 }}>Unfriend</Text>
+          </TouchableOpacity>
         </View>
         <View
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}>
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 16,
-              fontFamily: 'Rubik-Regular',
-            }}>
+              fontFamily: "Rubik-Regular",
+            }}
+          >
             {selectedType} Performance
           </Text>
           <DropDownPicker
@@ -365,30 +505,30 @@ const FriendProfile = ({navigation, route}) => {
             setValue={setSelectedType}
             setItems={setPerformanceTypes}
             arrowIconStyle={{
-              tintColor: 'white',
+              tintColor: "white",
             }}
             containerStyle={{
-              width: '37%',
+              width: "37%",
             }}
             dropDownContainerStyle={{
               padding: 0,
-              alignSelf: 'center',
+              alignSelf: "center",
               borderWidth: 1,
-              borderColor: '#ccc',
+              borderColor: "#ccc",
               borderRadius: 4,
               zIndex: 999,
             }}
             showTickIcon={false}
             iconContainerStyle={{
-              color: '#fff',
+              color: "#fff",
             }}
             selectedItemContainerStyle={{
-              backgroundColor: '#0496ff',
+              backgroundColor: "#0496ff",
               marginHorizontal: 5,
             }}
             selectedItemLabelStyle={{
-              color: '#FFF',
-              fontFamily: 'Rubik-Regular',
+              color: "#FFF",
+              fontFamily: "Rubik-Regular",
             }}
             scrollViewProps={{
               showsVerticalScrollIndicator: false,
@@ -396,9 +536,9 @@ const FriendProfile = ({navigation, route}) => {
             }}
             labelStyle={{
               fontSize: 14,
-              textAlign: 'left',
-              color: '#fff',
-              fontFamily: 'Rubik-Regular',
+              textAlign: "left",
+              color: "#fff",
+              fontFamily: "Rubik-Regular",
             }}
             props={{
               style: {
@@ -406,10 +546,10 @@ const FriendProfile = ({navigation, route}) => {
                 // width: 90,
                 paddingHorizontal: 8,
                 borderRadius: 5,
-                backgroundColor: '#003E6B',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
+                backgroundColor: "#003E6B",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
               },
             }}
           />
@@ -418,92 +558,101 @@ const FriendProfile = ({navigation, route}) => {
         <View style={styles.performanceCard}>
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
               padding: 10,
-            }}>
+            }}
+          >
             <View
               style={{
-                flexDirection: 'row',
-                alignItems: 'flex-end',
-                justifyContent: 'flex-end',
+                flexDirection: "row",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
                 height: 80,
-              }}>
+              }}
+            >
               <View>
                 <Image
-                  source={require('../../../assets/images/friend-profile.png')}
-                  style={{width: 60, height: 60}}
+                  source={require("../../../assets/images/friend-profile.png")}
+                  style={{ width: 60, height: 60 }}
                 />
               </View>
               <View
                 style={{
                   marginLeft: 5,
                   marginBottom: 10,
-                }}>
+                }}
+              >
                 <Text
                   style={{
-                    color: '#38ACFF',
+                    color: "#38ACFF",
                     fontSize: 16,
-                    fontFamily: 'Rubik-Medium',
-                  }}>
+                    fontFamily: "Rubik-Medium",
+                  }}
+                >
                   39,283
                 </Text>
                 <Text
                   style={{
-                    color: '#38ACFF',
+                    color: "#38ACFF",
                     fontSize: 14,
-                    fontFamily: 'Rubik-Regular',
-                  }}>
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
                   Me
                 </Text>
               </View>
             </View>
             <Text
               style={{
-                color: '#000000',
+                color: "#000000",
                 fontSize: 14,
-                fontFamily: 'Rubik-Regular',
-              }}>
+                fontFamily: "Rubik-Regular",
+              }}
+            >
               vs
             </Text>
             <View
               style={{
-                flexDirection: 'row',
-                alignItems: 'flex-end',
+                flexDirection: "row",
+                alignItems: "flex-end",
                 height: 80,
-              }}>
-              <View style={{marginRight: 5, marginBottom: 10}}>
+              }}
+            >
+              <View style={{ marginRight: 5, marginBottom: 10 }}>
                 <Text
                   style={{
-                    color: '#003E6B',
+                    color: "#003E6B",
                     fontSize: 16,
-                    fontFamily: 'Rubik-Medium',
-                  }}>
+                    fontFamily: "Rubik-Medium",
+                  }}
+                >
                   94,434
                 </Text>
                 <Text
                   style={{
-                    color: '#003E6B',
+                    color: "#003E6B",
                     fontSize: 14,
-                    fontFamily: 'Rubik-Regular',
-                  }}>
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
                   Saffa
                 </Text>
               </View>
               <View>
                 <Image
-                  source={require('../../../assets/images/crown.png')}
+                  source={require("../../../assets/images/crown.png")}
                   style={{
                     width: 20,
                     height: 20,
-                    resizeMode: 'contain',
-                    alignSelf: 'center',
+                    resizeMode: "contain",
+                    alignSelf: "center",
                   }}
                 />
                 <Image
-                  source={require('../../../assets/images/user1.png')}
-                  style={{width: 60, height: 60}}
+                  source={require("../../../assets/images/user1.png")}
+                  style={{ width: 60, height: 60 }}
                 />
               </View>
             </View>
@@ -514,7 +663,7 @@ const FriendProfile = ({navigation, route}) => {
           <View style={{}}>
             <LineChart
               data={{
-                labels: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+                labels: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
                 datasets: [
                   {
                     data: [10, 20, 5, 15, 45, 30, 20, 9],
@@ -528,7 +677,7 @@ const FriendProfile = ({navigation, route}) => {
                   },
                 ],
               }}
-              width={Dimensions.get('window').width - 80} // from react-native
+              width={Dimensions.get("window").width - 80} // from react-native
               height={160}
               withDots={true}
               withInnerLines={false}
@@ -537,9 +686,9 @@ const FriendProfile = ({navigation, route}) => {
               withHorizontalLabels={false}
               withShadow={false}
               chartConfig={{
-                backgroundColor: '#fff',
-                backgroundGradientFrom: '#fff',
-                backgroundGradientTo: '#fff',
+                backgroundColor: "#fff",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
                 labelColor: (opacity = 1) => `#878484`,
                 decimalPlaces: 2,
                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -558,52 +707,56 @@ const FriendProfile = ({navigation, route}) => {
           {/* ------------------------------------graph------------------------------------------- */}
         </View>
         {/* -----------------------------Common Groups------------------------------------------ */}
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <Text
             style={{
-              color: '#000000',
+              color: "#000000",
               fontSize: 18,
-              fontFamily: 'Rubik-Regular',
-            }}>
+              fontFamily: "Rubik-Regular",
+            }}
+          >
             Groups in Common
           </Text>
           {commonGroupsList.length === 0 ? (
             <View
               style={{
                 flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Text
                 style={{
-                  color: '#000000',
+                  color: "#000000",
                   fontSize: 14,
-                  fontFamily: 'Rubik-Regular',
-                }}>
+                  fontFamily: "Rubik-Regular",
+                }}
+              >
                 No Groups in common
               </Text>
             </View>
           ) : (
             <FlatList
-              key={'_'}
+              key={"_"}
               data={commonGroupsList}
               numColumns={3}
-              keyExtractor={(item, index) => '_' + index.toString()}
+              keyExtractor={(item, index) => "_" + index.toString()}
               renderItem={(item, index) => {
                 return (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('GroupDetail')}
+                    onPress={() => navigation.navigate("GroupDetail")}
                     style={{
                       ...styles.cardView,
-                      justifyContent: 'center',
+                      justifyContent: "center",
                       height: 125,
                       // width: '28.9%',
-                      width: '32.9%',
+                      width: "32.9%",
                       marginRight: 15,
-                    }}>
+                    }}
+                  >
                     <Image
                       source={item.item.avatar}
-                      style={{marginVertical: 8, width: 50, height: 50}}
+                      style={{ marginVertical: 8, width: 50, height: 50 }}
                     />
                     <Text style={styles.cardText}>{item.item.name}</Text>
                   </TouchableOpacity>
@@ -623,40 +776,51 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   cardView: {
     height: 137,
     width: 92,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
-    shadowColor: 'blue',
+    shadowColor: "blue",
     elevation: 5,
     padding: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 8,
     marginVertical: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   cardText: {
-    color: '#000000',
-    textAlign: 'center',
+    color: "#000000",
+    textAlign: "center",
     fontSize: 13,
     // fontWeight: '500',
-    fontFamily: 'Rubik-Medium',
+    fontFamily: "Rubik-Medium",
     width: 90,
   },
   performanceCard: {
     zIndex: -1,
     height: 295,
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
-    shadowColor: 'blue',
+    shadowColor: "blue",
     elevation: 5,
     marginHorizontal: 4,
     marginVertical: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
+  },
+  btn: {
+    flex: 1,
+    backgroundColor: "#38ACFF",
+    marginHorizontal: 10,
+    height: 35,
+    marginTop: 10,
+    width: "50%",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 5,
   },
   performanceCardImage: {},
 });

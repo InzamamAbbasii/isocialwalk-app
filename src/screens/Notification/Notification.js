@@ -23,6 +23,8 @@ import moment from "moment/moment";
 
 const Notification = ({ navigation }) => {
   const bottomSheetRef = useRef();
+  const groupRequest_RBSheetRef = useRef();
+  const challengeRequest_RBSheetRef = useRef();
 
   const [loading, setLoading] = useState(false);
 
@@ -80,29 +82,33 @@ const Notification = ({ navigation }) => {
   }, []);
   const getUser_Info = (id) => {
     return new Promise((resolve, reject) => {
-      try {
-        var requestOptions = {
-          method: "POST",
-          body: JSON.stringify({
-            user_id: id,
-          }),
-          redirect: "follow",
-        };
-        fetch(api.get_specific_user, requestOptions)
-          .then((response) => response.json())
-          .then((result) => {
-            if (result?.length > 0) {
-              resolve(result[0]);
-            } else {
+      if (id) {
+        try {
+          var requestOptions = {
+            method: "POST",
+            body: JSON.stringify({
+              user_id: id,
+            }),
+            redirect: "follow",
+          };
+          fetch(api.get_specific_user, requestOptions)
+            .then((response) => response.json())
+            .then((result) => {
+              if (result?.length > 0) {
+                resolve(result[0]);
+              } else {
+                resolve(false);
+              }
+            })
+            .catch((error) => {
+              console.log("error in getting user detail ::", error);
               resolve(false);
-            }
-          })
-          .catch((error) => {
-            console.log("error in getting user detail ::", error);
-            resolve(false);
-          });
-      } catch (error) {
-        console.log("error occur in getting user profile detail ::", error);
+            });
+        } catch (error) {
+          console.log("error occur in getting user profile detail ::", error);
+          resolve(false);
+        }
+      } else {
         resolve(false);
       }
     });
@@ -146,7 +152,7 @@ const Notification = ({ navigation }) => {
       .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
   };
-  const getSpecificUserDetail = async (id) => {
+  const getSpecificUserDetail = async (id, type) => {
     setLoading(true);
     var requestOptions = {
       method: "POST",
@@ -163,7 +169,13 @@ const Notification = ({ navigation }) => {
           setSelected_friend_id(id);
           setSelected_friend_name(result[0]?.first_name);
           setSelected_friend_profile(result[0]["profile image"]);
-          bottomSheetRef?.current?.open();
+          if (type == "group") {
+            groupRequest_RBSheetRef?.current?.open();
+          } else if (type == "challenge") {
+            challengeRequest_RBSheetRef?.current?.open();
+          } else {
+            bottomSheetRef?.current?.open();
+          }
         } else {
           Snackbar.show({
             text: result?.Message,
@@ -258,6 +270,62 @@ const Notification = ({ navigation }) => {
     // setIsFriendRequestApproved(!isFriendRequestApproved);
   };
 
+  const hanldeApprove_GroupRequest = () => {
+    setLoading(true);
+    let data = {
+      group_id: groupId,
+      adminid: adminId,
+      user_id: memberList,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.addmembers, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("add memebrs response :::: ", result);
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+  // TODO: this api is not uploaded on server yet
+  const handleApprove_ChallengeRequest = (notificationId) => {
+    console.log("notificationId :::: ", notificationId);
+    challengeRequest_RBSheetRef?.current?.close();
+    setLoading(true);
+    let obj = {
+      status: "membered",
+      noti_type_id: notificationId,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.approve_individual_challenge, requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        console.log("challenge request approve response :::: ", result);
+      })
+      .catch((error) => {
+        console.log("error in unapproveing request :: ", error);
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        console.log("error in unapproveing request :: ", error);
+      })
+      .finally(() => setLoading(false));
+  };
+
   const handleNotificationPress = (item) => {
     // console.log('item::::', item);
     // console.log('notificatio id ::: ', item?.id);
@@ -265,6 +333,11 @@ const Notification = ({ navigation }) => {
     // bottomSheetRef?.current?.open();
     if (item?.noti_type == "friends to friends") {
       getSpecificUserDetail(item?.from_id);
+    } else if (item?.noti_type == "user to group") {
+      getSpecificUserDetail(item?.from_id, "group");
+      console.log("selected item  detil ::: ", item);
+    } else if (item?.noti_type == "user to indiviual challenge") {
+      getSpecificUserDetail(item?.from_id, "challenge");
     }
   };
   return (
@@ -308,6 +381,7 @@ const Notification = ({ navigation }) => {
           }}
         >
           <FlatList
+            showsVerticalScrollIndicator={false}
             data={notificationsList}
             keyExtractor={(item, index) => index.toString()}
             renderItem={(item) => {
@@ -388,6 +462,11 @@ const Notification = ({ navigation }) => {
 
                         {item?.item?.noti_type == "friends to friends"
                           ? "Friend Request"
+                          : item?.item?.noti_type == "user to group"
+                          ? "Group Request"
+                          : item?.item?.noti_type ==
+                            "user to indiviual challenge"
+                          ? "Challenge Request"
                           : "other"}
                       </Text>
                       <Text
@@ -396,7 +475,8 @@ const Notification = ({ navigation }) => {
                           fontFamily: "Rubik-Regular",
                         }}
                       >
-                        {item.item.date}
+                        {item?.item?.date &&
+                          moment(item.item.date).format("DD-MM-YY")}
                       </Text>
                     </View>
                     <Text
@@ -412,8 +492,15 @@ const Notification = ({ navigation }) => {
                       {/* {item.item.description} */}
                       {/* notification description */}
                       {/* {item?.item?.noti_type} */}
-                      {item?.item?.user_info?.first_name} wants to be your
-                      friend
+
+                      {item?.item?.noti_type == "friends to friends"
+                        ? `${item?.item?.user_info?.first_name} wants to be your
+                            friend`
+                        : item?.item?.noti_type == "user to group"
+                        ? `${item?.item?.user_info?.first_name} wants to join your group`
+                        : item?.item?.noti_type == "user to indiviual challenge"
+                        ? `${item?.item?.user_info?.first_name} wants to join challenge`
+                        : "other"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -423,6 +510,7 @@ const Notification = ({ navigation }) => {
         </View>
       )}
 
+      {/* ---------------------------------------Friend Bottom Sheet------------------------------------------------------- */}
       <RBSheet
         ref={bottomSheetRef}
         height={300}
@@ -527,6 +615,159 @@ const Notification = ({ navigation }) => {
         >
           <Text style={styles.btnText}>View Profile</Text>
         </TouchableOpacity>
+      </RBSheet>
+      {/* ----------------------------------------Group Bottom Sheet--------------------------------------------------------- */}
+      <RBSheet
+        ref={groupRequest_RBSheetRef}
+        height={300}
+        openDuration={270}
+        closeOnDragDown={true}
+        closeOnPressMask={false}
+        animationType={"slide"}
+        customStyles={{
+          container: {
+            padding: 5,
+            alignItems: "center",
+            // height: 530,
+            flex: 1.1,
+            backgroundColor: "#ffffff",
+            borderRadius: 30,
+          },
+          draggableIcon: {
+            backgroundColor: "#003e6b",
+          },
+        }}
+      >
+        <Text
+          style={{
+            color: "#003e6b",
+            fontSize: 18,
+            fontFamily: "Rubik-Regular",
+            marginTop: 5,
+          }}
+        >
+          Group Request
+        </Text>
+        <Image
+          source={profileImage}
+          style={{
+            marginTop: 20,
+            marginBottom: 10,
+            width: 110,
+            height: 110,
+            resizeMode: "contain",
+          }}
+        />
+        <Text
+          style={{
+            color: "#000000",
+            fontSize: 16,
+            fontFamily: "Rubik-Medium",
+          }}
+        >
+          {/* Boris Findlay */}
+          {selected_friend_name}
+        </Text>
+
+        <View style={{ width: "100%", alignItems: "center" }}>
+          <TouchableOpacity
+            style={styles.btnBottomSheet}
+            onPress={() => {
+              // handleApproveFriend(selected_friend_id)
+            }}
+          >
+            <Text style={styles.btnText}>Approve Request</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              ...styles.btnBottomSheet,
+              backgroundColor: "transparent",
+              borderWidth: 1,
+            }}
+            onPress={() => groupRequest_RBSheetRef?.current?.close()}
+          >
+            <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
+              Ignore Request
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </RBSheet>
+      {/*------------------------------------------Challenge Bottom Sheet-------------------------------------------------------------- */}
+      <RBSheet
+        ref={challengeRequest_RBSheetRef}
+        height={300}
+        openDuration={270}
+        closeOnDragDown={true}
+        closeOnPressMask={false}
+        animationType={"slide"}
+        customStyles={{
+          container: {
+            padding: 5,
+            alignItems: "center",
+            // height: 530,
+            flex: 1.1,
+            backgroundColor: "#ffffff",
+            borderRadius: 30,
+          },
+          draggableIcon: {
+            backgroundColor: "#003e6b",
+          },
+        }}
+      >
+        <Text
+          style={{
+            color: "#003e6b",
+            fontSize: 18,
+            fontFamily: "Rubik-Regular",
+            marginTop: 5,
+          }}
+        >
+          Challenge Request
+        </Text>
+        <Image
+          source={profileImage}
+          style={{
+            marginTop: 20,
+            marginBottom: 10,
+            width: 110,
+            height: 110,
+            resizeMode: "contain",
+          }}
+        />
+        <Text
+          style={{
+            color: "#000000",
+            fontSize: 16,
+            fontFamily: "Rubik-Medium",
+          }}
+        >
+          {/* Boris Findlay */}
+          {selected_friend_name}
+        </Text>
+
+        <View style={{ width: "100%", alignItems: "center" }}>
+          <TouchableOpacity
+            style={styles.btnBottomSheet}
+            onPress={() => {
+              // handleApproveFriend(selected_friend_id)
+              handleApprove_ChallengeRequest(selected_noti_id);
+            }}
+          >
+            <Text style={styles.btnText}>Approve Request</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              ...styles.btnBottomSheet,
+              backgroundColor: "transparent",
+              borderWidth: 1,
+            }}
+            onPress={() => challengeRequest_RBSheetRef?.current?.close()}
+          >
+            <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
+              Ignore Request
+            </Text>
+          </TouchableOpacity>
+        </View>
       </RBSheet>
     </View>
   );
