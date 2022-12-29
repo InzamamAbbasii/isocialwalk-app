@@ -22,6 +22,7 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
+import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 
 const AddFriend = ({ navigation, route }) => {
   const [commonGroupsList, setCommonGroupsList] = useState([
@@ -509,7 +510,6 @@ const AddFriend = ({ navigation, route }) => {
   // };
 
   const handleAddFriend = async (id) => {
-    console.log("id  passeed : :", id);
     if (id) {
       let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
@@ -527,6 +527,7 @@ const AddFriend = ({ navigation, route }) => {
         .then((result) => {
           console.log("resulty  :: ", result);
           if (result?.error == false) {
+            sendPushNotification(id);
             Snackbar.show({
               text: result?.message,
               duration: Snackbar.LENGTH_SHORT,
@@ -546,6 +547,37 @@ const AddFriend = ({ navigation, route }) => {
         text: "User id not found",
         duration: Snackbar.LENGTH_SHORT,
       });
+    }
+  };
+
+  //send push notification to user
+  const sendPushNotification = async (id) => {
+    console.log("id passed to sendPushNotification", id);
+
+    let user = await firebaseNotificationApi.getFirebaseUser(id);
+    if (!user) {
+      user = await firebaseNotificationApi.getFirebaseUser(id);
+    }
+    console.log("user find____", user);
+
+    if (user) {
+      let token = user?.fcmToken;
+      console.log("token_____", token);
+      let title = "Friend Request";
+      let description = `${firstName} wants to be your friend...`;
+      let data = {
+        id: id,
+        // user_id: id,
+        // to_id: user?.ui
+        type: "friend_request",
+      };
+      await firebaseNotificationApi
+        .sendPushNotification(token, title, description, data)
+        .then((res) => console.log("notification response.....", res))
+        .catch((err) => console.log(err));
+      console.log("notification sent.......");
+    } else {
+      console.log("user not found");
     }
   };
   return (

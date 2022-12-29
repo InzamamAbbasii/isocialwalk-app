@@ -18,10 +18,12 @@ import { captureScreen } from "react-native-view-shot";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
+const SCREEN_HEIGHT = Dimensions.get("screen").height;
 
 import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
+import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 
 const Friends = ({
   scale,
@@ -210,6 +212,8 @@ const Friends = ({
             }
           });
           setSuggestedFriends(newData);
+          //send push notification
+          sendPushNotification(id);
           Snackbar.show({
             text: result?.message,
             duration: Snackbar.LENGTH_SHORT,
@@ -231,6 +235,36 @@ const Friends = ({
       .finally(() => setLoading(false));
   };
 
+  //send push notification to user
+  const sendPushNotification = async (id) => {
+    console.log("id passed to sendPushNotification", id);
+
+    let user = await firebaseNotificationApi.getFirebaseUser(id);
+    if (!user) {
+      user = await firebaseNotificationApi.getFirebaseUser(id);
+    }
+    console.log("user find____", user);
+
+    if (user) {
+      let token = user?.fcmToken;
+      console.log("token_____", token);
+      let title = "Friend Request";
+      let description = `${firstName} wants to be your friend...`;
+      let data = {
+        id: id,
+        // user_id: id,
+        // to_id: user?.ui
+        type: "friend_request",
+      };
+      await firebaseNotificationApi
+        .sendPushNotification(token, title, description, data)
+        .then((res) => console.log("notification response.....", res))
+        .catch((err) => console.log(err));
+      console.log("notification sent.......");
+    } else {
+      console.log("user not found");
+    }
+  };
   const handleonSearchItemPress = (id) => {
     const newData = searchResults.map((item) => {
       if (id == item.id) {
@@ -474,16 +508,48 @@ const Friends = ({
                 Search Results
               </Text>
               {/* ----------------------Search Result List ---------------------------- */}
-              <View style={{ marginVertical: 15, paddingBottom: 10 }}>
+              <View
+                style={{
+                  marginVertical: 15,
+                  paddingBottom: 10,
+                  flex: 1,
+                }}
+              >
                 <FlatList
                   numColumns={3}
                   key={"_"}
                   data={searchResults}
                   showsVerticalScrollIndicator={false}
                   keyExtractor={(item, index) => "_" + index.toString()}
-                  renderItem={(item) => {
+                  ListEmptyComponent={() => {
                     return (
                       <View
+                        style={{
+                          flex: 1,
+                          height: SCREEN_HEIGHT * 0.7,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#000000",
+                            fontSize: 16,
+                          }}
+                        >
+                          No Record Found
+                        </Text>
+                      </View>
+                    );
+                  }}
+                  renderItem={(item) => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("FriendProfile", {
+                            user: item?.item,
+                          })
+                        }
                         style={{
                           ...styles.cardView,
                           height: 105,
@@ -520,7 +586,7 @@ const Friends = ({
                             </Text>
                           </TouchableOpacity>
                         </View> */}
-                      </View>
+                      </TouchableOpacity>
                     );
                   }}
                 />

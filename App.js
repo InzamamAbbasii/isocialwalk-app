@@ -58,6 +58,8 @@ import SplashScreen from "react-native-splash-screen";
 
 import { Store } from "./src/redux/store";
 
+import { navigationRef } from "./RootNavigation";
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { Provider } from "react-redux";
@@ -87,7 +89,10 @@ function App() {
 
   return (
     <Provider store={Store}>
-      <NavigationContainer onReady={() => SplashScreen.hide()}>
+      <NavigationContainer
+        onReady={() => SplashScreen.hide()}
+        ref={navigationRef}
+      >
         <StatusBar backgroundColor={"#FFF"} barStyle={"dark-content"} />
         <Stack.Navigator>
           <Stack.Screen
