@@ -306,6 +306,7 @@ const JoinGroup = ({ navigation, route }) => {
       console.log("user not found");
     }
   };
+  const sendPushNotificationChallenge = async (id) => {};
   return (
     <View style={styles.container}>
       <ScrollView

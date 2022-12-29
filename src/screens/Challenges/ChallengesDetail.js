@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import Header from "../../Reuseable Components/Header";
@@ -18,71 +19,76 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
+
+const SCREEN_WIDTH = Dimensions.get("screen").width;
+const SCREEN_HEIGHT = Dimensions.get("screen").height;
 
 const ChallengesDetail = ({ navigation, route }) => {
   const bottomSheetRef = useRef();
   const bottomSheetAddMemberRef = useRef();
+  const bottomSheetRemoveMemberRef = useRef();
   const [participantList, setParticipantList] = useState([
-    {
-      id: 0,
-      name: "Me",
-      steps: 9000,
-      avater: require("../../../assets/images/user1.png"),
-    },
-    {
-      id: 1,
-      name: "Nahla",
-      steps: 8000,
-      avater: require("../../../assets/images/user2.png"),
-    },
-    {
-      id: 2,
-      name: "Saffa",
-      steps: 7000,
-      avater: require("../../../assets/images/user3.png"),
-    },
-    {
-      id: 3,
-      name: "Rui",
-      steps: 6000,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 4,
-      name: "Anum",
-      steps: 5000,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 5,
-      name: "Zaina",
-      steps: 4000,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 6,
-      name: "Noami",
-      steps: 3000,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 7,
-      name: "Noami",
-      steps: 2000,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 8,
-      name: "Noami",
-      steps: 1000,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 9,
-      name: "Noami",
-      steps: 500,
-      avater: require("../../../assets/images/friend-profile.png"),
-    },
+    // {
+    //   id: 0,
+    //   name: "Me",
+    //   steps: 9000,
+    //   avater: require("../../../assets/images/user1.png"),
+    // },
+    // {
+    //   id: 1,
+    //   name: "Nahla",
+    //   steps: 8000,
+    //   avater: require("../../../assets/images/user2.png"),
+    // },
+    // {
+    //   id: 2,
+    //   name: "Saffa",
+    //   steps: 7000,
+    //   avater: require("../../../assets/images/user3.png"),
+    // },
+    // {
+    //   id: 3,
+    //   name: "Rui",
+    //   steps: 6000,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 4,
+    //   name: "Anum",
+    //   steps: 5000,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 5,
+    //   name: "Zaina",
+    //   steps: 4000,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 6,
+    //   name: "Noami",
+    //   steps: 3000,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 7,
+    //   name: "Noami",
+    //   steps: 2000,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 8,
+    //   name: "Noami",
+    //   steps: 1000,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 9,
+    //   name: "Noami",
+    //   steps: 500,
+    //   avater: require("../../../assets/images/friend-profile.png"),
+    // },
   ]);
 
   const [allMembersList, setAllMembersList] = useState([
@@ -129,6 +135,7 @@ const ChallengesDetail = ({ navigation, route }) => {
     // selected: false,
     // },
   ]);
+  const [addMembersList, setAddMembersList] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [logged_in_user_id, setLogged_in_user_id] = useState("");
@@ -136,6 +143,7 @@ const ChallengesDetail = ({ navigation, route }) => {
   const [profile, setProfile] = useState("");
   const [adminId, setAdminId] = useState("");
   const [name, setName] = useState("");
+  const [challenge_type, setChallenge_type] = useState("");
   const [type, setType] = useState("");
   const [metric_no, setMetric_no] = useState("");
   const [step_type, setStep_type] = useState("");
@@ -164,14 +172,9 @@ const ChallengesDetail = ({ navigation, route }) => {
         challenge_metric_step_type,
       } = route?.params?.item;
 
-      setChallengeId(id);
-      setAdminId(created_by_user_id);
-      setName(name);
-      setProfile(image);
-      setType(challenge_type);
-      setEndDate(end_date);
-      setMetric_no(challenge_metric_no);
-      setType(challenge_metric_step_type);
+      getChallengeDetail(id);
+      //get add members list
+      getAddMembersList(id);
 
       var now = moment(new Date()); //todays date
       var end = moment(end_date); // another date
@@ -180,6 +183,404 @@ const ChallengesDetail = ({ navigation, route }) => {
       setEnds_in(days?.toFixed(0));
     }
   }, [route?.params]);
+
+  const getChallengeDetail = (id) => {
+    setLoading(true);
+    let data = {
+      challenge_id: id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_challenge_details, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == false || result?.error == "false") {
+          let detail = result?.Challenge[0] ? result?.Challenge[0] : null;
+          if (detail == null) {
+            Snackbar.show({
+              text: "Challenge Detail Not Found",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          } else {
+            setChallengeId(detail?.id);
+            setAdminId(detail?.created_by_user_id);
+            setName(detail?.name);
+            let imageUrl = detail?.image
+              ? BASE_URL_Image + "/" + detail?.image
+              : "";
+
+            setchallengeImage(imageUrl);
+            setChallenge_type(detail?.challenge_type);
+            setEndDate(detail?.end_date);
+            setMetric_no(detail?.challenge_metric_no);
+            setType(detail?.challenge_metric_step_type);
+
+            //getting challenge participants ranking
+            getIndividualChallengeRanking(
+              detail?.id,
+              detail?.challenge_metric_no
+            );
+          }
+        } else {
+          Snackbar.show({
+            text: result?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error :: ", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //get individual challenge ranlking
+  const getIndividualChallengeRanking = (id, metric_no) => {
+    console.log("challenge _ id ::: ", id);
+    setLoading(true);
+    let data = {
+      challenge_id: id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_individual_challenge_ranking, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == true || result?.error == "true") {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        } else {
+          let rankingList = result ? result : [];
+          let list = [];
+          for (const element of rankingList) {
+            let user_id = element["user id"];
+            if (user_id) {
+              let user_info = await getUser_Info(user_id);
+              //getting false when user detail not found
+
+              if (user_info !== false) {
+                let percentage = element?.steps
+                  ? (element?.steps / metric_no) * 100
+                  : 0;
+
+                let obj = {
+                  id: element?.id,
+                  steps: element?.steps ? element?.steps : 0,
+                  percentage: parseFloat(percentage.toFixed(2)),
+                  // percentage: 10,
+
+                  user_info: {
+                    id: user_id,
+                    first_name: user_info?.first_name,
+                    last_name: user_info?.last_name,
+                    image: user_info["profile image"]
+                      ? BASE_URL_Image + "/" + user_info["profile image"]
+                      : "",
+                  },
+                };
+                list.push(obj);
+              }
+            }
+          }
+          if (list?.length > 0) {
+            list.sort(function (a, b) {
+              return b?.steps - a?.steps;
+            });
+          }
+          setParticipantList(list);
+        }
+      })
+      .catch((error) => {
+        console.log("error :: ", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+  //getting user detail
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            resolve(false);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
+  //getting those memebers list that are not added yet in this challenge
+  const getAddMembersList = async (challengeId) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      this_user_id: user_id,
+      challenge_id: challengeId,
+    };
+    console.log("add memmber data :: ", data);
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.show_challenge_participants, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        // if (result[0]?.error == false || result[0]?.error == false) {
+
+        // console.log("add member list response  ::: ", result);
+        // console.log("cjhallgennge paticipatns list :: ", result);
+        // let list = result[0]["array of Members"]
+        //   ? result[0]["array of Members"]
+        //   : [];
+
+        let response = result ? result : [];
+        let last_item = response?.pop();
+        console.log("last item  ::", last_item);
+        let list = last_item["array of participants"]
+          ? last_item["array of participants"]
+          : [];
+        let responseList = [];
+        for (const element of list) {
+          let user_info = await getUser_Info(element);
+          if (user_info == false) {
+            console.log("user detail not found ....");
+          } else {
+            // let obj = {
+            //   id: element, //userid
+            //   name: user_info?.first_name,
+            //   profile: user_info["profile image"]
+            //     ? BASE_URL_Image + "/" + user_info["profile image"]
+            //     : "",
+            //   status: false,
+            // };
+
+            let obj = {
+              // id: 0,
+              steps: 0,
+              percentage: 0,
+              id: element, //userid
+              name: user_info?.first_name,
+              profile: user_info["profile image"]
+                ? BASE_URL_Image + "/" + user_info["profile image"]
+                : "",
+              status: false,
+              user_info: {
+                id: element,
+                first_name: user_info?.first_name,
+                last_name: user_info?.last_name,
+                image: user_info["profile image"]
+                  ? BASE_URL_Image + "/" + user_info["profile image"]
+                  : "",
+              },
+            };
+
+            responseList.push(obj);
+          }
+        }
+        setAddMembersList(responseList);
+        // } else {
+        //   Snackbar.show({
+        //     text: result[0]?.message,
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+      })
+      .catch((error) => console.log("error", error))
+      .finally(() => setLoading(false));
+  };
+
+  //add selected to members to this challenge
+  const handleAddMemberToChallenge = () => {
+    let memberList = addMembersList
+      ?.filter((item) => item?.status == true)
+      ?.map((element) => element?.user_info?.id);
+    console.log("selected members list  ::: ", memberList);
+    if (memberList?.length > 0) {
+      bottomSheetAddMemberRef?.current?.close();
+      setLoading(true);
+
+      let data = {
+        user_id: memberList,
+        challenge_id: challengeId,
+        created_by_user_id: adminId,
+      };
+      console.log("data pass  to add members in challgee api  : ", data);
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.add_participants_to_Challenge, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+
+          //TODO: getting selected memberes to add in group
+          const newData = addMembersList.filter(
+            (item) => item?.status === true
+          );
+          setParticipantList(participantList.concat(newData));
+          //TODO: also remove selected memebers from addedmembers list
+          const newData1 = addMembersList.filter(
+            (item) => item.status === false
+          );
+          setAddMembersList(newData1);
+        })
+        .catch((error) => {
+          console.log("error in add members  ::::  ", error);
+          Snackbar.show({
+            text: "Something went wrong.Members are not added to challenge.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => setLoading(false));
+    } else {
+      console.log("please select memes to add");
+      Snackbar.show({
+        text: "Please Select Members to add.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
+  //hanale select member to add
+  const handleAddMemberSelect = (id) => {
+    console.log("user id select :: ", id);
+    const newData = addMembersList.map((item) => {
+      console.log("item :: ", item);
+      if (id === item?.user_info?.id) {
+        return {
+          ...item,
+          status: !item.status,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setAddMembersList(newData);
+  };
+  //handle selecet memebers to remove from challenge
+  const handleSelectMember_ToRemove = (id) => {
+    const newData = participantList.map((item) => {
+      if (id === item?.user_info?.id) {
+        return {
+          ...item,
+          status: !item.status,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setParticipantList(newData);
+  };
+
+  //handle remove memebers from challenge
+  const handleRemoveMember_FromChallenge = () => {
+    let memberList = participantList
+      ?.filter((item) => item?.status == true)
+      ?.map((element) => element?.user_info?.id);
+    console.log(
+      "selected members list to remove from challenge ::: ",
+      memberList
+    );
+    let count = 0;
+    if (memberList?.length > 0) {
+      bottomSheetRemoveMemberRef?.current?.close();
+      setLoading(true);
+      for (const element of memberList) {
+        count++;
+        let data = {
+          user_id: element,
+          challenge_id: challengeId,
+        };
+        console.log("data pass  to add members in challgee api  : ", data);
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+
+        fetch(api.remove_participant_from_challenge, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("result  :: ", result);
+            if (result?.error == false || result?.error == "false") {
+              const filter = participantList?.filter(
+                (item) => item?.user_info?.id != element
+              );
+              setParticipantList(filter);
+            }
+            // Snackbar.show({
+            //   text: result[0]?.message,
+            //   duration: Snackbar.LENGTH_SHORT,
+            // });
+          })
+          .catch((error) => {
+            console.log("error in remove members  ::::  ", error);
+            Snackbar.show({
+              text: "Something went wrong.Members are not removed to challenge.",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          })
+          .finally(() => {
+            if (count >= memberList?.length) {
+              Snackbar.show({
+                text: "Members are successfully removed.",
+                duration: Snackbar.LENGTH_SHORT,
+              });
+              setLoading(false);
+            }
+          });
+      }
+    } else {
+      setLoading(false);
+      Snackbar.show({
+        text: "Please Select Members to remove.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
 
   const generateColor = () => {
     const randomColor = Math.floor(Math.random() * 16777215)
@@ -278,7 +679,7 @@ const ChallengesDetail = ({ navigation, route }) => {
           /> */}
 
           <View style={{}}>
-            {challengeImage == null ? (
+            {challengeImage == null || challengeImage == "" ? (
               <Image
                 source={require("../../../assets/images/Challenge.png")}
                 style={{
@@ -295,6 +696,7 @@ const ChallengesDetail = ({ navigation, route }) => {
                   height: 123,
                   width: 123,
                   borderRadius: 123,
+                  backgroundColor: "#ccc",
                 }}
               />
             )}
@@ -319,6 +721,34 @@ const ChallengesDetail = ({ navigation, route }) => {
                 />
               </TouchableOpacity>
             )}
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "90%",
+              justifyContent: "space-between",
+              marginTop: 20,
+            }}
+          >
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => bottomSheetAddMemberRef?.current?.open()}
+            >
+              <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => bottomSheetRemoveMemberRef?.current?.open()}
+              style={{
+                ...styles.btn,
+                backgroundColor: "transparent",
+                borderColor: "#38ACFF",
+                borderWidth: 1,
+              }}
+            >
+              <Text style={{ color: "#38ACFF", fontSize: 14 }}>
+                Remove Members
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View
@@ -398,6 +828,27 @@ const ChallengesDetail = ({ navigation, route }) => {
               numColumns={3}
               showsVerticalScrollIndicator={false}
               keyExtractor={(item, index) => index.toString()}
+              ListEmptyComponent={() => {
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      height: SCREEN_HEIGHT * 0.4,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "#000000",
+                        fontSize: 16,
+                      }}
+                    >
+                      No Result Found
+                    </Text>
+                  </View>
+                );
+              }}
               renderItem={(item) => {
                 let itemColor = generateColor();
                 return (
@@ -436,20 +887,41 @@ const ChallengesDetail = ({ navigation, route }) => {
                         rotation={360}
                         size={55}
                         width={2.5}
-                        fill={80}
+                        fill={item?.item?.percentage}
                         // tintColor="#38ACFF"
                         tintColor={itemColor}
                         backgroundColor="#eee"
                       >
                         {(fill) => (
-                          <Image
-                            source={item.item.avater}
-                            style={{ marginVertical: 8, width: 44, height: 44 }}
-                          />
+                          <>
+                            {item?.item?.user_info?.image != "" ? (
+                              <Image
+                                source={{ uri: item.item.image }}
+                                style={{
+                                  marginVertical: 8,
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: 44,
+                                  backgroundColor: "#ccc",
+                                }}
+                              />
+                            ) : (
+                              <Image
+                                source={require("../../../assets/images/friend-profile.png")}
+                                style={{
+                                  marginVertical: 8,
+                                  width: 44,
+                                  height: 44,
+                                }}
+                              />
+                            )}
+                          </>
                         )}
                       </AnimatedCircularProgress>
                     </View>
-                    <Text style={styles.cardText}>{item.item.name}</Text>
+                    <Text style={styles.cardText} numberOfLines={2}>
+                      {item?.item?.user_info?.first_name}
+                    </Text>
                     <Text
                       style={{
                         ...styles.cardText,
@@ -464,6 +936,298 @@ const ChallengesDetail = ({ navigation, route }) => {
               }}
             />
           </View>
+
+          {/* ------------------------------------------Add Member Bottom Sheet-------------------------------------------- */}
+          <RBSheet
+            ref={bottomSheetAddMemberRef}
+            openDuration={250}
+            closeOnDragDown={true}
+            closeOnPressMask={false}
+            dragFromTopOnly
+            animationType={"slide"}
+            customStyles={{
+              container: {
+                padding: 5,
+                height: 460,
+                backgroundColor: "#ffffff",
+                borderRadius: 30,
+              },
+              draggableIcon: {
+                backgroundColor: "#003e6b",
+              },
+            }}
+          >
+            <View
+              style={{
+                alignItems: "center",
+                flex: 1,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#003e6b",
+                  fontSize: 18,
+                  textAlign: "center",
+                  fontFamily: "Rubik-Regular",
+                  marginTop: 5,
+                }}
+              >
+                Add Members
+              </Text>
+              <View
+                style={{
+                  marginVertical: 15,
+                  paddingHorizontal: 20,
+                  flex: 1,
+                  width: "100%",
+                }}
+              >
+                <FlatList
+                  data={addMembersList}
+                  numColumns={3}
+                  showsVerticalScrollIndicator={false}
+                  keyExtractor={(item, index) => index.toString()}
+                  ListEmptyComponent={() => {
+                    return (
+                      <View
+                        style={{
+                          flex: 1,
+                          height: SCREEN_HEIGHT * 0.4,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#000000",
+                            fontSize: 16,
+                          }}
+                        >
+                          No Result Found
+                        </Text>
+                      </View>
+                    );
+                  }}
+                  renderItem={(item) => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() =>
+                          handleAddMemberSelect(item.item?.user_info?.id)
+                        }
+                        style={{
+                          ...styles.bootSheetCardView,
+                          width: "28.9%",
+                          marginVertical: 5,
+                          marginHorizontal: 7,
+                          borderWidth: item.item.status ? 1 : 0,
+                          borderColor: item.item.status
+                            ? "#38ACFF"
+                            : "transparent",
+                        }}
+                      >
+                        {item?.item?.image != "" ? (
+                          <Image
+                            source={{ uri: item.item.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/friend-profile.png")}
+                            style={{ marginVertical: 8, width: 44, height: 44 }}
+                          />
+                        )}
+
+                        <Text
+                          numberOfLines={2}
+                          style={{
+                            color: "#040103",
+                            fontFamily: "Rubik-Regular",
+                          }}
+                        >
+                          {item?.item?.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => handleAddMemberToChallenge()}
+                style={{
+                  backgroundColor: "#38ACFF",
+                  marginBottom: 10,
+                  height: 50,
+                  width: "92%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontSize: 16,
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
+                  Add to Challenge
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </RBSheet>
+
+          {/* ------------------------------------------Remove Member Bottom Sheet-------------------------------------------- */}
+          <RBSheet
+            ref={bottomSheetRemoveMemberRef}
+            openDuration={250}
+            closeOnDragDown={true}
+            closeOnPressMask={false}
+            dragFromTopOnly
+            animationType={"slide"}
+            customStyles={{
+              container: {
+                padding: 5,
+                height: 460,
+                backgroundColor: "#ffffff",
+                borderRadius: 30,
+              },
+              draggableIcon: {
+                backgroundColor: "#003e6b",
+              },
+            }}
+          >
+            <View
+              style={{
+                alignItems: "center",
+                flex: 1,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#003e6b",
+                  fontSize: 18,
+                  textAlign: "center",
+                  fontFamily: "Rubik-Regular",
+                  marginTop: 5,
+                }}
+              >
+                Remove Members
+              </Text>
+              <View
+                style={{
+                  marginVertical: 15,
+                  paddingHorizontal: 20,
+                  flex: 1,
+                  width: "100%",
+                }}
+              >
+                <FlatList
+                  data={participantList}
+                  numColumns={3}
+                  showsVerticalScrollIndicator={false}
+                  keyExtractor={(item, index) => index.toString()}
+                  ListEmptyComponent={() => {
+                    return (
+                      <View
+                        style={{
+                          flex: 1,
+                          height: SCREEN_HEIGHT * 0.4,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#000000",
+                            fontSize: 16,
+                          }}
+                        >
+                          No Result Found
+                        </Text>
+                      </View>
+                    );
+                  }}
+                  renderItem={(item) => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() =>
+                          handleSelectMember_ToRemove(item.item?.user_info?.id)
+                        }
+                        style={{
+                          ...styles.bootSheetCardView,
+                          width: "28.9%",
+                          marginVertical: 5,
+                          marginHorizontal: 7,
+                          borderWidth: item.item.status ? 1 : 0,
+                          borderColor: item.item.status
+                            ? "#38ACFF"
+                            : "transparent",
+                        }}
+                      >
+                        {item?.item?.user_info?.image != "" ? (
+                          <Image
+                            source={{ uri: item.item.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/friend-profile.png")}
+                            style={{ marginVertical: 8, width: 44, height: 44 }}
+                          />
+                        )}
+
+                        <Text
+                          numberOfLines={2}
+                          style={{
+                            color: "#040103",
+                            fontFamily: "Rubik-Regular",
+                          }}
+                        >
+                          {item?.item?.user_info?.first_name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => handleRemoveMember_FromChallenge()}
+                style={{
+                  backgroundColor: "#38ACFF",
+                  marginBottom: 10,
+                  height: 50,
+                  width: "92%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontSize: 16,
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
+                  Remove From Challenge
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </RBSheet>
+
+          {/* -------------------------------------------------------------- */}
         </View>
       </ScrollView>
     </View>
