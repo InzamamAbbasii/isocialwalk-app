@@ -21,6 +21,7 @@ import ChallengesDetail from "./src/screens/Challenges/ChallengesDetail";
 import CreateGroup from "./src/screens/Groups/CreateGroup";
 import GroupDetail from "./src/screens/Groups/GroupDetail";
 import JoinGroup from "./src/screens/Groups/JoinGroup";
+import EditGroup from "./src/screens/Groups/EditGroup";
 
 import Verification from "./src/screens/Verification/Verification";
 import AccountCreated from "./src/screens/Verification/AccountCreated";
@@ -241,6 +242,11 @@ function App() {
           <Stack.Screen
             name="ChangePassword1"
             component={ChangePassword1}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="EditGroup"
+            component={EditGroup}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

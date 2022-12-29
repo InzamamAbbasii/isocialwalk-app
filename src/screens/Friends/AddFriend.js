@@ -53,7 +53,6 @@ const AddFriend = ({ navigation, route }) => {
   const [lastName, setLastName] = useState("");
   const [fullName, setFullName] = useState("");
   const [profileImage, setProfileImage] = useState("");
-
   const [dailySteps, setDailySteps] = useState("0");
 
   //chart
@@ -68,7 +67,6 @@ const AddFriend = ({ navigation, route }) => {
   const [isRequested, setIsRequested] = useState(false);
 
   useEffect(() => {
-    console.log("route prams  :: ", route?.params);
     if (route?.params) {
       setUserId(route?.params?.user?.id);
       getUserDailyGoal(route?.params?.user?.id);

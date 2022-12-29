@@ -1,20 +1,20 @@
-import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View, Image, StatusBar} from 'react-native';
-import Loader from '../Reuseable Components/Loader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, View, Image, StatusBar } from "react-native";
+import Loader from "../Reuseable Components/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const LoadingScreen = ({navigation}) => {
+const LoadingScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const getUser = async () => {
-    let user = await AsyncStorage.getItem('user');
+    let user = await AsyncStorage.getItem("user");
 
     if (user === null) {
       setLoading(false);
-      navigation.navigate('Welcome');
+      navigation.replace("Welcome");
     } else {
       setLoading(false);
-      navigation.navigate('DrawerTest');
+      navigation.replace("DrawerTest");
     }
   };
   useEffect(() => {
@@ -28,11 +28,12 @@ const LoadingScreen = ({navigation}) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <StatusBar backgroundColor={'#38ACFF'} />
+        backgroundColor: "#fff",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <StatusBar backgroundColor={"#38ACFF"} />
       {loading && <Loader />}
 
       {/* <Image

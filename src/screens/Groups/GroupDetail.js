@@ -15,6 +15,7 @@ import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "react-native-vector-icons/Feather";
 
 const GroupDetail = ({ navigation, route }) => {
   const bottomSheetRef = useRef();
@@ -452,6 +453,11 @@ const GroupDetail = ({ navigation, route }) => {
         });
     }
   };
+
+  //edit group
+  const handleEditPress = (groupId) => {
+    navigation?.navigate("EditGroup", { id: groupId });
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -464,6 +470,17 @@ const GroupDetail = ({ navigation, route }) => {
         <View style={{ paddingHorizontal: 20 }}>
           {/* <Header title={"Carnage Coverage"} navigation={navigation} /> */}
           <Header title={group_name} navigation={navigation} />
+          <TouchableOpacity
+            onPress={() => handleEditPress(groupId)}
+            style={{
+              position: "absolute",
+              right: 20,
+              top: 12,
+              padding: 10,
+            }}
+          >
+            <Icon name="edit" color={"#38ACFF"} size={25} />
+          </TouchableOpacity>
         </View>
         <View
           style={{
