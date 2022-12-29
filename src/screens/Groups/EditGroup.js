@@ -27,6 +27,7 @@ const EditGroup = ({ navigation, route }) => {
   const [groupImage, setGroupImage] = useState(null);
   const [groupImage_Name, setGroupImage_Name] = useState("");
   const [groupImage_Type, setGroupImage_Type] = useState("");
+  const [isImageChange, setIsImageChange] = useState(false); //handle update image only when user pick new image for group profile
 
   const [groupId, setGroupId] = useState("");
   const [groupName, setGroupName] = useState("");
@@ -86,11 +87,17 @@ const EditGroup = ({ navigation, route }) => {
           let group_visibility = result[0]?.group_visibility
             ? result[0]?.group_visibility
             : "public";
-          let image_link = result[0]?.image_link ? result[0]?.image_link : "";
-
+          let image_link = result[0]?.image_link
+            ? BASE_URL_Image + "/" + result[0]?.image_link
+            : "";
+          let filename = image_link?.split("/")?.pop();
           setGroupId(result[0]?.id);
           setGroupName(name);
-          //   setGroupImage(image_link);
+          //image
+          setGroupImage(image_link);
+          setGroupImage_Name(filename);
+          setGroupImage_Type("image/png");
+
           setSelectedMembership(group_privacy?.toLowerCase());
           setSelectedVisiblity(group_visibility?.toLowerCase());
         }
@@ -126,6 +133,7 @@ const EditGroup = ({ navigation, route }) => {
           setGroupImage(res.assets[0].uri);
           setGroupImage_Name(res.assets[0].fileName);
           setGroupImage_Type(res.assets[0].type);
+          setIsImageChange(true);
         }
       })
       .catch((error) => console.log(error));
@@ -133,7 +141,6 @@ const EditGroup = ({ navigation, route }) => {
 
   //update group details
   const handleUpdateGroupDetails = async () => {
-    console.log("handle edit group details");
     setIsValidGroupName(true);
     if (groupName?.length == 0) {
       setIsValidGroupName(false);
@@ -154,11 +161,14 @@ const EditGroup = ({ navigation, route }) => {
       fetch(api.edit_group_details, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log("update group response ::   ", result);
           if (result[0]?.error == false || result[0]?.error == "false") {
             //update group privacy
             handleUpdateGroupPrivacy();
-
+            if (isImageChange) {
+              handleUpdateGroupImage();
+            } else {
+              console.log("group image not changed .. ");
+            }
             Snackbar.show({
               text: "Group Updated Successfully!",
               duration: Snackbar.LENGTH_SHORT,
@@ -186,7 +196,6 @@ const EditGroup = ({ navigation, route }) => {
       id: groupId,
       group_privacy: selectedMembership,
     };
-    console.log("data pass to update group privacy :: ", data);
 
     var requestOptions = {
       method: "POST",
@@ -221,7 +230,38 @@ const EditGroup = ({ navigation, route }) => {
         });
       });
   };
+  //update group profile image
+  const handleUpdateGroupImage = () => {
+    let formData = new FormData();
+    formData.append("id", groupId);
+    let obj = {
+      uri: groupImage,
+      type: groupImage_Type,
+      name: groupImage_Name,
+    };
+    console.log("image obj ,", obj);
+    formData.append("image", obj);
+    console.log("formdata : ", formData);
 
+    var requestOptions = {
+      method: "POST",
+      body: formData,
+      redirect: "follow",
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Accept: "application/json",
+      },
+    };
+
+    fetch(api.group_profileimage, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("image update response: ", result);
+      })
+      .catch((error) =>
+        console.log("error in uploading group image :: ", error)
+      );
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -236,7 +276,9 @@ const EditGroup = ({ navigation, route }) => {
         {loading && <Loader />}
         <View style={{ marginVertical: 10, alignItems: "center" }}>
           <View style={{}}>
-            {groupImage == null ? (
+            {groupImage == null ||
+            groupImage == "" ||
+            typeof groupImage == "undefined" ? (
               <Image
                 source={require("../../../assets/images/group-profile2.png")}
                 style={{
@@ -253,6 +295,7 @@ const EditGroup = ({ navigation, route }) => {
                   height: 123,
                   width: 123,
                   borderRadius: 123,
+                  backgroundColor: "#ccc",
                 }}
               />
             )}
