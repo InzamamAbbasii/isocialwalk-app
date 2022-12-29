@@ -20,9 +20,10 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
-import axios from "react-native-axios";
+import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
+const SCREEN_HEIGHT = Dimensions.get("screen").height;
 
 const Groups = ({
   scale,
@@ -148,8 +149,9 @@ const Groups = ({
     //   name: "Helium Hydroxide",
     // },
   ]);
-  const handleonJoin = async (id, type) => {
-    console.log("id of group   :::: ", id);
+  const handleonJoin = async (id, adminId, type) => {
+    console.log({ id, adminId, type });
+
     // const newData = suggestedGroups.map(item => {
     //   if (id == item.id) {
     //     return {
@@ -210,7 +212,7 @@ const Groups = ({
             });
             setSuggestedGroups(newData);
           }
-
+          sendPushNotification(adminId);
           Snackbar.show({
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,
@@ -222,10 +224,48 @@ const Groups = ({
           });
         }
       })
-      .catch((error) => console.log("error", error))
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
       .finally(() => setLoading(false));
   };
+  //send push notification to user
+  const sendPushNotification = async (id) => {
+    let logged_in_user = await AsyncStorage.getItem("user");
+    let fullName = "";
+    if (logged_in_user != null) {
+      logged_in_user = JSON.parse(logged_in_user);
+      fullName = logged_in_user?.first_name + " " + logged_in_user?.last_name;
+    }
 
+    let user = await firebaseNotificationApi.getFirebaseUser(id);
+    if (!user) {
+      user = await firebaseNotificationApi.getFirebaseUser(id);
+    }
+
+    if (user) {
+      let token = user?.fcmToken;
+      console.log("token_____", token);
+      let title = "Group Request";
+      let description = `${fullName} wants to join your Group...`;
+      let data = {
+        id: id,
+        // user_id: id,
+        // to_id: user?.ui
+        type: "group_request",
+      };
+      await firebaseNotificationApi
+        .sendPushNotification(token, title, description, data)
+        .then((res) => console.log("notification response.....", res))
+        .catch((err) => console.log(err));
+      console.log("notification sent.......");
+    } else {
+      console.log("user not found");
+    }
+  };
   const handleOpenDrawer = (navigation) => {
     captureScreen({
       format: "jpg",
@@ -272,6 +312,7 @@ const Groups = ({
               let obj = {
                 id: element["Group ID"],
                 group_name: element["Group Name"],
+                adminId: element?.admin,
                 // status: element?.status,
                 status: false,
               };
@@ -400,6 +441,7 @@ const Groups = ({
                 let obj = {
                   id: element?.id,
                   created_by_user_id: element?.created_by_user_id,
+                  adminId: element?.created_by_user_id,
                   image: element?.image,
                   name: element?.name,
                   status: false,
@@ -559,6 +601,27 @@ const Groups = ({
                   numColumns={3}
                   showsVerticalScrollIndicator={false}
                   keyExtractor={(item, index) => index.toString()}
+                  ListEmptyComponent={() => {
+                    return (
+                      <View
+                        style={{
+                          flex: 1,
+                          height: SCREEN_HEIGHT * 0.7,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#000000",
+                            fontSize: 16,
+                          }}
+                        >
+                          No Record Found
+                        </Text>
+                      </View>
+                    );
+                  }}
                   renderItem={(item) => {
                     return (
                       <View style={{ ...styles.cardView, width: "28.9%" }}>
@@ -579,7 +642,11 @@ const Groups = ({
                           {item?.item?.status == false ? (
                             <TouchableOpacity
                               onPress={() =>
-                                handleonJoin(item.item.id, "search")
+                                handleonJoin(
+                                  item.item.id,
+                                  item?.item?.adminId,
+                                  "search"
+                                )
                               }
                               style={styles.cardButton}
                             >
@@ -690,7 +757,8 @@ const Groups = ({
                           >
                             {item.item.status ? (
                               <TouchableOpacity
-                                onPress={() => handleonJoin(item.item.id)}
+                                // onPress={() => handleonJoin(item.item.id)}
+                                onPress={() => console.log("item :: ", item)}
                                 style={{
                                   ...styles.cardButton,
                                   backgroundColor: "#d8d8d8",
@@ -705,7 +773,12 @@ const Groups = ({
                               </TouchableOpacity>
                             ) : (
                               <TouchableOpacity
-                                onPress={() => handleonJoin(item.item.id)}
+                                onPress={() =>
+                                  handleonJoin(
+                                    item.item.id,
+                                    item?.item?.adminId
+                                  )
+                                }
                                 style={styles.cardButton}
                               >
                                 <Text
