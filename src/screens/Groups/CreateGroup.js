@@ -42,9 +42,17 @@ const CreateGroup = ({ navigation }) => {
   const [selectedMembership, setSelectedMembership] = useState(
     membershipList[0].value
   );
+  // visibilty list
+  const [isVisibiltyOpen, setIsVisibiltyOpen] = useState(false);
+  const [visiblityList, setVisiblityList] = useState([
+    { label: "Public", value: "public" },
+    { label: "Private", value: "private" },
+  ]);
+  const [selectedVisiblity, setSelectedVisiblity] = useState(
+    visiblityList[0].value
+  );
 
   //   members list
-
   const [membersList, setMembersList] = useState([
     // {
     //   id: 0,
@@ -180,7 +188,7 @@ const CreateGroup = ({ navigation }) => {
         created_by_user_id: user_id,
         name: groupName,
         group_privacy: selectedMembership,
-        group_visibility: selectedMembership,
+        group_visibility: selectedVisiblity,
       };
       var requestOptions = {
         method: "POST",
@@ -214,7 +222,12 @@ const CreateGroup = ({ navigation }) => {
             });
           }
         })
-        .catch((error) => console.log("error", error))
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong!",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
         .finally(() => setLoading(false));
     }
   };
@@ -450,6 +463,55 @@ const CreateGroup = ({ navigation }) => {
               }}
             />
           </View>
+
+          {/* ----------------------Group Visibilty Dropdown______________________________________________ */}
+          <View style={styles.textInputView}>
+            <Text style={styles.textInputHeading}>Group Visibility</Text>
+            <DropDownPicker
+              zIndex={isVisibiltyOpen ? 999 : 0}
+              open={isVisibiltyOpen}
+              value={selectedVisiblity}
+              items={visiblityList}
+              setOpen={setIsVisibiltyOpen}
+              setValue={setSelectedVisiblity}
+              setItems={setVisiblityList}
+              containerStyle={{
+                width: "100%",
+              }}
+              dropDownContainerStyle={{
+                padding: 0,
+                alignSelf: "center",
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 4,
+              }}
+              showTickIcon={false}
+              selectedItemContainerStyle={{
+                backgroundColor: "#0496ff",
+                marginHorizontal: 5,
+              }}
+              selectedItemLabelStyle={{
+                color: "#FFF",
+              }}
+              scrollViewProps={{
+                showsVerticalScrollIndicator: false,
+                showsHorizontalScrollIndicator: false,
+              }}
+              labelStyle={{
+                fontSize: 14,
+                textAlign: "left",
+                paddingLeft: 5,
+              }}
+              style={{
+                borderRadius: 4,
+                borderWidth: 1,
+                borderColor: "#ccc",
+                alignSelf: "center",
+                justifyContent: "center",
+              }}
+            />
+          </View>
+          {/* ----------------------Group Visibilty Dropdown______________________________________________ */}
 
           <View
             style={{

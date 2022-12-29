@@ -36,9 +36,9 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const [kcal, setKcal] = useState("");
-  const [distance, setDistance] = useState("");
-  const [time, setTime] = useState("");
+  const [kcal, setKcal] = useState("0");
+  const [distance, setDistance] = useState("0");
+  const [time, setTime] = useState("0");
   const [todaySteps, setTodaySteps] = useState(0);
   const [todaySteps_Percentage, setTodaySteps_Percentage] = useState(0.0);
   const [chartData, setChartData] = useState([
