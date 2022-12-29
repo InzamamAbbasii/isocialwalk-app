@@ -19,6 +19,7 @@ import { api } from "../../constants/api";
 import Snackbar from "react-native-snackbar";
 import Loader from "../../Reuseable Components/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 const EditGroup = ({ navigation, route }) => {
@@ -55,7 +56,6 @@ const EditGroup = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route?.params) {
-      console.log("route.params", route.params);
       getGroupDetail(route?.params?.id);
     }
   }, [route?.params]);
@@ -156,6 +156,9 @@ const EditGroup = ({ navigation, route }) => {
         .then((result) => {
           console.log("update group response ::   ", result);
           if (result[0]?.error == false || result[0]?.error == "false") {
+            //update group privacy
+            handleUpdateGroupPrivacy();
+
             Snackbar.show({
               text: "Group Updated Successfully!",
               duration: Snackbar.LENGTH_SHORT,
@@ -175,6 +178,48 @@ const EditGroup = ({ navigation, route }) => {
         })
         .finally(() => setLoading(false));
     }
+  };
+
+  //update group privacy
+  const handleUpdateGroupPrivacy = () => {
+    let data = {
+      id: groupId,
+      group_privacy: selectedMembership,
+    };
+    console.log("data pass to update group privacy :: ", data);
+
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.changeprivacy, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("update group response ::   ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          console.log("Group Privacy Updated Successfully!");
+          // Snackbar.show({
+          //   text: "Group Privacy Updated Successfully!",
+          //   duration: Snackbar.LENGTH_SHORT,
+          // });
+        } else {
+          console.log("else  : ", result?.message);
+          // Snackbar.show({
+          //   text: result?.message,
+          //   duration: Snackbar.LENGTH_SHORT,
+          // });
+        }
+      })
+      .catch((error) => {
+        console.log("error :: ", error);
+
+        Snackbar.show({
+          text: "Something went wrong.Group Privacy Update Failed.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      });
   };
 
   return (
@@ -351,7 +396,7 @@ const EditGroup = ({ navigation, route }) => {
           <View
             style={{
               flex: 1,
-              paddingTop: 30,
+              paddingTop: 90,
             }}
           >
             <TouchableOpacity
