@@ -18,15 +18,16 @@ import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 
 const JoinGroup = ({ navigation, route }) => {
-  console.log("route ::: ", route?.params);
   const bottomSheetRef = useRef();
   const bottomSheetAddMemberRef = useRef();
 
   const [loading, setLoading] = useState(false);
   const [groupId, setGroupId] = useState("");
   const [groupName, setGroupName] = useState("");
+  const [adminId, setAdminId] = useState("");
 
   const [groupMembersList, setGroupMembersList] = useState([
     // {
@@ -105,8 +106,12 @@ const JoinGroup = ({ navigation, route }) => {
   ]);
   useEffect(() => {
     if (route?.params) {
-      setGroupId(route?.params?.item?.id);
-      setGroupName(route?.params?.item?.group_name);
+      // console.log("route?.params :::: ", route?.params);
+
+      // setGroupId(route?.params?.item?.id);
+      // setGroupName(route?.params?.item?.group_name);
+      //getting group details
+      getSingleGroupInfo(route?.params?.item?.id);
       //getting list of members that is added in this group
       getGroupMembers(route?.params?.item?.id);
     }
@@ -199,6 +204,37 @@ const JoinGroup = ({ navigation, route }) => {
         .finally(() => setLoading(false));
     }
   };
+
+  const getSingleGroupInfo = (id) => {
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify({
+        id: id,
+      }),
+      redirect: "follow",
+    };
+    fetch(api.get_group_detail, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        if (result != null) {
+          setGroupId(result[0]?.id);
+          setGroupName(result[0]?.name);
+          setAdminId(result[0]["Admin id"]);
+        } else {
+          Snackbar.show({
+            text: "Group Detail Not found",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error in getting group detail ::", error);
+        Snackbar.show({
+          text: "Something went wrong.Unable to get group detail.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      });
+  };
   const handleJoinGroup = async () => {
     if (groupId) {
       let user_id = await AsyncStorage.getItem("user_id");
@@ -216,6 +252,9 @@ const JoinGroup = ({ navigation, route }) => {
       fetch(api.join_group, requestOptions)
         .then((response) => response.json())
         .then((result) => {
+          console.log("result  ::: ", result);
+
+          sendPushNotification(adminId);
           Snackbar.show({
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,
@@ -231,7 +270,42 @@ const JoinGroup = ({ navigation, route }) => {
         .finally(() => setLoading(false));
     }
   };
+  //send push notification to user
+  const sendPushNotification = async (id) => {
+    console.log("id passed to sendPushNotification", id);
+    let logged_in_user = await AsyncStorage.getItem("user");
+    let fullName = "";
+    if (logged_in_user != null) {
+      logged_in_user = JSON.parse(logged_in_user);
+      fullName = logged_in_user?.first_name + " " + logged_in_user?.last_name;
+    }
 
+    let user = await firebaseNotificationApi.getFirebaseUser(id);
+    if (!user) {
+      user = await firebaseNotificationApi.getFirebaseUser(id);
+    }
+    console.log("user find____", user);
+
+    if (user) {
+      let token = user?.fcmToken;
+      console.log("token_____", token);
+      let title = groupName;
+      let description = `${fullName} wants to join your Group...`;
+      let data = {
+        id: id,
+        // user_id: id,
+        // to_id: user?.ui
+        type: "group_request",
+      };
+      await firebaseNotificationApi
+        .sendPushNotification(token, title, description, data)
+        .then((res) => console.log("notification response.....", res))
+        .catch((err) => console.log(err));
+      console.log("notification sent.......");
+    } else {
+      console.log("user not found");
+    }
+  };
   return (
     <View style={styles.container}>
       <ScrollView
