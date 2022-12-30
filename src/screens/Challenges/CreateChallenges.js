@@ -202,10 +202,13 @@ const CreateChallenges = ({ navigation, route }) => {
       .then(async (result) => {
         if (result[0]?.error == false || result[0]?.error == false) {
           // console.log("add member list response  ::: ", result);
-          console.log("cjhallgennge paticipatns list :: ", result);
-          let list = result[0]["array of Members"]
-            ? result[0]["array of Members"]
-            : [];
+          // console.log("cjhallgennge paticipatns list :: ", result);
+          // let list = result[0]["array of Members"]
+          //   ? result[0]["array of Members"]
+          //   : [];
+          let response = result ? result : [];
+          let last_item = response?.pop();
+          let list = last_item ? last_item["array of participants"] : [];
           let responseList = [];
           for (const element of list) {
             let user_info = await getUser_Info(element);

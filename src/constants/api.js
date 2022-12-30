@@ -63,6 +63,9 @@ export const api = {
   show_challenge_participants: BASE_URL + "/challenges/showparticipants.php",
   approve_individual_challenge:
     BASE_URL + "/challenges/updatenotificationschallengeindiviual.php",
+  get_challenge_details: BASE_URL + "/challenges/getspecificchallenge.php",
+  remove_participant_from_challenge:
+    BASE_URL + "/challenges/removeparticipant.php",
 
   //goals
   add_goals: BASE_URL + "/goals/insert.php",
@@ -80,6 +83,7 @@ export const api = {
   //ranking
   get_user_ranking: BASE_URL + "/ranking/usersranking.php",
   get_user_weekly_ranking: BASE_URL + "/ranking/weekranking.php",
+  get_individual_challenge_ranking: BASE_URL + "/ranking/challengeranking.php",
 
   //history
   get_history_of_specific_date: BASE_URL + "/history/historyofspecificdate.php",
