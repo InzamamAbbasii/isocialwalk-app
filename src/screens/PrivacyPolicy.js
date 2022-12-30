@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,8 +8,11 @@ import {
   Image,
   Animated,
   Pressable,
-} from 'react-native';
-import MenuHeader from '../Reuseable Components/MenuHeader';
+} from "react-native";
+import MenuHeader from "../Reuseable Components/MenuHeader";
+import { api } from "../constants/api";
+import Snackbar from "react-native-snackbar";
+import Loader from "../Reuseable Components/Loader";
 
 const PrivacyPolicy = ({
   navigation,
@@ -18,6 +21,44 @@ const PrivacyPolicy = ({
   setShowMenu,
   moveToRight,
 }) => {
+  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    getPrivacyPolicy();
+  }, []);
+
+  const getPrivacyPolicy = async () => {
+    setLoading(true);
+    var requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+    fetch(api.get_privacy_policy, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("result", result);
+        if (result?.error == false || result?.error == "false") {
+          let privacyText = result["Privacy    "][0]?.privacytext
+            ? result["Privacy    "][0]?.privacytext
+            : "";
+          setText(privacyText);
+        } else {
+          Snackbar.show({
+            text: result?.Message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
   const handleOpenCustomDrawer = () => {
     Animated.timing(scale, {
       toValue: showMenu ? 1 : 0.8,
@@ -35,28 +76,32 @@ const PrivacyPolicy = ({
     <Animated.View
       style={{
         flex: 1,
-        backgroundColor: 'white',
-        position: 'absolute',
+        backgroundColor: "white",
+        position: "absolute",
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
         borderRadius: showMenu ? 15 : 0,
-        transform: [{scale: scale}, {translateX: moveToRight}],
-      }}>
+        transform: [{ scale: scale }, { translateX: moveToRight }],
+      }}
+    >
       <View style={styles.container}>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
           }}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           <MenuHeader
-            title={'Privacy Policy'}
+            title={"Privacy Policy"}
             navigation={navigation}
             onPress={() => handleOpenCustomDrawer()}
           />
-          <View style={{marginVertical: 15}}>
-            <Text style={styles.text}>
+          {loading && <Loader />}
+          <View style={{ marginVertical: 15 }}>
+            <Text style={styles.text}>{text}</Text>
+            {/* <Text style={styles.text}>
               Lorem Ipsum is simply dummy text of the printing and typesetting
               industry. Lorem Ipsum has been the industry's standard dummy text
               ever since the 1500s, when an unknown printer took a galley of
@@ -103,7 +148,7 @@ const PrivacyPolicy = ({
               containing Lorem Ipsum passages, and more recently with desktop
               publishing software like Aldus PageMaker including versions of
               Lorem Ipsum.
-            </Text>
+            </Text> */}
           </View>
         </ScrollView>
       </View>
@@ -116,18 +161,18 @@ export default PrivacyPolicy;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
   },
   headerView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   text: {
-    color: '#000000',
+    color: "#000000",
     fontSize: 14,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
     marginBottom: 8,
   },
 });

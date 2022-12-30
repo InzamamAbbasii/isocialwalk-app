@@ -123,6 +123,8 @@ const GroupDetail = ({ navigation, route }) => {
       //getting list of members that is added in this group
       getGroupMembers(route?.params?.item?.id);
 
+      console.log("group id  :: ", route?.params?.item?.id);
+
       getAddMembersList(route?.params?.item?.id);
     }
   }, [route?.params]);
