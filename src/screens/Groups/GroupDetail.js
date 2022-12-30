@@ -16,6 +16,7 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/Feather";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const GroupDetail = ({ navigation, route }) => {
   const bottomSheetRef = useRef();
@@ -114,20 +115,69 @@ const GroupDetail = ({ navigation, route }) => {
 
   const [addMembersList, setAddMembersList] = useState([]);
 
+  const [activeChallegesList, setActiveChallegesList] = useState([]);
+
   useEffect(() => {
     if (route?.params) {
       setGroupId(route?.params?.item?.id);
-      setAdminId(route?.params?.item?.created_by_user_id);
-      setProfile(route?.params?.item?.image);
-      setGroup_name(route?.params?.item?.name);
+
+      getGroupDetail(route?.params?.item?.id);
+
       //getting list of members that is added in this group
       getGroupMembers(route?.params?.item?.id);
 
-      console.log("group id  :: ", route?.params?.item?.id);
+      getActiveChallenges(route?.params?.item?.id);
 
       getAddMembersList(route?.params?.item?.id);
     }
   }, [route?.params]);
+
+  const getGroupDetail = (id) => {
+    setLoading(true);
+    let data = {
+      id: id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_group_detail, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result == null) {
+          Snackbar.show({
+            text: "Group Detail Not Found",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        } else {
+          let name = result[0]?.name ? result[0]?.name : "";
+          let group_privacy = result[0]?.group_privacy
+            ? result[0]?.group_privacy
+            : "public";
+          let group_visibility = result[0]?.group_visibility
+            ? result[0]?.group_visibility
+            : "public";
+          let image_link = result[0]?.image_link
+            ? BASE_URL_Image + "/" + result[0]?.image_link
+            : "";
+
+          setGroupId(result[0]?.id);
+          setGroup_name(name);
+          setAdminId(result[0]["Admin id"]);
+          //image
+          setProfile(image_link);
+        }
+      })
+      .catch((error) => {
+        console.log("error :: ", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
   const getUser_Info = (id) => {
     return new Promise((resolve, reject) => {
       try {
@@ -181,7 +231,9 @@ const GroupDetail = ({ navigation, route }) => {
                   user_id: element?.user_id,
                   first_name: userInfo ? userInfo?.first_name : "",
                   last_name: userInfo ? userInfo?.last_name : "",
-                  profile: userInfo ? userInfo["profile image"] : "",
+                  profile: userInfo
+                    ? BASE_URL_Image + "/" + userInfo["profile image"]
+                    : "",
                   selected: false,
                 };
                 list.push(obj);
@@ -236,7 +288,9 @@ const GroupDetail = ({ navigation, route }) => {
                 id: element, //userid
                 user_id: element, //userid
                 first_name: user_info?.first_name,
-                profile: user_info["profile image"],
+                profile: user_info["profile image"]
+                  ? user_info["profile image"]
+                  : "",
                 status: false,
               };
               responseList.push(obj);
@@ -254,6 +308,102 @@ const GroupDetail = ({ navigation, route }) => {
         console.log("error in getting non added memebers list ", error)
       )
       .finally(() => setLoading(false));
+  };
+
+  //getting group active challenges list
+  const getActiveChallenges = async (id) => {
+    setLoading(true);
+    let data = {
+      group_id: id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_group_active_challenges, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == false || result?.error == "false") {
+          let responseList = result?.challenges ? result?.challenges : [];
+          // console.log("response Lost  :::: ", responseList);
+          let list = [];
+          for (const element of responseList) {
+            let challenge_info = await getChallengeInfo(element?.challenge_id);
+            let obj = {
+              id: element?.id,
+              noti_type_id: element?.noti_type_id,
+              challenge_id: element?.challenge_id,
+              group_id: element?.group_id,
+              status: element?.status,
+              challenge_info: {
+                id: challenge_info?.id,
+                created_by_user_id: challenge_info?.id,
+                image: challenge_info?.image
+                  ? BASE_URL_Image + "/" + challenge_info?.image
+                  : "",
+                name: challenge_info?.name,
+                challenge_type: challenge_info?.challenge_type,
+                challenge_visibility: challenge_info?.challenge_visibility,
+                challenge_privacy: challenge_info?.challenge_privacy,
+                start_date: challenge_info?.start_date,
+                end_date: challenge_info?.end_date,
+                challenge_metric_no: challenge_info?.challenge_metric_no,
+                challenge_metric_step_type:
+                  challenge_info?.challenge_metric_step_type,
+              },
+            };
+            list.push(obj);
+          }
+          setActiveChallegesList(list);
+        } else {
+          setActiveChallegesList([]);
+          console.log("else  :::: ");
+          Snackbar.show({
+            text: result?.message ? result?.message : result?.Message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error in getting non added memebers list ", error);
+        Snackbar.show({
+          text: "Something went wrong.Unable to get active challenges",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //getting specific challenge details
+  const getChallengeInfo = (id) => {
+    return new Promise((resolve, reject) => {
+      let data = {
+        challenge_id: id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.get_challenge_details, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          if (result?.error == false || result?.error == "false") {
+            let detail = result?.Challenge[0] ? result?.Challenge[0] : null;
+            if (detail == null) {
+              resolve(false);
+            } else {
+              resolve(detail);
+            }
+          } else {
+            resolve(false);
+          }
+        })
+        .catch((error) => {
+          resolve(false);
+        });
+    });
   };
 
   const handleAddMemberSelect = (id) => {
@@ -491,14 +641,28 @@ const GroupDetail = ({ navigation, route }) => {
             alignItems: "center",
           }}
         >
-          <Image
-            source={require("../../../assets/images/group-profile2.png")}
-            style={{
-              marginVertical: 12,
-              height: 123,
-              width: 123,
-            }}
-          />
+          {profile != "" ? (
+            <Image
+              source={{ uri: profile }}
+              style={{
+                marginVertical: 12,
+                height: 123,
+                width: 123,
+                borderRadius: 123,
+                backgroundColor: "#ccc",
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../../../assets/images/group-profile2.png")}
+              style={{
+                marginVertical: 12,
+                height: 123,
+                width: 123,
+              }}
+            />
+          )}
+
           <Text
             style={{
               color: "#000000",
@@ -546,16 +710,62 @@ const GroupDetail = ({ navigation, route }) => {
           >
             Active Challenges
           </Text>
-          <View
-            style={{
-              height: 120,
-              justifyContent: "center",
-              alignItems: "center",
-              fontFamily: "Rubik-Regular",
+
+          <FlatList
+            data={activeChallegesList}
+            numColumns={3}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item, index) => index.toString()}
+            ListEmptyComponent={() => {
+              return (
+                <View
+                  style={{
+                    height: 120,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
+                  <Text style={{ color: "#000" }}> No Active Challenges</Text>
+                </View>
+              );
             }}
-          >
-            <Text style={{ color: "#000" }}> No Active Challenges</Text>
-          </View>
+            renderItem={(item) => {
+              return (
+                <TouchableOpacity
+                  // onPress={() => navigation.navigate("GroupDetail")}
+                  style={{
+                    ...styles.cardView,
+                    justifyContent: "center",
+                    height: 110,
+                    width: "28.9%",
+                  }}
+                >
+                  {item?.item?.challenge_info?.image ? (
+                    <Image
+                      source={{ uri: item?.item?.challenge_info?.image }}
+                      style={{
+                        marginVertical: 8,
+                        width: 44,
+                        height: 44,
+                        backgroundColor: "#ccc",
+                        borderRadius: 44,
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      source={require("../../../assets/images/Challenge.png")}
+                      style={{ marginVertical: 8, width: 44, height: 44 }}
+                    />
+                  )}
+
+                  <Text style={styles.cardText}>
+                    {item?.item?.challenge_info?.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+          />
         </View>
         <View style={{}}>
           <View
@@ -610,10 +820,24 @@ const GroupDetail = ({ navigation, route }) => {
                       width: "28.9%",
                     }}
                   >
-                    <Image
-                      source={require("../../../assets/images/friend-profile.png")}
-                      style={{ marginVertical: 8, width: 44, height: 44 }}
-                    />
+                    {item?.item.profile != "" ? (
+                      <Image
+                        source={{ uri: item?.item?.profile }}
+                        style={{
+                          marginVertical: 8,
+                          width: 44,
+                          height: 44,
+                          backgroundColor: "#ccc",
+                          borderRadius: 44,
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={require("../../../assets/images/friend-profile.png")}
+                        style={{ marginVertical: 8, width: 44, height: 44 }}
+                      />
+                    )}
+
                     <Text style={styles.cardText}>
                       {item?.item?.first_name}
                     </Text>
@@ -686,10 +910,23 @@ const GroupDetail = ({ navigation, route }) => {
                           : "transparent",
                       }}
                     >
-                      <Image
-                        source={require("../../../assets/images/friend-profile.png")}
-                        style={{ marginVertical: 8, width: 44, height: 44 }}
-                      />
+                      {item?.item?.profile != "" ? (
+                        <Image
+                          source={{ uri: item?.item?.profile }}
+                          style={{
+                            marginVertical: 8,
+                            width: 44,
+                            height: 44,
+                            backgroundColor: "#ccc",
+                            borderRadius: 44,
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          source={require("../../../assets/images/friend-profile.png")}
+                          style={{ marginVertical: 8, width: 44, height: 44 }}
+                        />
+                      )}
                       <Text
                         style={{
                           color: "#040103",
@@ -788,11 +1025,26 @@ const GroupDetail = ({ navigation, route }) => {
                           : "transparent",
                       }}
                     >
-                      <Image
-                        source={require("../../../assets/images/friend-profile.png")}
-                        style={{ marginVertical: 8, width: 44, height: 44 }}
-                      />
+                      {item?.item?.profile ? (
+                        <Image
+                          source={{ uri: item?.item?.profile }}
+                          style={{
+                            marginVertical: 8,
+                            width: 44,
+                            height: 44,
+                            backgroundColor: "#ccc",
+                            borderRadius: 44,
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          source={require("../../../assets/images/friend-profile.png")}
+                          style={{ marginVertical: 8, width: 44, height: 44 }}
+                        />
+                      )}
+
                       <Text
+                        numberOfLines={2}
                         style={{
                           color: "#040103",
                           fontFamily: "Rubik-Regular",
