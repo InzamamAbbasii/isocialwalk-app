@@ -1026,7 +1026,7 @@ const Groups = ({
                       <View
                         style={{
                           flex: 1,
-                          height: 300,
+                          height: 200,
                           justifyContent: "center",
                           alignItems: "center",
                         }}
