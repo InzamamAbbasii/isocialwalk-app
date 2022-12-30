@@ -91,4 +91,7 @@ export const api = {
   get_history_btw_two_dates:
     BASE_URL + "/history/historybetweentwospecificdates.php",
   get_history_of_week: BASE_URL + "/history/historyofweek.php",
+
+  //privacy policy
+  get_privacy_policy: BASE_URL + "/privacy/get.php",
 };
