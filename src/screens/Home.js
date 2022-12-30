@@ -1277,7 +1277,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       fontFamily: "Rubik-Regular",
                     }}
                   >
-                    0 kcal
+                    {/* 0 kcal */}
+                    {kcal} kcal
                   </Text>
                   <View
                     style={{
@@ -1316,7 +1317,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       fontFamily: "Rubik-Regular",
                     }}
                   >
-                    0 km
+                    {/* 0 km */}
+                    {distance} km
                   </Text>
 
                   <View
@@ -1355,7 +1357,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       fontFamily: "Rubik-Regular",
                     }}
                   >
-                    0:01 h
+                    {/* 0:01 h */}
+                    {time}
                   </Text>
                   <View
                     style={{

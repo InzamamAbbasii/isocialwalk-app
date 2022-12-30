@@ -137,6 +137,8 @@ const ChallengesDetail = ({ navigation, route }) => {
   ]);
   const [addMembersList, setAddMembersList] = useState([]);
 
+  const [challenge_GroupsList, setChallenge_GroupsList] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [logged_in_user_id, setLogged_in_user_id] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -173,8 +175,6 @@ const ChallengesDetail = ({ navigation, route }) => {
       } = route?.params?.item;
 
       getChallengeDetail(id);
-      //get add members list
-      getAddMembersList(id);
 
       var now = moment(new Date()); //todays date
       var end = moment(end_date); // another date
@@ -214,6 +214,16 @@ const ChallengesDetail = ({ navigation, route }) => {
 
             setchallengeImage(imageUrl);
             setChallenge_type(detail?.challenge_type);
+
+            // if challenge type is individual the  get group members list. if challenge type is group then get challenge groups list
+            if (detail?.challenge_type == "group") {
+              //getting groups list that is added in this  challenge
+              getGroupsInChallenge(id);
+            } else {
+              //get add members list
+              getAddMembersList(id);
+            }
+
             setEndDate(detail?.end_date);
             setMetric_no(detail?.challenge_metric_no);
             setType(detail?.challenge_metric_step_type);
@@ -311,6 +321,68 @@ const ChallengesDetail = ({ navigation, route }) => {
       })
       .finally(() => setLoading(false));
   };
+
+  //get groups in a challenge
+
+  const getGroupsInChallenge = async (challangeId) => {
+    setLoading(true);
+    let data = {
+      challenge_id: challangeId,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_groups_of_specific_challenge, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        // console.log("groups list :::: ", result);
+        if (result?.error == false || result?.error == "false") {
+          let responseList = result?.Challenges ? result?.Challenges : [];
+          let list = [];
+          for (const element of responseList) {
+            let groupInfo = await getGroup_Info(element?.group_id);
+            if (groupInfo !== false) {
+              let obj = {
+                id: element?.id,
+                noti_type_id: element?.noti_type_id,
+                challenge_id: element?.challenge_id,
+                group_id: element?.group_id,
+                status: element?.status,
+                group_info: {
+                  id: groupInfo?.id,
+                  image: groupInfo?.image_link
+                    ? BASE_URL_Image + "/" + groupInfo?.image_link
+                    : "",
+                  name: groupInfo?.name,
+                  adminId: groupInfo?.["Admin id"],
+                  group_privacy: groupInfo?.group_privacy,
+                  group_visibility: groupInfo?.group_visibility,
+                  created_at: groupInfo?.created_at,
+                },
+              };
+              list?.push(obj);
+            }
+          }
+          setChallenge_GroupsList(list);
+        } else {
+          Snackbar.show({
+            text: result?.Message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error :: ", error);
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
   //getting user detail
   const getUser_Info = (id) => {
     return new Promise((resolve, reject) => {
@@ -335,6 +407,37 @@ const ChallengesDetail = ({ navigation, route }) => {
             resolve(false);
           });
       } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
+  //getting specific group info
+  const getGroup_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_group_detail, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
         resolve(false);
       }
     });
@@ -804,431 +907,532 @@ const ChallengesDetail = ({ navigation, route }) => {
           </View>
         </View>
 
-        <View style={{ marginTop: 10 }}>
-          <Text
-            style={{
-              color: "#000000",
-              fontSize: 16,
-              fontFamily: "Rubik-Regular",
-              paddingHorizontal: 20,
-            }}
-          >
-            Participants/Results
-          </Text>
+        {challenge_type == "group" ? (
+          <View style={{ marginTop: 10 }}>
+            {/* ____________________________________Groups _____________________________________________ */}
+            <Text
+              style={{
+                color: "#000000",
+                fontSize: 16,
+                fontFamily: "Rubik-Regular",
+                paddingHorizontal: 20,
+              }}
+            >
+              Groups/Results
+            </Text>
 
-          <View
-            style={{
-              marginVertical: 15,
-              paddingBottom: 10,
-              paddingHorizontal: 20,
-            }}
-          >
-            <FlatList
-              data={participantList}
-              numColumns={3}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(item, index) => index.toString()}
-              ListEmptyComponent={() => {
-                return (
-                  <View
-                    style={{
-                      flex: 1,
-                      height: SCREEN_HEIGHT * 0.4,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#000000",
-                        fontSize: 16,
-                      }}
-                    >
-                      No Result Found
-                    </Text>
-                  </View>
-                );
+            <View
+              style={{
+                marginVertical: 15,
+                paddingBottom: 10,
+                paddingHorizontal: 20,
               }}
-              renderItem={(item) => {
-                let itemColor = generateColor();
-                return (
-                  <View
-                    style={{
-                      ...styles.cardView,
-                      justifyContent: "center",
-                      height: 120,
-                      width: "28.9%",
-                    }}
-                  >
-                    <Text
+            >
+              <FlatList
+                data={challenge_GroupsList}
+                numColumns={3}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={() => {
+                  return (
+                    <View
                       style={{
-                        color: "#000",
-                        position: "absolute",
-                        right: 10,
-                        top: 5,
+                        flex: 1,
+                        height: SCREEN_HEIGHT * 0.4,
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                     >
-                      {item.index + 1}
-                    </Text>
-                    <View style={{ height: 18, width: 18 }}>
-                      {item.index < 3 && (
-                        <Image
-                          source={require("../../../assets/images/crown.png")}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            resizeMode: "contain",
-                          }}
-                        />
-                      )}
-                    </View>
-                    <View style={{ marginBottom: 3 }}>
-                      <AnimatedCircularProgress
-                        rotation={360}
-                        size={55}
-                        width={2.5}
-                        fill={item?.item?.percentage}
-                        // tintColor="#38ACFF"
-                        tintColor={itemColor}
-                        backgroundColor="#eee"
+                      <Text
+                        style={{
+                          color: "#000000",
+                          fontSize: 16,
+                        }}
                       >
-                        {(fill) => (
-                          <>
-                            {item?.item?.user_info?.image != "" ? (
-                              <Image
-                                source={{ uri: item.item.image }}
-                                style={{
-                                  marginVertical: 8,
-                                  width: 44,
-                                  height: 44,
-                                  borderRadius: 44,
-                                  backgroundColor: "#ccc",
-                                }}
-                              />
-                            ) : (
-                              <Image
-                                source={require("../../../assets/images/friend-profile.png")}
-                                style={{
-                                  marginVertical: 8,
-                                  width: 44,
-                                  height: 44,
-                                }}
-                              />
-                            )}
-                          </>
-                        )}
-                      </AnimatedCircularProgress>
+                        No Result Found
+                      </Text>
                     </View>
-                    <Text style={styles.cardText} numberOfLines={2}>
-                      {item?.item?.user_info?.first_name}
-                    </Text>
-                    <Text
+                  );
+                }}
+                renderItem={(item) => {
+                  return (
+                    <View
                       style={{
-                        ...styles.cardText,
-                        color: itemColor,
-                        fontFamily: "Rubik-Medium",
+                        ...styles.cardView,
+                        justifyContent: "center",
+                        height: 120,
+                        width: "28.9%",
                       }}
                     >
-                      {item.item.steps}
-                    </Text>
-                  </View>
-                );
-              }}
-            />
+                      <View style={{ marginBottom: 3 }}>
+                        {item?.item?.group_info?.image != "" ? (
+                          <Image
+                            source={{ uri: item.item?.group_info.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/friend-profile.png")}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                            }}
+                          />
+                        )}
+                      </View>
+                      <Text style={styles.cardText} numberOfLines={2}>
+                        {item?.item?.group_info?.name}
+                      </Text>
+                    </View>
+                  );
+                }}
+              />
+            </View>
           </View>
-
-          {/* ------------------------------------------Add Member Bottom Sheet-------------------------------------------- */}
-          <RBSheet
-            ref={bottomSheetAddMemberRef}
-            openDuration={250}
-            closeOnDragDown={true}
-            closeOnPressMask={false}
-            dragFromTopOnly
-            animationType={"slide"}
-            customStyles={{
-              container: {
-                padding: 5,
-                height: 460,
-                backgroundColor: "#ffffff",
-                borderRadius: 30,
-              },
-              draggableIcon: {
-                backgroundColor: "#003e6b",
-              },
-            }}
-          >
-            <View
+        ) : (
+          <View style={{ marginTop: 10 }}>
+            <Text
               style={{
-                alignItems: "center",
-                flex: 1,
+                color: "#000000",
+                fontSize: 16,
+                fontFamily: "Rubik-Regular",
+                paddingHorizontal: 20,
               }}
             >
-              <Text
-                style={{
-                  color: "#003e6b",
-                  fontSize: 18,
-                  textAlign: "center",
-                  fontFamily: "Rubik-Regular",
-                  marginTop: 5,
-                }}
-              >
-                Add Members
-              </Text>
-              <View
-                style={{
-                  marginVertical: 15,
-                  paddingHorizontal: 20,
-                  flex: 1,
-                  width: "100%",
-                }}
-              >
-                <FlatList
-                  data={addMembersList}
-                  numColumns={3}
-                  showsVerticalScrollIndicator={false}
-                  keyExtractor={(item, index) => index.toString()}
-                  ListEmptyComponent={() => {
-                    return (
-                      <View
+              Participants/Results
+            </Text>
+
+            <View
+              style={{
+                marginVertical: 15,
+                paddingBottom: 10,
+                paddingHorizontal: 20,
+              }}
+            >
+              <FlatList
+                data={participantList}
+                numColumns={3}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={() => {
+                  return (
+                    <View
+                      style={{
+                        flex: 1,
+                        height: SCREEN_HEIGHT * 0.4,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
                         style={{
-                          flex: 1,
-                          height: SCREEN_HEIGHT * 0.4,
-                          justifyContent: "center",
-                          alignItems: "center",
+                          color: "#000000",
+                          fontSize: 16,
                         }}
                       >
-                        <Text
-                          style={{
-                            color: "#000000",
-                            fontSize: 16,
-                          }}
-                        >
-                          No Result Found
-                        </Text>
-                      </View>
-                    );
-                  }}
-                  renderItem={(item) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() =>
-                          handleAddMemberSelect(item.item?.user_info?.id)
-                        }
+                        No Result Found
+                      </Text>
+                    </View>
+                  );
+                }}
+                renderItem={(item) => {
+                  let itemColor = generateColor();
+                  return (
+                    <View
+                      style={{
+                        ...styles.cardView,
+                        justifyContent: "center",
+                        height: 120,
+                        width: "28.9%",
+                      }}
+                    >
+                      <Text
                         style={{
-                          ...styles.bootSheetCardView,
-                          width: "28.9%",
-                          marginVertical: 5,
-                          marginHorizontal: 7,
-                          borderWidth: item.item.status ? 1 : 0,
-                          borderColor: item.item.status
-                            ? "#38ACFF"
-                            : "transparent",
+                          color: "#000",
+                          position: "absolute",
+                          right: 10,
+                          top: 5,
                         }}
                       >
-                        {item?.item?.image != "" ? (
+                        {item.index + 1}
+                      </Text>
+                      <View style={{ height: 18, width: 18 }}>
+                        {item.index < 3 && (
                           <Image
-                            source={{ uri: item.item.image }}
+                            source={require("../../../assets/images/crown.png")}
                             style={{
-                              marginVertical: 8,
-                              width: 44,
-                              height: 44,
-                              borderRadius: 44,
-                              backgroundColor: "#ccc",
+                              width: "100%",
+                              height: "100%",
+                              resizeMode: "contain",
                             }}
                           />
-                        ) : (
-                          <Image
-                            source={require("../../../assets/images/friend-profile.png")}
-                            style={{ marginVertical: 8, width: 44, height: 44 }}
-                          />
                         )}
-
-                        <Text
-                          numberOfLines={2}
-                          style={{
-                            color: "#040103",
-                            fontFamily: "Rubik-Regular",
-                          }}
+                      </View>
+                      <View style={{ marginBottom: 3 }}>
+                        <AnimatedCircularProgress
+                          rotation={360}
+                          size={55}
+                          width={2.5}
+                          fill={item?.item?.percentage}
+                          // tintColor="#38ACFF"
+                          tintColor={itemColor}
+                          backgroundColor="#eee"
                         >
-                          {item?.item?.name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  }}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={() => handleAddMemberToChallenge()}
+                          {(fill) => (
+                            <>
+                              {item?.item?.user_info?.image != "" ? (
+                                <Image
+                                  source={{ uri: item.item.image }}
+                                  style={{
+                                    marginVertical: 8,
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: 44,
+                                    backgroundColor: "#ccc",
+                                  }}
+                                />
+                              ) : (
+                                <Image
+                                  source={require("../../../assets/images/friend-profile.png")}
+                                  style={{
+                                    marginVertical: 8,
+                                    width: 44,
+                                    height: 44,
+                                  }}
+                                />
+                              )}
+                            </>
+                          )}
+                        </AnimatedCircularProgress>
+                      </View>
+                      <Text style={styles.cardText} numberOfLines={2}>
+                        {item?.item?.user_info?.first_name}
+                      </Text>
+                      <Text
+                        style={{
+                          ...styles.cardText,
+                          color: itemColor,
+                          fontFamily: "Rubik-Medium",
+                        }}
+                      >
+                        {item.item.steps}
+                      </Text>
+                    </View>
+                  );
+                }}
+              />
+            </View>
+
+            {/* ------------------------------------------Add Member Bottom Sheet-------------------------------------------- */}
+            <RBSheet
+              ref={bottomSheetAddMemberRef}
+              openDuration={250}
+              closeOnDragDown={true}
+              closeOnPressMask={false}
+              dragFromTopOnly
+              animationType={"slide"}
+              customStyles={{
+                container: {
+                  padding: 5,
+                  height: 460,
+                  backgroundColor: "#ffffff",
+                  borderRadius: 30,
+                },
+                draggableIcon: {
+                  backgroundColor: "#003e6b",
+                },
+              }}
+            >
+              <View
                 style={{
-                  backgroundColor: "#38ACFF",
-                  marginBottom: 10,
-                  height: 50,
-                  width: "92%",
                   alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 5,
+                  flex: 1,
                 }}
               >
                 <Text
                   style={{
-                    color: "#FFF",
-                    fontSize: 16,
+                    color: "#003e6b",
+                    fontSize: 18,
+                    textAlign: "center",
                     fontFamily: "Rubik-Regular",
+                    marginTop: 5,
                   }}
                 >
-                  Add to Challenge
+                  Add Members
                 </Text>
-              </TouchableOpacity>
-            </View>
-          </RBSheet>
+                <View
+                  style={{
+                    marginVertical: 15,
+                    paddingHorizontal: 20,
+                    flex: 1,
+                    width: "100%",
+                  }}
+                >
+                  <FlatList
+                    data={addMembersList}
+                    numColumns={3}
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListEmptyComponent={() => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            height: SCREEN_HEIGHT * 0.4,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#000000",
+                              fontSize: 16,
+                            }}
+                          >
+                            No Result Found
+                          </Text>
+                        </View>
+                      );
+                    }}
+                    renderItem={(item) => {
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            handleAddMemberSelect(item.item?.user_info?.id)
+                          }
+                          style={{
+                            ...styles.bootSheetCardView,
+                            width: "28.9%",
+                            marginVertical: 5,
+                            marginHorizontal: 7,
+                            borderWidth: item.item.status ? 1 : 0,
+                            borderColor: item.item.status
+                              ? "#38ACFF"
+                              : "transparent",
+                          }}
+                        >
+                          {item?.item?.image != "" ? (
+                            <Image
+                              source={{ uri: item.item.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                              }}
+                            />
+                          )}
 
-          {/* ------------------------------------------Remove Member Bottom Sheet-------------------------------------------- */}
-          <RBSheet
-            ref={bottomSheetRemoveMemberRef}
-            openDuration={250}
-            closeOnDragDown={true}
-            closeOnPressMask={false}
-            dragFromTopOnly
-            animationType={"slide"}
-            customStyles={{
-              container: {
-                padding: 5,
-                height: 460,
-                backgroundColor: "#ffffff",
-                borderRadius: 30,
-              },
-              draggableIcon: {
-                backgroundColor: "#003e6b",
-              },
-            }}
-          >
-            <View
-              style={{
-                alignItems: "center",
-                flex: 1,
+                          <Text
+                            numberOfLines={2}
+                            style={{
+                              color: "#040103",
+                              fontFamily: "Rubik-Regular",
+                            }}
+                          >
+                            {item?.item?.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleAddMemberToChallenge()}
+                  style={{
+                    backgroundColor: "#38ACFF",
+                    marginBottom: 10,
+                    height: 50,
+                    width: "92%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#FFF",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Add to Challenge
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </RBSheet>
+
+            {/* ------------------------------------------Remove Member Bottom Sheet-------------------------------------------- */}
+            <RBSheet
+              ref={bottomSheetRemoveMemberRef}
+              openDuration={250}
+              closeOnDragDown={true}
+              closeOnPressMask={false}
+              dragFromTopOnly
+              animationType={"slide"}
+              customStyles={{
+                container: {
+                  padding: 5,
+                  height: 460,
+                  backgroundColor: "#ffffff",
+                  borderRadius: 30,
+                },
+                draggableIcon: {
+                  backgroundColor: "#003e6b",
+                },
               }}
             >
-              <Text
-                style={{
-                  color: "#003e6b",
-                  fontSize: 18,
-                  textAlign: "center",
-                  fontFamily: "Rubik-Regular",
-                  marginTop: 5,
-                }}
-              >
-                Remove Members
-              </Text>
               <View
                 style={{
-                  marginVertical: 15,
-                  paddingHorizontal: 20,
-                  flex: 1,
-                  width: "100%",
-                }}
-              >
-                <FlatList
-                  data={participantList}
-                  numColumns={3}
-                  showsVerticalScrollIndicator={false}
-                  keyExtractor={(item, index) => index.toString()}
-                  ListEmptyComponent={() => {
-                    return (
-                      <View
-                        style={{
-                          flex: 1,
-                          height: SCREEN_HEIGHT * 0.4,
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: "#000000",
-                            fontSize: 16,
-                          }}
-                        >
-                          No Result Found
-                        </Text>
-                      </View>
-                    );
-                  }}
-                  renderItem={(item) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() =>
-                          handleSelectMember_ToRemove(item.item?.user_info?.id)
-                        }
-                        style={{
-                          ...styles.bootSheetCardView,
-                          width: "28.9%",
-                          marginVertical: 5,
-                          marginHorizontal: 7,
-                          borderWidth: item.item.status ? 1 : 0,
-                          borderColor: item.item.status
-                            ? "#38ACFF"
-                            : "transparent",
-                        }}
-                      >
-                        {item?.item?.user_info?.image != "" ? (
-                          <Image
-                            source={{ uri: item.item.image }}
-                            style={{
-                              marginVertical: 8,
-                              width: 44,
-                              height: 44,
-                              borderRadius: 44,
-                              backgroundColor: "#ccc",
-                            }}
-                          />
-                        ) : (
-                          <Image
-                            source={require("../../../assets/images/friend-profile.png")}
-                            style={{ marginVertical: 8, width: 44, height: 44 }}
-                          />
-                        )}
-
-                        <Text
-                          numberOfLines={2}
-                          style={{
-                            color: "#040103",
-                            fontFamily: "Rubik-Regular",
-                          }}
-                        >
-                          {item?.item?.user_info?.first_name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  }}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={() => handleRemoveMember_FromChallenge()}
-                style={{
-                  backgroundColor: "#38ACFF",
-                  marginBottom: 10,
-                  height: 50,
-                  width: "92%",
                   alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 5,
+                  flex: 1,
                 }}
               >
                 <Text
                   style={{
-                    color: "#FFF",
-                    fontSize: 16,
+                    color: "#003e6b",
+                    fontSize: 18,
+                    textAlign: "center",
                     fontFamily: "Rubik-Regular",
+                    marginTop: 5,
                   }}
                 >
-                  Remove From Challenge
+                  Remove Members
                 </Text>
-              </TouchableOpacity>
-            </View>
-          </RBSheet>
+                <View
+                  style={{
+                    marginVertical: 15,
+                    paddingHorizontal: 20,
+                    flex: 1,
+                    width: "100%",
+                  }}
+                >
+                  <FlatList
+                    data={participantList}
+                    numColumns={3}
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListEmptyComponent={() => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            height: SCREEN_HEIGHT * 0.4,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#000000",
+                              fontSize: 16,
+                            }}
+                          >
+                            No Result Found
+                          </Text>
+                        </View>
+                      );
+                    }}
+                    renderItem={(item) => {
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            handleSelectMember_ToRemove(
+                              item.item?.user_info?.id
+                            )
+                          }
+                          style={{
+                            ...styles.bootSheetCardView,
+                            width: "28.9%",
+                            marginVertical: 5,
+                            marginHorizontal: 7,
+                            borderWidth: item.item.status ? 1 : 0,
+                            borderColor: item.item.status
+                              ? "#38ACFF"
+                              : "transparent",
+                          }}
+                        >
+                          {item?.item?.user_info?.image != "" ? (
+                            <Image
+                              source={{ uri: item.item.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                              }}
+                            />
+                          )}
 
-          {/* -------------------------------------------------------------- */}
-        </View>
+                          <Text
+                            numberOfLines={2}
+                            style={{
+                              color: "#040103",
+                              fontFamily: "Rubik-Regular",
+                            }}
+                          >
+                            {item?.item?.user_info?.first_name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleRemoveMember_FromChallenge()}
+                  style={{
+                    backgroundColor: "#38ACFF",
+                    marginBottom: 10,
+                    height: 50,
+                    width: "92%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#FFF",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Remove From Challenge
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </RBSheet>
+
+            {/* -------------------------------------------------------------- */}
+          </View>
+        )}
       </ScrollView>
     </View>
   );

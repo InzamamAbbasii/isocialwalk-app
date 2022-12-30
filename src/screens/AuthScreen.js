@@ -112,7 +112,12 @@ const AuthScreen = ({ navigation }) => {
             }
           }
         })
-        .catch((error) => console.log("error", error))
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
         .finally(() => setLoading(false));
     }
   };
@@ -164,7 +169,12 @@ const AuthScreen = ({ navigation }) => {
             }
           }
         })
-        .catch((error) => console.log("error", error))
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
         .finally(() => setLoading(false));
     }
   };
