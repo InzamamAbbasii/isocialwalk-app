@@ -22,6 +22,8 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
+
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 const SCREEN_HEIGHT = Dimensions.get("screen").height;
 
@@ -149,6 +151,9 @@ const Groups = ({
     //   name: "Helium Hydroxide",
     // },
   ]);
+
+  const [joinedGroupsList, setJoinedGroupsList] = useState([]);
+
   const handleonJoin = async (id, adminId, type) => {
     console.log({ id, adminId, type });
 
@@ -284,9 +289,9 @@ const Groups = ({
   useFocusEffect(
     React.useCallback(() => {
       getSuggestedGroupsList();
-      // getMyGroups();
       getLogged_in_user_groups();
       getMembersList();
+      getJoinedGroups();
     }, [])
   );
 
@@ -362,6 +367,108 @@ const Groups = ({
       })
       .finally(() => setLoading(false));
   };
+
+  //getting login user joined groups list
+  const getJoinedGroups = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    let data = {
+      user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.get_user_joined_groups, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        // console.log("groups list ::: ", result);
+        if (result?.error == false || result?.error == "false") {
+          let list = result?.Group ? result?.Group : [];
+          let joinedGroup_List = [];
+          let listOfGroups = [];
+          if (list?.length > 0) {
+            let filter = list?.filter((item) => item?.status == "membered");
+            for (const element of filter) {
+              let groupInfo = await getGroup_Info(element?.group_id);
+              if (groupInfo != false) {
+                let obj = {
+                  id: element?.id,
+                  group_id: element?.group_id,
+                  user_id: element?.user_id,
+                  status: element?.status,
+                  created_at: element?.created_at,
+                  group_info: {
+                    id: groupInfo?.id,
+                    image: groupInfo?.image_link
+                      ? BASE_URL_Image + "/" + groupInfo?.image_link
+                      : "",
+                    name: groupInfo?.name,
+                    adminId: groupInfo?.["Admin id"],
+                    group_privacy: groupInfo?.group_privacy,
+                    group_visibility: groupInfo?.group_visibility,
+                    created_at: groupInfo?.created_at,
+                  },
+                };
+                listOfGroups.push(obj);
+              }
+            }
+          }
+
+          setJoinedGroupsList(listOfGroups);
+        } else {
+          setJoinedGroupsList([]);
+          Snackbar.show({
+            text: result?.Message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.Unable to get groups.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const getjoin_group = () => {
+    try {
+    } catch (error) {
+      console.log("error  :: ", error);
+    }
+  };
+
+  //getting specific group info
+  const getGroup_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_group_detail, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            resolve(false);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
   //TODO: latter on change with this spscifc user groups list
   // const getMyGroups = async () => {
   //   let user_id = await AsyncStorage.getItem("user_id");
@@ -888,6 +995,80 @@ const Groups = ({
                   />
                 </View>
               )}
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  paddingHorizontal: 20,
+                }}
+              >
+                <Text style={{ color: "#000000", fontSize: 16 }}>
+                  Joined Groups
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  marginVertical: 15,
+                  paddingBottom: 10,
+                  paddingHorizontal: 20,
+                }}
+              >
+                <FlatList
+                  data={joinedGroupsList}
+                  numColumns={3}
+                  showsVerticalScrollIndicator={false}
+                  keyExtractor={(item, index) => index.toString()}
+                  ListEmptyComponent={() => {
+                    return (
+                      <View
+                        style={{
+                          flex: 1,
+                          height: 300,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#000000",
+                            fontSize: 16,
+                          }}
+                        >
+                          No Record Found
+                        </Text>
+                      </View>
+                    );
+                  }}
+                  renderItem={(item) => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("GroupDetail", {
+                            item: item?.item?.group_info,
+                          })
+                        }
+                        style={{
+                          ...styles.cardView,
+                          justifyContent: "center",
+                          height: 110,
+                          width: "28.9%",
+                        }}
+                      >
+                        <Image
+                          source={require("../../../assets/images/group-profile.png")}
+                          style={{ marginVertical: 8 }}
+                        />
+                        <Text style={styles.cardText}>
+                          {item?.item?.group_info?.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+              </View>
             </View>
           )}
         </ScrollView>
