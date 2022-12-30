@@ -555,7 +555,9 @@ const CreateGroup = ({ navigation }) => {
                         source={require("../../../assets/images/friend-profile.png")}
                         style={{ marginVertical: 8, width: 44, height: 44 }}
                       />
-                      <Text style={styles.name}>{item.item.name}</Text>
+                      <Text style={styles.name} numberOfLines={2}>
+                        {item.item.name}
+                      </Text>
                       <View
                         style={{
                           justifyContent: "flex-end",
@@ -643,7 +645,7 @@ const styles = StyleSheet.create({
   },
 
   cardView: {
-    height: 137,
+    height: 140,
     width: 101,
     backgroundColor: "#ffffff",
     borderRadius: 10,

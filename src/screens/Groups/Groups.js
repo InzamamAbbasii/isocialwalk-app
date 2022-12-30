@@ -38,6 +38,7 @@ const Groups = ({
   const [loading, setLoading] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
   const [searchText, setSearchText] = useState("");
+
   const [searchResults, setSearchResults] = useState([
     // {
     //   id: 0,
@@ -928,6 +929,7 @@ const Groups = ({
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center",
+                    padding: 20,
                   }}
                 >
                   <Image
@@ -1048,6 +1050,7 @@ const Groups = ({
                         onPress={() =>
                           navigation.navigate("GroupDetail", {
                             item: item?.item?.group_info,
+                            type: "joined",
                           })
                         }
                         style={{
