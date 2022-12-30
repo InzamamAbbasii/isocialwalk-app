@@ -70,6 +70,7 @@ export const api = {
     BASE_URL + "/challenges/specificuserchallenges.php",
   get_groups_of_specific_challenge:
     BASE_URL + "/challenges/groupofchallenge.php",
+  delete_challenge: BASE_URL + "/challenges/deletechallenege.php",
 
   //goals
   add_goals: BASE_URL + "/goals/insert.php",

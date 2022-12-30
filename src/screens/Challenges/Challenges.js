@@ -150,18 +150,19 @@ const Challenges = ({
 
   const [joinedChallenge, setJoinedChallenge] = useState([]);
   useEffect(() => {
+    setLoading(true);
     getSuggestedChallengesList();
-    getUserJoinedChallenges();
   }, []);
 
   useFocusEffect(
     React.useCallback(() => {
       getLogged_in_user_Challenges();
+      getUserJoinedChallenges();
     }, [])
   );
   const getLogged_in_user_Challenges = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-    setLoading(true);
+    setChallengesList([]);
     let data = {
       created_by_user_id: user_id,
     };
@@ -174,6 +175,7 @@ const Challenges = ({
     fetch(api.get_admin_challenges, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
+        console.log("logged in user challenges", result);
         if (result?.error == false || result?.error == "false") {
           // console.log("add member list response  ::: ", result);
           let list = result?.Challenges ? result?.Challenges : [];
@@ -198,13 +200,19 @@ const Challenges = ({
           // }
           // console.log("response list", responseList);
         } else {
-          Snackbar.show({
-            text: result[0]?.message,
-            duration: Snackbar.LENGTH_SHORT,
-          });
+          console.log("no challeg found for logged in use");
+          // Snackbar.show({
+          //   text: result?.message ? result?.message : result?.Message,
+          //   duration: Snackbar.LENGTH_SHORT,
+          // });
         }
       })
-      .catch((error) => console.log("error", error))
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.Unable to get challenge list",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
       .finally(() => setLoading(false));
   };
 
@@ -258,7 +266,7 @@ const Challenges = ({
   const getUserJoinedChallenges = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-      setLoading(true);
+
       // setSuggestedFriends([]);
 
       let data = {

@@ -753,6 +753,105 @@ const ChallengesDetail = ({ navigation, route }) => {
     }
   };
 
+  //handle leave challenge
+
+  const handleLeaveChallenge = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    if (challengeId) {
+      setLoading(true);
+      let data = {
+        user_id: user_id,
+        challenge_id: challengeId,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.leave_challenges, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("result  :: ", result);
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            Snackbar.show({
+              text: "You Leave Challenge Successfully.",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+            navigation?.goBack();
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      Snackbar.show({
+        text: "Challenge Id not found.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
+  //handel delete challenge
+  const handleDeleteChallenge = async () => {
+    if (challengeId) {
+      setLoading(true);
+      let data = {
+        challenge_id: challengeId,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.delete_challenge, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          // console.log("result  :: ", result);
+          // if (result[0]?.error == false || result[0]?.error == "false") {
+          //   Snackbar.show({
+          //     text: "You Leave Challenge Successfully.",
+          //     duration: Snackbar.LENGTH_SHORT,
+          //   });
+          //   navigation?.goBack();
+          // } else {
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          // }
+        })
+        .catch((error) => {
+          console.log("error :: ", error);
+
+          Snackbar.show({
+            text: "Something went wrong.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      Snackbar.show({
+        text: "Challenge Id not found.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -833,25 +932,45 @@ const ChallengesDetail = ({ navigation, route }) => {
               marginTop: 20,
             }}
           >
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={() => bottomSheetAddMemberRef?.current?.open()}
-            >
-              <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => bottomSheetRemoveMemberRef?.current?.open()}
-              style={{
-                ...styles.btn,
-                backgroundColor: "transparent",
-                borderColor: "#38ACFF",
-                borderWidth: 1,
-              }}
-            >
-              <Text style={{ color: "#38ACFF", fontSize: 14 }}>
-                Remove Members
-              </Text>
-            </TouchableOpacity>
+            {logged_in_user_id == adminId && (
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => bottomSheetAddMemberRef?.current?.open()}
+              >
+                <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
+              </TouchableOpacity>
+            )}
+            {route?.params?.type == "joined" ? (
+              <TouchableOpacity
+                onPress={() => handleLeaveChallenge()}
+                style={{
+                  ...styles.btn,
+                  backgroundColor: "transparent",
+                  borderColor: "#38ACFF",
+                  borderWidth: 1,
+                }}
+              >
+                <Text style={{ color: "#38ACFF", fontSize: 14 }}>
+                  Leave Challenge
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              adminId == logged_in_user_id && (
+                <TouchableOpacity
+                  onPress={() => handleDeleteChallenge()}
+                  style={{
+                    ...styles.btn,
+                    backgroundColor: "transparent",
+                    borderColor: "#38ACFF",
+                    borderWidth: 1,
+                  }}
+                >
+                  <Text style={{ color: "#38ACFF", fontSize: 14 }}>
+                    Delete Challenge
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
           </View>
 
           <View
@@ -998,16 +1117,40 @@ const ChallengesDetail = ({ navigation, route }) => {
           </View>
         ) : (
           <View style={{ marginTop: 10 }}>
-            <Text
+            <View
               style={{
-                color: "#000000",
-                fontSize: 16,
-                fontFamily: "Rubik-Regular",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
                 paddingHorizontal: 20,
               }}
             >
-              Participants/Results
-            </Text>
+              <Text
+                style={{
+                  color: "#000000",
+                  fontSize: 16,
+                  fontFamily: "Rubik-Regular",
+                  // paddingHorizontal: 20,
+                }}
+              >
+                Participants/Results
+              </Text>
+              {logged_in_user_id == adminId && (
+                <TouchableOpacity
+                  onPress={() => bottomSheetRemoveMemberRef?.current?.open()}
+                >
+                  <Text
+                    style={{
+                      color: "#6f92c9",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Remove Member
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <View
               style={{
