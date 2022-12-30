@@ -148,8 +148,10 @@ const Challenges = ({
     // },
   ]);
 
+  const [joinedChallenge, setJoinedChallenge] = useState([]);
   useEffect(() => {
     getSuggestedChallengesList();
+    getUserJoinedChallenges();
   }, []);
 
   useFocusEffect(
@@ -249,6 +251,108 @@ const Challenges = ({
       console.log("error :", error);
       setLoading(false);
     }
+  };
+
+  //getting joinned challenges list
+
+  const getUserJoinedChallenges = async () => {
+    try {
+      let user_id = await AsyncStorage.getItem("user_id");
+      setLoading(true);
+      // setSuggestedFriends([]);
+
+      let data = {
+        user_id: user_id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+
+      fetch(api.get_specific_user_joined_challenges, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          if (result?.error == false || result?.error == "false") {
+            let responstList = result?.challenges ? result?.challenges : [];
+            let list = [];
+            for (const element of responstList) {
+              let challengeInfo = await getChallengeDetail(
+                element?.challenge_id
+              );
+              if (challengeInfo != false) {
+                let obj = {
+                  id: element?.id,
+                  challenge_id: element?.challenge_id,
+                  user_id: element?.user_id,
+                  status: element?.status,
+                  challengeInfo: {
+                    id: challengeInfo?.id,
+                    created_by_user_id: challengeInfo?.created_by_user_id,
+                    image: challengeInfo?.image,
+                    name: challengeInfo?.name,
+                    challenge_type: challengeInfo?.challenge_type,
+                    challenge_visibility: challengeInfo?.challenge_visibility,
+                    challenge_privacy: challengeInfo?.challenge_privacy,
+                    start_date: challengeInfo?.start_date,
+                    end_date: challengeInfo?.end_date,
+                    challenge_metric_no: challengeInfo?.challenge_metric_no,
+                    challenge_metric_step_type:
+                      challengeInfo?.challenge_metric_step_type,
+                  },
+                };
+                list.push(obj);
+              }
+            }
+            setJoinedChallenge(list);
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong.Unable to get joined challenges",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => setLoading(false));
+    } catch (error) {
+      console.log("error :", error);
+      setLoading(false);
+    }
+  };
+
+  const getChallengeDetail = (id) => {
+    return new Promise((resolve, reject) => {
+      let data = {
+        challenge_id: id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.get_challenge_details, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          if (result?.error == false || result?.error == "false") {
+            let detail = result?.Challenge[0] ? result?.Challenge[0] : null;
+            if (detail == null) {
+              resolve(false);
+            } else {
+              resolve(detail);
+            }
+          } else {
+            resolve(false);
+          }
+        })
+        .catch((error) => {
+          resolve(false);
+        });
+    });
   };
 
   const handleonJoin = (id, adminId, item, item1) => {
@@ -451,6 +555,7 @@ const Challenges = ({
       <View
         style={{
           flex: 1,
+          height: 400,
           alignItems: "center",
           justifyContent: "center",
         }}
@@ -827,8 +932,12 @@ const Challenges = ({
                             }}
                           >
                             <Image
-                              source={require("../../../assets/images/group-profile.png")}
-                              style={{ marginVertical: 8 }}
+                              source={require("../../../assets/images/Challenge.png")}
+                              style={{
+                                marginVertical: 8,
+                                height: 44,
+                                width: 44,
+                              }}
                             />
                             <Text style={styles.cardText}>
                               {item.item.name}
@@ -840,6 +949,97 @@ const Challenges = ({
                   </View>
                 )}
               </View>
+
+              {/* -------------------------------------Joinned challenges list _______________________________________________________ */}
+
+              <View style={{ flex: 1 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingHorizontal: 20,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#000000",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Joined Challenges
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    marginVertical: 15,
+                    paddingBottom: 10,
+                    paddingHorizontal: 20,
+                  }}
+                >
+                  <FlatList
+                    data={joinedChallenge}
+                    numColumns={3}
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListEmptyComponent={() => {
+                      return (
+                        <View
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            // padding: 300,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#000000",
+                              fontSize: 16,
+                              fontFamily: "Rubik-Regular",
+                            }}
+                          >
+                            No Results Found
+                          </Text>
+                        </View>
+                      );
+                    }}
+                    renderItem={(item) => {
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            navigation.navigate("ChallengesDetail", {
+                              item: item?.item?.challengeInfo,
+                              type: "joined",
+                            })
+                          }
+                          style={{
+                            ...styles.cardView,
+                            justifyContent: "center",
+                            height: 110,
+                            width: "28.9%",
+                          }}
+                        >
+                          <Image
+                            source={require("../../../assets/images/Challenge.png")}
+                            style={{
+                              marginVertical: 8,
+                              height: 44,
+                              width: 44,
+                            }}
+                          />
+                          <Text style={styles.cardText}>
+                            {item.item?.challengeInfo?.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </View>
+              </View>
+
+              {/* -------------------------------------Joinned challenges list _______________________________________________________ */}
             </View>
           )}
         </ScrollView>
