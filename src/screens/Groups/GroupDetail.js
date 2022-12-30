@@ -29,6 +29,8 @@ const GroupDetail = ({ navigation, route }) => {
   const [profile, setProfile] = useState("");
   const [group_name, setGroup_name] = useState("");
 
+  const [logged_in_user_id, setLogged_in_user_id] = useState("");
+
   const [groupMembersList, setGroupMembersList] = useState([
     // {
     //   id: 0,
@@ -117,7 +119,14 @@ const GroupDetail = ({ navigation, route }) => {
 
   const [activeChallegesList, setActiveChallegesList] = useState([]);
 
+  const getLoggedInUser = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLogged_in_user_id(user_id);
+  };
+
   useEffect(() => {
+    getLoggedInUser();
+
     if (route?.params) {
       setGroupId(route?.params?.item?.id);
 
@@ -567,7 +576,9 @@ const GroupDetail = ({ navigation, route }) => {
     }
   };
   const handleExitGroup = async () => {
+    console.log("group id  ::: ", groupId);
     if (groupId != "") {
+      setLoading(true);
       let user_id = await AsyncStorage.getItem("user_id");
       let data = {
         user_id: user_id,
@@ -602,10 +613,58 @@ const GroupDetail = ({ navigation, route }) => {
             text: "Something went wrong",
             duration: Snackbar.LENGTH_SHORT,
           });
-        });
+        })
+        .finally(() => setLoading(false));
+    } else {
+      Snackbar.show({
+        text: "Group id not found.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
     }
   };
 
+  //handle delete group
+  const handleDeleteGroup = async () => {
+    if (groupId) {
+      let user_id = await AsyncStorage.getItem("user_id");
+      let data = {
+        group_id: groupId,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.deletegroups, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("delete group response ::::  ", result);
+          if (result[0]?.error == false || result[0]?.error == "false") {
+            navigation.goBack();
+            Snackbar.show({
+              text: "Group Deleted successfully",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          } else {
+            Snackbar.show({
+              text: result[0]?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        });
+    } else {
+      Snackbar.show({
+        text: "Group Id not found.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
   //edit group
   const handleEditPress = (groupId) => {
     navigation?.navigate("EditGroup", { id: groupId });
@@ -687,17 +746,37 @@ const GroupDetail = ({ navigation, route }) => {
             >
               <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleExitGroup()}
-              style={{
-                ...styles.btn,
-                backgroundColor: "transparent",
-                borderColor: "#38ACFF",
-                borderWidth: 1,
-              }}
-            >
-              <Text style={{ color: "#38ACFF", fontSize: 14 }}>Exit Group</Text>
-            </TouchableOpacity>
+            {route?.params?.type == "joined" ? (
+              <TouchableOpacity
+                onPress={() => handleExitGroup()}
+                style={{
+                  ...styles.btn,
+                  backgroundColor: "transparent",
+                  borderColor: "#38ACFF",
+                  borderWidth: 1,
+                }}
+              >
+                <Text style={{ color: "#38ACFF", fontSize: 14 }}>
+                  Exit Group
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              logged_in_user_id == adminId && (
+                <TouchableOpacity
+                  onPress={() => handleDeleteGroup()}
+                  style={{
+                    ...styles.btn,
+                    backgroundColor: "transparent",
+                    borderColor: "#38ACFF",
+                    borderWidth: 1,
+                  }}
+                >
+                  <Text style={{ color: "#38ACFF", fontSize: 14 }}>
+                    Delete Group
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
           </View>
         </View>
         <View style={{ marginVertical: 10, paddingHorizontal: 20 }}>
