@@ -59,16 +59,16 @@ const FriendProfile = ({ navigation, route }) => {
   const [friendHistory, setFriendHistory] = useState([]);
 
   const [commonGroupsList, setCommonGroupsList] = useState([
-    {
-      id: 0,
-      name: "Carnage Coverage",
-      avatar: require("../../../assets/images/friend-profile.png"),
-    },
-    {
-      id: 1,
-      name: "GhostRunners",
-      avatar: require("../../../assets/images/friend-profile.png"),
-    },
+    // {
+    //   id: 0,
+    //   name: "Carnage Coverage",
+    //   avatar: require("../../../assets/images/friend-profile.png"),
+    // },
+    // {
+    //   id: 1,
+    //   name: "GhostRunners",
+    //   avatar: require("../../../assets/images/friend-profile.png"),
+    // },
   ]);
 
   const [isTypeOpen, setIsTypeOpen] = useState(false);
@@ -91,6 +91,9 @@ const FriendProfile = ({ navigation, route }) => {
       getFriendWeeklyRanking(route?.params?.user?.id, todayDay);
 
       getUser_Info(route?.params?.user?.id);
+
+      //getting common groups between logged in user and selected friend
+      getCommonGroups(route?.params?.user?.id);
 
       getLoggedInUserDetail();
 
@@ -162,6 +165,52 @@ const FriendProfile = ({ navigation, route }) => {
       getMyWeeklyRanking(todayDay);
       getFriendWeeklyRanking(userId, todayDay);
     }
+  };
+
+  //getting user common groups list
+  const getCommonGroups = async (id) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify({
+        user_id: user_id,
+        friend_user_id: id,
+      }),
+      redirect: "follow",
+    };
+    fetch(api.get_common_groups, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        let list = [];
+        if (result == null) {
+          Snackbar.show({
+            text: "No common group found",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        } else {
+          result?.forEach((element) => {
+            let obj = {
+              id: element["Group Id"],
+              name: element["Group Name"],
+              privacy: element["Group privacy"],
+              image: element["Group Image"]
+                ? BASE_URL_Image + "/" + element["Group Image"]
+                : "",
+              admin: element["Created By User Id"],
+            };
+            list.push(obj);
+          });
+        }
+        setCommonGroupsList(list);
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
   };
   const getUser_Info = (id) => {
     try {
@@ -1203,10 +1252,24 @@ const FriendProfile = ({ navigation, route }) => {
                       marginRight: 15,
                     }}
                   >
-                    <Image
-                      source={item.item.avatar}
-                      style={{ marginVertical: 8, width: 50, height: 50 }}
-                    />
+                    {item?.item?.image ? (
+                      <Image
+                        source={{ uri: item?.item?.image }}
+                        style={{
+                          marginVertical: 8,
+                          width: 50,
+                          height: 50,
+                          borderRadius: 50,
+                          backgroundColor: "#ccc",
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={require("../../../assets/images/friend-profile.png")}
+                        style={{ marginVertical: 8, width: 50, height: 50 }}
+                      />
+                    )}
+
                     <Text style={styles.cardText}>{item.item.name}</Text>
                   </TouchableOpacity>
                 );
