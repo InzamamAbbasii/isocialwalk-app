@@ -38,6 +38,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
 
   const [loading, setLoading] = useState(false);
 
+  const [myImage, setMyImage] = useState("");
+
   const [kcal, setKcal] = useState("0");
   const [distance, setDistance] = useState("0");
   const [time, setTime] = useState("0");
@@ -212,8 +214,22 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
     getHistoryOfWeek();
     getDailyRanking();
     getWeeklyRanking();
+    getLoggedInUserDetail();
   }, []);
 
+  //getting logged in user info
+  const getLoggedInUserDetail = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    let userInfo = await getUser_Info(user_id);
+    if (userInfo == false) {
+      //do nothing
+    } else {
+      let img = userInfo["profile image"]
+        ? BASE_URL_Image + "/" + userInfo["profile image"]
+        : "";
+      setMyImage(img);
+    }
+  };
   //gettting user daily goal info...
   const getUserDailyGoal = () => {
     return new Promise(async (resolve, reject) => {
@@ -417,6 +433,9 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                   distance_covered: element?.distance_covered,
                   time_taken: element?.["Time Taken"],
                   user_info: user_info,
+                  image: user_info?.["profile image"]
+                    ? BASE_URL_Image + "/" + user_info?.["profile image"]
+                    : "",
                 };
                 list.push(obj);
               } else {
@@ -482,7 +501,11 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                   friend_user_id: friend_id,
                   steps: element?.steps,
                   user_info: user_info,
+                  image: user_info?.["profile image"]
+                    ? BASE_URL_Image + "/" + user_info?.["profile image"]
+                    : "",
                 };
+
                 list.push(obj);
               } else {
                 //no ranking found for today
@@ -630,7 +653,19 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
               alignItems: "center",
             }}
           >
-            <Image source={require("../../assets/images/profile.png")} />
+            {myImage ? (
+              <Image
+                source={{ uri: myImage }}
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: 46,
+                  backgroundColor: "#ccc",
+                }}
+              />
+            ) : (
+              <Image source={require("../../assets/images/profile.png")} />
+            )}
           </View>
           <Text
             style={{
@@ -708,7 +743,19 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
               alignItems: "center",
             }}
           >
-            <Image source={require("../../assets/images/profile.png")} />
+            {myImage ? (
+              <Image
+                source={{ uri: myImage }}
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: 46,
+                  backgroundColor: "#ccc",
+                }}
+              />
+            ) : (
+              <Image source={require("../../assets/images/profile.png")} />
+            )}
           </View>
           <Text
             style={{
@@ -1116,15 +1163,30 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               backgroundColor="#eee"
                             >
                               {(fill) => (
-                                <Image
-                                  // source={item.item.avater}
-                                  source={require("../../assets/images/friend-profile.png")}
-                                  style={{
-                                    marginVertical: 8,
-                                    width: 44,
-                                    height: 44,
-                                  }}
-                                />
+                                <>
+                                  {item?.item?.image ? (
+                                    <Image
+                                      // source={item.item.avater}
+                                      source={{ uri: item.item.image }}
+                                      style={{
+                                        marginVertical: 8,
+                                        width: 44,
+                                        height: 44,
+                                        backgroundColor: "#ccc",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Image
+                                      // source={item.item.avater}
+                                      source={require("../../assets/images/friend-profile.png")}
+                                      style={{
+                                        marginVertical: 8,
+                                        width: 44,
+                                        height: 44,
+                                      }}
+                                    />
+                                  )}
+                                </>
                               )}
                             </AnimatedCircularProgress>
                           </View>
@@ -1470,15 +1532,30 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                               backgroundColor="#eee"
                             >
                               {(fill) => (
-                                <Image
-                                  // source={item.item.avater}
-                                  source={require("../../assets/images/friend-profile.png")}
-                                  style={{
-                                    marginVertical: 8,
-                                    width: 44,
-                                    height: 44,
-                                  }}
-                                />
+                                <>
+                                  {item?.item?.image ? (
+                                    <Image
+                                      // source={item.item.avater}
+                                      source={{ uri: item?.item?.image }}
+                                      style={{
+                                        marginVertical: 8,
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: 44,
+                                        backgroundColor: "#ccc",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Image
+                                      source={require("../../assets/images/friend-profile.png")}
+                                      style={{
+                                        marginVertical: 8,
+                                        width: 44,
+                                        height: 44,
+                                      }}
+                                    />
+                                  )}
+                                </>
                               )}
                             </AnimatedCircularProgress>
                           </View>

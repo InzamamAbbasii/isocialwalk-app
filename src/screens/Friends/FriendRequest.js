@@ -524,8 +524,10 @@ const FriendRequest = ({ navigation, route }) => {
       setLoading(true);
       let obj = {
         noti_type_id: route?.params?.selected_noti_id,
-        this_user_id: friend_id,
-        friend_user_id: user_id,
+        // this_user_id: friend_id,
+        // friend_user_id: user_id,
+        this_user_id: user_id,
+        friend_user_id: friend_id,
       };
       var requestOptions = {
         method: "POST",
