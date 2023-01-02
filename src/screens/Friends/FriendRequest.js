@@ -22,6 +22,7 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const FriendRequest = ({ navigation, route }) => {
   const bottomSheetRef = useRef();
@@ -60,6 +61,9 @@ const FriendRequest = ({ navigation, route }) => {
   const [profileImage, setProfileImage] = useState("");
   const [dailySteps, setDailySteps] = useState("0");
 
+  //logged in user
+  const [myImage, setMyImage] = useState("");
+
   //chart
   const [labels, setLabels] = useState([]);
   //my history
@@ -81,8 +85,105 @@ const FriendRequest = ({ navigation, route }) => {
       getFriendWeeklyRanking(route?.params?.id, todayDay);
 
       getUser_Info(route?.params?.id);
+
+      //getting common groups between logged in user and selected friend
+      getCommonGroups(route?.params?.id);
+
+      getLoggedInUserDetail();
     }
   }, [route?.params]);
+
+  //getting logged in user info
+  const getLoggedInUserDetail = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    let userInfo = await getUser_Info1(user_id);
+    if (userInfo == false) {
+      //do nothing
+    } else {
+      let img = userInfo["profile image"]
+        ? BASE_URL_Image + "/" + userInfo["profile image"]
+        : "";
+      setMyImage(img);
+    }
+  };
+
+  //getting specific  user info
+  const getUser_Info1 = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
+  };
+
+  //getting user common groups list
+  const getCommonGroups = async (id) => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify({
+        user_id: user_id,
+        friend_user_id: id,
+      }),
+      redirect: "follow",
+    };
+    fetch(api.get_common_groups, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        let list = [];
+        if (result == null) {
+          Snackbar.show({
+            text: "No common group found",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        } else {
+          result?.forEach((element) => {
+            let obj = {
+              id: element["Group Id"],
+              name: element["Group Name"],
+              privacy: element["Group privacy"],
+              image: element["Group Image"]
+                ? BASE_URL_Image + "/" + element["Group Image"]
+                : "",
+              admin: element["Created By User Id"],
+            };
+            list.push(obj);
+          });
+        }
+        setCommonGroupsList(list);
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
   const hanldeOnPerformaceTypeChange = (value) => {
     if (value == "Month") {
       //getting month history
@@ -631,10 +732,23 @@ const FriendRequest = ({ navigation, route }) => {
             // paddingLeft: 30,
           }}
         >
-          <Image
-            source={require("../../../assets/images/user1.png")}
-            style={{ width: 110, height: 110, resizeMode: "contain" }}
-          />
+          {profileImage ? (
+            <Image
+              source={{ uri: profileImage }}
+              style={{
+                width: 110,
+                height: 110,
+                borderRadius: 110,
+                backgroundColor: "#ccc",
+                resizeMode: "contain",
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../../../assets/images/friend-profile.png")}
+              style={{ width: 110, height: 110, resizeMode: "contain" }}
+            />
+          )}
           <Text
             style={{
               color: "#000000",
@@ -824,10 +938,23 @@ const FriendRequest = ({ navigation, route }) => {
                     }}
                   />
                 )}
-                <Image
-                  source={require("../../../assets/images/friend-profile.png")}
-                  style={{ width: 60, height: 60 }}
-                />
+
+                {myImage ? (
+                  <Image
+                    source={{ uri: myImage }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 60,
+                      backgroundColor: "#ccc",
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/friend-profile.png")}
+                    style={{ width: 60, height: 60 }}
+                  />
+                )}
               </View>
               <View
                 style={{
@@ -907,10 +1034,22 @@ const FriendRequest = ({ navigation, route }) => {
                   />
                 )}
 
-                <Image
-                  source={require("../../../assets/images/user1.png")}
-                  style={{ width: 60, height: 60 }}
-                />
+                {profileImage ? (
+                  <Image
+                    source={{ uri: profileImage }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      backgroundColor: "#ccc",
+                      borderRadius: 60,
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/friend-profile.png")}
+                    style={{ width: 60, height: 60 }}
+                  />
+                )}
               </View>
             </View>
           </View>
@@ -1014,7 +1153,7 @@ const FriendRequest = ({ navigation, route }) => {
               renderItem={(item, index) => {
                 return (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate("GroupDetail")}
+                    // onPress={() => navigation.navigate("GroupDetail")}
                     style={{
                       ...styles.cardView,
                       justifyContent: "center",
@@ -1022,10 +1161,23 @@ const FriendRequest = ({ navigation, route }) => {
                       width: "28.9%",
                     }}
                   >
-                    <Image
-                      source={item.item.avatar}
-                      style={{ marginVertical: 8, width: 50, height: 50 }}
-                    />
+                    {item?.item?.image ? (
+                      <Image
+                        source={{ uri: item?.item?.image }}
+                        style={{
+                          marginVertical: 8,
+                          width: 50,
+                          height: 50,
+                          borderRadius: 50,
+                          backgroundColor: "#ccc",
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={require("../../../assets/images/friend-profile.png")}
+                        style={{ marginVertical: 8, width: 50, height: 50 }}
+                      />
+                    )}
                     <Text style={styles.cardText}>{item.item.name}</Text>
                   </TouchableOpacity>
                 );

@@ -31,6 +31,7 @@ export const api = {
     BASE_URL + "/groups/getmembersinspecificgroup.php",
   get_group_detail: BASE_URL + "/groups/getsinglegroupinfo.php",
   get_user_joined_groups: BASE_URL + "/groups/specificusersofgroup.php",
+  get_common_groups: BASE_URL + "/groups/groupsincommon.php",
 
   //notifications
   getAllGroup_notifications: BASE_URL + "/notifications/getallgroup.php",

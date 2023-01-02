@@ -149,7 +149,12 @@ const Notification = ({ navigation }) => {
           });
         }
       })
-      .catch((error) => console.log("error", error))
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.Unable to get notifications.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
       .finally(() => setLoading(false));
   };
   const getSpecificUserDetail = async (id, type) => {
