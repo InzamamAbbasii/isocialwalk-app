@@ -310,20 +310,26 @@ const Groups = ({
 
       fetch(api.groupsuggestions, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
+        .then(async (result) => {
           let responseList = [];
           if (result?.length > 0) {
             // setSuggestedGroups(result);
-            result.forEach((element) => {
+
+            for (const element of result) {
+              let groupInfo = await getGroup_Info(element["Group ID"]);
               let obj = {
                 id: element["Group ID"],
                 group_name: element["Group Name"],
                 adminId: element?.admin,
                 // status: element?.status,
+                image:
+                  groupInfo !== false && groupInfo?.image_link
+                    ? BASE_URL_Image + "/" + groupInfo?.image_link
+                    : "",
                 status: false,
               };
               responseList.push(obj);
-            });
+            }
           }
           setSuggestedGroups(responseList);
         })
@@ -348,10 +354,25 @@ const Groups = ({
     fetch(api.search_group_by_specific_admin, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("groups list ::: ", result);
         if (result?.error == false || result?.error == "false") {
           let list = result?.Groups ? result?.Groups : [];
-          setGroupList(list);
+          // setGroupList(list);
+          let list1 = [];
+          for (const element of list) {
+            let obj = {
+              id: element?.id,
+              created_by_user_id: element?.created_by_user_id,
+              image: element?.image
+                ? BASE_URL_Image + "/" + element?.image
+                : "",
+              name: element?.name,
+              group_privacy: element?.group_privacy,
+              group_visibility: element?.group_visibility,
+              created_at: element?.created_at,
+            };
+            list1.push(obj);
+          }
+          setGroupList(list1);
         } else {
           setGroupList([]);
           Snackbar.show({
@@ -550,7 +571,9 @@ const Groups = ({
                   id: element?.id,
                   created_by_user_id: element?.created_by_user_id,
                   adminId: element?.created_by_user_id,
-                  image: element?.image,
+                  image: element?.image
+                    ? BASE_URL_Image + "/" + element?.image
+                    : "",
                   name: element?.name,
                   status: false,
                 };
@@ -733,10 +756,24 @@ const Groups = ({
                   renderItem={(item) => {
                     return (
                       <View style={{ ...styles.cardView, width: "28.9%" }}>
-                        <Image
-                          source={require("../../../assets/images/group-profile.png")}
-                          style={{ marginVertical: 8 }}
-                        />
+                        {item?.item?.image ? (
+                          <Image
+                            source={{ uri: item?.item?.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/group-profile.png")}
+                            style={{ marginVertical: 8 }}
+                          />
+                        )}
+
                         <Text style={styles.cardText} numberOfLines={2}>
                           {/* {item.item.group_name} */}
                           {item?.item?.name}
@@ -849,10 +886,23 @@ const Groups = ({
                           }
                           style={{ ...styles.cardView, width: 101 }}
                         >
-                          <Image
-                            source={require("../../../assets/images/group-profile.png")}
-                            style={{ marginVertical: 8 }}
-                          />
+                          {item?.item?.image ? (
+                            <Image
+                              source={{ uri: item?.item?.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/group-profile.png")}
+                              style={{ marginVertical: 8 }}
+                            />
+                          )}
 
                           <Text style={styles.cardText} numberOfLines={2}>
                             {item.item.group_name}
@@ -986,10 +1036,24 @@ const Groups = ({
                             width: "28.9%",
                           }}
                         >
-                          <Image
-                            source={require("../../../assets/images/group-profile.png")}
-                            style={{ marginVertical: 8 }}
-                          />
+                          {item?.item?.image ? (
+                            <Image
+                              source={{ uri: item?.item?.image }}
+                              style={{
+                                marginVertical: 8,
+                                height: 44,
+                                width: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/group-profile.png")}
+                              style={{ marginVertical: 8 }}
+                            />
+                          )}
+
                           <Text style={styles.cardText}>{item.item.name}</Text>
                         </TouchableOpacity>
                       );
@@ -1060,10 +1124,24 @@ const Groups = ({
                           width: "28.9%",
                         }}
                       >
-                        <Image
-                          source={require("../../../assets/images/group-profile.png")}
-                          style={{ marginVertical: 8 }}
-                        />
+                        {item?.item?.group_info?.image ? (
+                          <Image
+                            source={{ uri: item?.item?.group_info?.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/group-profile.png")}
+                            style={{ marginVertical: 8 }}
+                          />
+                        )}
+
                         <Text style={styles.cardText}>
                           {item?.item?.group_info?.name}
                         </Text>

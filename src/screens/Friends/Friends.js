@@ -24,6 +24,7 @@ import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const Friends = ({
   scale,
@@ -303,7 +304,43 @@ const Friends = ({
       getFriendsList();
     }, [])
   );
-
+  const getRequestStatus = async (friendId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!friendId) {
+          resolve(false);
+          return;
+        } else {
+          let user_id = await AsyncStorage.getItem("user_id");
+          var requestOptions = {
+            method: "POST",
+            body: JSON.stringify({
+              this_user_id: user_id,
+              friend_user_id: friendId,
+            }),
+            redirect: "follow",
+          };
+          fetch(api.get_friend_status, requestOptions)
+            .then((response) => response.json())
+            .then((result) => {
+              let response = result[0]?.status ? result[0]?.status : false;
+              if (response == false) {
+                resolve(false);
+              } else if (response == "requested") {
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+            })
+            .catch((error) => {
+              resolve(false);
+            });
+        }
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
   const getSuggestedFriendsList = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
@@ -320,22 +357,27 @@ const Friends = ({
 
       fetch(api.getfriendsuggestions, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
+        .then(async (result) => {
           let responseList = [];
           if (result?.length > 0) {
-            result.forEach((element) => {
+            for (const element of result) {
+              let isRequested = await getRequestStatus(element["Friend ID"]);
+              console.log("isRequested ::: ", isRequested);
               let obj = {
                 id: element["Friend ID"],
                 firstName: element["First Name"],
                 lastname: element["lastname"],
                 full_name: element["First Name"] + " " + element["lastname"],
                 // status: element?.status,
-                status: false,
-                image: element?.image,
+                // status: false,
+                status: isRequested,
+                image: element?.image
+                  ? BASE_URL_Image + "/" + element?.image
+                  : "",
                 active_watch: element["active watch"],
               };
               responseList.push(obj);
-            });
+            }
           }
           setSuggestedFriends(responseList);
         })
@@ -371,8 +413,24 @@ const Friends = ({
             duration: Snackbar.LENGTH_SHORT,
           });
         } else if (result[0]?.profile?.length > 0) {
-          setFriendsList(result[0]?.profile);
+          // setFriendsList(result[0]?.profile);
+          let list = result[0]?.profile ? result[0]?.profile : [];
+          for (const element of list) {
+            let obj = {
+              id: element?.id,
+              first_name: element?.first_name,
+              last_name: element?.last_name,
+              image: element?.profile_image
+                ? BASE_URL_Image + "/" + element?.profile_image
+                : "",
+              active_watch: element?.active_watch,
+              phoneno: element?.phoneno,
+              createdat: element?.createdat,
+            };
+            responseList.push(obj);
+          }
         }
+        setFriendsList(responseList);
       })
       .catch((error) => {
         Snackbar.show({
@@ -409,7 +467,24 @@ const Friends = ({
         .then((result) => {
           if (result[0]?.error == false || result[0]?.error == "false") {
             let responseList = result[0]?.friends ? result[0]?.friends : [];
-            setSearchResults(responseList);
+            // setSearchResults(responseList);
+
+            let list = [];
+            for (const element of responseList) {
+              let obj = {
+                id: element?.id,
+                first_name: element?.first_name,
+                last_name: element?.last_name,
+                image: element?.profile_image
+                  ? BASE_URL_Image + "/" + element?.profile_image
+                  : "",
+                active_watch: element?.active_watch,
+                phoneno: element?.phoneno,
+                createdat: element?.createdat,
+              };
+              list.push(obj);
+            }
+            setSearchResults(list);
           } else {
             setSearchResults([]);
             Snackbar.show({
@@ -556,10 +631,24 @@ const Friends = ({
                           width: "28.9%",
                         }}
                       >
-                        <Image
-                          source={require("../../../assets/images/friend-profile.png")}
-                          style={{ marginVertical: 8, width: 44, height: 44 }}
-                        />
+                        {item?.item?.image ? (
+                          <Image
+                            source={{ uri: item?.item?.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/friend-profile.png")}
+                            style={{ marginVertical: 8, width: 44, height: 44 }}
+                          />
+                        )}
+
                         <Text style={styles.friend_name}>
                           {item?.item?.first_name}
                         </Text>
@@ -660,10 +749,28 @@ const Friends = ({
                             height: 137,
                           }}
                         >
-                          <Image
-                            source={require("../../../assets/images/friend-profile.png")}
-                            style={{ marginVertical: 8, width: 44, height: 44 }}
-                          />
+                          {item?.item?.image ? (
+                            <Image
+                              source={{ uri: item?.item?.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                              }}
+                            />
+                          )}
+
                           <Text style={styles.friend_name} numberOfLines={1}>
                             {/* {item.item.friend_name} */}
                             {item?.item?.firstName}
@@ -782,14 +889,27 @@ const Friends = ({
                               style={{marginVertical: 8, width: 55, height: 55}}
                             /> */}
 
-                            <Image
-                              source={require("../../../assets/images/friend-profile.png")}
-                              style={{
-                                marginVertical: 8,
-                                width: 55,
-                                height: 55,
-                              }}
-                            />
+                            {item?.item?.image ? (
+                              <Image
+                                source={{ uri: item?.item?.image }}
+                                style={{
+                                  marginVertical: 8,
+                                  width: 55,
+                                  height: 55,
+                                  borderRadius: 55,
+                                  backgroundColor: "#ccc",
+                                }}
+                              />
+                            ) : (
+                              <Image
+                                source={require("../../../assets/images/friend-profile.png")}
+                                style={{
+                                  marginVertical: 8,
+                                  width: 55,
+                                  height: 55,
+                                }}
+                              />
+                            )}
                             <Text style={styles.cardText}>
                               {/* {item.item.name} */}
                               {item?.item?.first_name}

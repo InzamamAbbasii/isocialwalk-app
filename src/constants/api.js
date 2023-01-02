@@ -49,6 +49,7 @@ export const api = {
   unApproveRequest: BASE_URL + "/friends/updaterequestunapproved.php",
   search_friend: BASE_URL + "/friends/search.php",
   unFriend: BASE_URL + "/friends/unfriend.php",
+  get_friend_status: BASE_URL + "/friends/getstatus.php",
 
   //challenges
   create_challenge: BASE_URL + "/challenges/create.php",

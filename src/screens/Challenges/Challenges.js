@@ -21,6 +21,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 
@@ -175,11 +176,29 @@ const Challenges = ({
     fetch(api.get_admin_challenges, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        console.log("logged in user challenges", result);
         if (result?.error == false || result?.error == "false") {
           // console.log("add member list response  ::: ", result);
           let list = result?.Challenges ? result?.Challenges : [];
-          setChallengesList(list);
+          let list1 = [];
+          for (const element of list) {
+            let obj = {
+              id: element?.id,
+              created_by_user_id: element?.created_by_user_id,
+              image: element?.image
+                ? BASE_URL_Image + "/" + element?.image
+                : "",
+              name: element?.name,
+              challenge_type: element?.challenge_type,
+              challenge_visibility: element?.challenge_visibility,
+              challenge_privacy: element?.challenge_privacy,
+              start_date: element?.start_date,
+              end_date: element?.end_date,
+              challenge_metric_no: element?.challenge_metric_no,
+              challenge_metric_step_type: element?.challenge_metric_step_type,
+            };
+            list1.push(obj);
+          }
+          setChallengesList(list1);
           // let responseList = [];
           // for (const element of list) {
           //   let obj = {
@@ -233,10 +252,12 @@ const Challenges = ({
 
       fetch(api.getSuggestedChallenges, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
+        .then(async (result) => {
           let responseList = [];
           if (result?.length > 0) {
-            result?.forEach((element) => {
+            for (const element of result) {
+              let img = await get_Challenge_Image(element["challenge ID"]);
+
               let obj = {
                 id: element["challenge ID"],
                 name: element["challenge Name"],
@@ -245,10 +266,11 @@ const Challenges = ({
                 admin: element?.admin,
                 start_date: element?.start_date,
                 // status: element?.status,
+                image: img ? BASE_URL_Image + "/" + img : "",
                 status: false,
               };
               responseList.push(obj);
-            });
+            }
           }
 
           setSuggestedChallenges(responseList);
@@ -297,7 +319,9 @@ const Challenges = ({
                   challengeInfo: {
                     id: challengeInfo?.id,
                     created_by_user_id: challengeInfo?.created_by_user_id,
-                    image: challengeInfo?.image,
+                    image: challengeInfo?.image
+                      ? BASE_URL_Image + "/" + challengeInfo?.image
+                      : "",
                     name: challengeInfo?.name,
                     challenge_type: challengeInfo?.challenge_type,
                     challenge_visibility: challengeInfo?.challenge_visibility,
@@ -363,6 +387,30 @@ const Challenges = ({
     });
   };
 
+  const get_Challenge_Image = (id) => {
+    return new Promise((resolve, reject) => {
+      let data = {
+        challenge_id: id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.get_challenge_details, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          let image = result?.Challenge[0]?.image
+            ? result?.Challenge[0]?.image
+            : "";
+          resolve(image);
+        })
+        .catch((error) => {
+          resolve("");
+        });
+    });
+  };
+
   const handleonJoin = (id, adminId, item, item1) => {
     const newData = suggestedChallenges.map((item) => {
       if (id == item.id) {
@@ -378,8 +426,23 @@ const Challenges = ({
     });
     setSuggestedChallenges(newData);
   };
-
+  const updateSearchListStatus = (id) => {
+    const newData = searchResults.map((item) => {
+      if (id == item.id) {
+        return {
+          ...item,
+          status: !item.status,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setSearchResults(newData);
+  };
   const handleJoin_InSearchList = (id) => {
+    console.log("id pass to participate :: ", id);
     const newData = searchResults.map((item) => {
       if (id == item.id) {
         return {
@@ -449,7 +512,7 @@ const Challenges = ({
       .finally(() => setLoading(false));
   };
 
-  const handleJoinChallenge = async (id, adminId) => {
+  const handleJoinChallenge = async (id, type) => {
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let data = {
@@ -471,7 +534,11 @@ const Challenges = ({
           result[0]?.error == false ||
           result[0]?.error == "false"
         ) {
-          updateSuggestedChallengStatus(id);
+          if (type == "search") {
+            updateSearchListStatus(id);
+          } else {
+            updateSuggestedChallengStatus(id);
+          }
           Snackbar.show({
             text: "Challenge Joined successfully!",
             duration: Snackbar.LENGTH_SHORT,
@@ -531,7 +598,9 @@ const Challenges = ({
                 let obj = {
                   id: element?.id,
                   created_by_user_id: element?.created_by_user_id,
-                  image: element?.image,
+                  image: element?.image
+                    ? BASE_URL_Image + "/" + element?.image
+                    : "",
                   name: element?.name,
                   status: false,
                 };
@@ -712,10 +781,29 @@ const Challenges = ({
                         }
                         style={{ ...styles.cardView, width: "28.7%" }}
                       >
-                        <Image
-                          source={require("../../../assets/images/group-profile.png")}
-                          style={{ marginVertical: 8 }}
-                        />
+                        {item?.item?.image ? (
+                          <Image
+                            source={{ uri: item?.item?.image }}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require("../../../assets/images/Challenge.png")}
+                            style={{
+                              marginVertical: 8,
+                              width: 44,
+                              height: 44,
+                              borderRadius: 44,
+                              backgroundColor: "#ccc",
+                            }}
+                          />
+                        )}
                         <Text style={styles.cardText}>{item?.item?.name}</Text>
                         <View
                           style={{
@@ -723,7 +811,7 @@ const Challenges = ({
                             flex: 1,
                           }}
                         >
-                          <TouchableOpacity
+                          {/* <TouchableOpacity
                             onPress={() =>
                               handleJoin_InSearchList(item?.item?.id)
                             }
@@ -738,7 +826,41 @@ const Challenges = ({
                             >
                               Participate
                             </Text>
-                          </TouchableOpacity>
+                          </TouchableOpacity> */}
+
+                          {item?.item?.status ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                // handleLeaveChallenge(item.item.id)
+                                console.log(
+                                  "handleJoin_InSearchList",
+                                  item.item.id,
+                                  item?.item?.created_by_user_id
+                                );
+                              }}
+                              style={{
+                                ...styles.cardButton,
+                                backgroundColor: "#d8d8d8",
+                              }}
+                            >
+                              <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                                Participant
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <TouchableOpacity
+                              onPress={() => {
+                                handleJoinChallenge(item.item.id, "search");
+
+                                // handleJoin_InSearchList(item?.item?.id);
+                              }}
+                              style={styles.cardButton}
+                            >
+                              <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                                Participate
+                              </Text>
+                            </TouchableOpacity>
+                          )}
                         </View>
                       </TouchableOpacity>
                     );
@@ -817,10 +939,29 @@ const Challenges = ({
                             width: 101,
                           }}
                         >
-                          <Image
-                            source={require("../../../assets/images/group-profile.png")}
-                            style={{ marginVertical: 8 }}
-                          />
+                          {item?.item?.image ? (
+                            <Image
+                              source={{ uri: item?.item?.image }}
+                              style={{
+                                marginVertical: 8,
+                                height: 44,
+                                width: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/Challenge.png")}
+                              style={{
+                                marginVertical: 8,
+                                height: 44,
+                                width: 44,
+                                borderRadius: 44,
+                              }}
+                            />
+                          )}
+
                           <Text style={styles.cardText}>
                             {item?.item?.name}
                           </Text>
@@ -939,14 +1080,28 @@ const Challenges = ({
                               width: "28.9%",
                             }}
                           >
-                            <Image
-                              source={require("../../../assets/images/Challenge.png")}
-                              style={{
-                                marginVertical: 8,
-                                height: 44,
-                                width: 44,
-                              }}
-                            />
+                            {item?.item?.image ? (
+                              <Image
+                                source={{ uri: item?.item?.image }}
+                                style={{
+                                  marginVertical: 8,
+                                  height: 44,
+                                  width: 44,
+                                  borderRadius: 44,
+                                  backgroundColor: "#ccc",
+                                }}
+                              />
+                            ) : (
+                              <Image
+                                source={require("../../../assets/images/Challenge.png")}
+                                style={{
+                                  marginVertical: 8,
+                                  height: 44,
+                                  width: 44,
+                                }}
+                              />
+                            )}
+
                             <Text style={styles.cardText}>
                               {item.item.name}
                             </Text>
@@ -1029,14 +1184,28 @@ const Challenges = ({
                             width: "28.9%",
                           }}
                         >
-                          <Image
-                            source={require("../../../assets/images/Challenge.png")}
-                            style={{
-                              marginVertical: 8,
-                              height: 44,
-                              width: 44,
-                            }}
-                          />
+                          {item?.item?.challengeInfo?.image ? (
+                            <Image
+                              source={{ uri: item?.item?.challengeInfo?.image }}
+                              style={{
+                                marginVertical: 8,
+                                height: 44,
+                                width: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/Challenge.png")}
+                              style={{
+                                marginVertical: 8,
+                                height: 44,
+                                width: 44,
+                              }}
+                            />
+                          )}
+
                           <Text style={styles.cardText}>
                             {item.item?.challengeInfo?.name}
                           </Text>
