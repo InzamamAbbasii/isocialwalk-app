@@ -304,6 +304,7 @@ const Friends = ({
       getFriendsList();
     }, [])
   );
+
   const getRequestStatus = async (friendId) => {
     return new Promise(async (resolve, reject) => {
       try {

@@ -33,6 +33,7 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import { api } from "../../constants/api";
 import moment from "moment";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const FriendProfile = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -44,6 +45,9 @@ const FriendProfile = ({ navigation, route }) => {
   const [profileImage, setProfileImage] = useState("");
 
   const [dailySteps, setDailySteps] = useState("0");
+
+  //logged in user
+  const [myImage, setMyImage] = useState("");
 
   //chart
   const [labels, setLabels] = useState([]);
@@ -88,12 +92,59 @@ const FriendProfile = ({ navigation, route }) => {
 
       getUser_Info(route?.params?.user?.id);
 
+      getLoggedInUserDetail();
+
       // setFullName(route?.params?.user?.full_name);
       // setFirstName(route?.params?.user?.firstName);
       // setLastName(route?.params?.user?.lastname);
       // setProfileImage(route?.params?.user?.image);
     }
   }, [route?.params]);
+
+  //getting logged in user info
+  const getLoggedInUserDetail = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    let userInfo = await getUser_Info1(user_id);
+    if (userInfo == false) {
+      //do nothing
+    } else {
+      let img = userInfo["profile image"]
+        ? BASE_URL_Image + "/" + userInfo["profile image"]
+        : "";
+      setMyImage(img);
+    }
+  };
+
+  //getting specific  user info
+  const getUser_Info1 = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
+  };
   const hanldeOnPerformaceTypeChange = (value) => {
     if (value == "Month") {
       //getting month history
@@ -131,7 +182,10 @@ const FriendProfile = ({ navigation, route }) => {
             setFullName(fullName);
             setFirstName(result[0]?.first_name);
             setLastName(result[0]?.last_name);
-            setProfileImage(result[0]["profile image"]);
+            let img = result[0]["profile image"]
+              ? BASE_URL_Image + "/" + result[0]["profile image"]
+              : "";
+            setProfileImage(img);
           } else {
             //user not found
             Snackbar.show({
@@ -484,11 +538,10 @@ const FriendProfile = ({ navigation, route }) => {
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let obj = {
-      // from_id: user_id,
-      // to_id: userId,
-
-      from_id: userId,
-      to_id: user_id,
+      // from_id: userId,
+      // to_id: user_id,
+      this_user_id: user_id, ///logged in user id
+      friend_user_id: userId, //selected friend id
     };
     console.log("data pass to unfriend ::", obj);
 
@@ -498,10 +551,22 @@ const FriendProfile = ({ navigation, route }) => {
       redirect: "follow",
     };
     fetch(api.unFriend, requestOptions)
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
         console.log("unfriend result ::", result);
-
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Unfriend Successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          navigation?.goBack();
+        } else {
+          console.log("message in else  case :;", result[0]?.message);
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
         // Snackbar.show({
         //   text: "Request Canceled successfully",
         //   duration: Snackbar.LENGTH_SHORT,
@@ -764,10 +829,24 @@ const FriendProfile = ({ navigation, route }) => {
             paddingLeft: 30,
           }}
         >
-          <Image
-            source={require("../../../assets/images/friend-profile.png")}
-            style={{ width: 110, height: 110, resizeMode: "contain" }}
-          />
+          {profileImage ? (
+            <Image
+              source={{ uri: profileImage }}
+              style={{
+                width: 110,
+                height: 110,
+                borderRadius: 110,
+                backgroundColor: "#000",
+                resizeMode: "contain",
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../../../assets/images/friend-profile.png")}
+              style={{ width: 110, height: 110, resizeMode: "contain" }}
+            />
+          )}
+
           <Text
             style={{
               color: "#000000",
@@ -897,10 +976,23 @@ const FriendProfile = ({ navigation, route }) => {
                     }}
                   />
                 )}
-                <Image
-                  source={require("../../../assets/images/friend-profile.png")}
-                  style={{ width: 60, height: 60 }}
-                />
+                {myImage ? (
+                  <Image
+                    source={{ uri: myImage }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 60,
+                      backgroundColor: 60,
+                      backgroundColor: "#ccc",
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/friend-profile.png")}
+                    style={{ width: 60, height: 60 }}
+                  />
+                )}
               </View>
               <View
                 style={{
@@ -980,10 +1072,22 @@ const FriendProfile = ({ navigation, route }) => {
                   />
                 )}
 
-                <Image
-                  source={require("../../../assets/images/user1.png")}
-                  style={{ width: 60, height: 60 }}
-                />
+                {profileImage ? (
+                  <Image
+                    source={{ uri: profileImage }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 60,
+                      backgroundColor: "#ccc",
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/friend-profile.png")}
+                    style={{ width: 60, height: 60 }}
+                  />
+                )}
               </View>
             </View>
           </View>

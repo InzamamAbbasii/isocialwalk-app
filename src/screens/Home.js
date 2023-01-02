@@ -1172,6 +1172,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                         marginVertical: 8,
                                         width: 44,
                                         height: 44,
+                                        borderRadius: 44,
                                         backgroundColor: "#ccc",
                                       }}
                                     />
