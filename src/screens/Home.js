@@ -22,6 +22,8 @@ import Loader from "../Reuseable Components/Loader";
 import { api } from "../constants/api";
 import Snackbar from "react-native-snackbar";
 
+import { BASE_URL_Image } from "../constants/Base_URL_Image";
+
 import moment from "moment";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;

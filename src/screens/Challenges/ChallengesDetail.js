@@ -20,6 +20,7 @@ import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { BASE_URL_Image } from "../../constants/Base_URL_Image";
+import { set } from "date-fns";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 const SCREEN_HEIGHT = Dimensions.get("screen").height;
@@ -28,6 +29,11 @@ const ChallengesDetail = ({ navigation, route }) => {
   const bottomSheetRef = useRef();
   const bottomSheetAddMemberRef = useRef();
   const bottomSheetRemoveMemberRef = useRef();
+  //remove group from challenge
+  const bottomSheetRemoveGroupRef = useRef();
+  // add group bottom sheet ref =
+  const bottomSheetAddGroupRef = useRef();
+
   const [participantList, setParticipantList] = useState([
     // {
     //   id: 0,
@@ -222,17 +228,17 @@ const ChallengesDetail = ({ navigation, route }) => {
             } else {
               //get add members list
               getAddMembersList(id);
+
+              //getting challenge participants ranking
+              getIndividualChallengeRanking(
+                detail?.id,
+                detail?.challenge_metric_no
+              );
             }
 
             setEndDate(detail?.end_date);
             setMetric_no(detail?.challenge_metric_no);
             setType(detail?.challenge_metric_step_type);
-
-            //getting challenge participants ranking
-            getIndividualChallengeRanking(
-              detail?.id,
-              detail?.challenge_metric_no
-            );
           }
         } else {
           Snackbar.show({
@@ -350,6 +356,7 @@ const ChallengesDetail = ({ navigation, route }) => {
                 challenge_id: element?.challenge_id,
                 group_id: element?.group_id,
                 status: element?.status,
+                selected: false,
                 group_info: {
                   id: groupInfo?.id,
                   image: groupInfo?.image_link
@@ -524,6 +531,65 @@ const ChallengesDetail = ({ navigation, route }) => {
       .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
   };
+
+  // //getting those groups list that are not added yet in this challenge
+  // const getAddGroupsList = async (challengeId) => {
+  //   let user_id = await AsyncStorage.getItem("user_id");
+  //   setLoading(true);
+  //   let data = {
+  //     this_user_id: user_id,
+  //     challenge_id: challengeId,
+  //   };
+  //   console.log("add memmber data :: ", data);
+  //   var requestOptions = {
+  //     method: "POST",
+  //     body: JSON.stringify(data),
+  //     redirect: "follow",
+  //   };
+
+  //   fetch(api.show_challenge_participants, requestOptions)
+  //     .then((response) => response.json())
+  //     .then(async (result) => {
+  //       let response = result ? result : [];
+  //       let last_item = response?.pop();
+  //       console.log("last item  ::", last_item);
+  //       let list = last_item["array of participants"]
+  //         ? last_item["array of participants"]
+  //         : [];
+  //       let responseList = [];
+  //       for (const element of list) {
+  //         let user_info = await getUser_Info(element);
+  //         if (user_info == false) {
+  //           console.log("user detail not found ....");
+  //         } else {
+  //           let obj = {
+  //             // id: 0,
+  //             steps: 0,
+  //             percentage: 0,
+  //             id: element, //userid
+  //             name: user_info?.first_name,
+  //             profile: user_info["profile image"]
+  //               ? BASE_URL_Image + "/" + user_info["profile image"]
+  //               : "",
+  //             status: false,
+  //             user_info: {
+  //               id: element,
+  //               first_name: user_info?.first_name,
+  //               last_name: user_info?.last_name,
+  //               image: user_info["profile image"]
+  //                 ? BASE_URL_Image + "/" + user_info["profile image"]
+  //                 : "",
+  //             },
+  //           };
+
+  //           responseList.push(obj);
+  //         }
+  //       }
+  //       setAddMembersList(responseList);
+  //     })
+  //     .catch((error) => console.log("error", error))
+  //     .finally(() => setLoading(false));
+  // };
 
   //add selected to members to this challenge
   const handleAddMemberToChallenge = () => {
@@ -852,6 +918,98 @@ const ChallengesDetail = ({ navigation, route }) => {
     }
   };
 
+  //handle selecet groups to remove from challenge
+  const handleSelectGroup_ToRemove = (id) => {
+    console.log("group id  pass to remove group   ::: ", id);
+    const newData = challenge_GroupsList.map((item) => {
+      if (id === item?.group_info?.id) {
+        return {
+          ...item,
+          selected: !item.selected,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setChallenge_GroupsList(newData);
+  };
+
+  //handle remove group from challenge
+  const handleRemoveGroup_FromChallenge = () => {
+    console.log("handle remove group from challenge");
+
+    let selectedGroupsList = challenge_GroupsList
+      ?.filter((item) => item?.selected == true)
+      ?.map((element) => element?.group_info?.id);
+
+    console.log("selectedGroupsList  :::: ", selectedGroupsList);
+
+    let count = 0;
+    if (!challengeId) {
+      Snackbar.show({
+        text: "Challenge Id not found.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    } else if (selectedGroupsList?.length > 0) {
+      bottomSheetRemoveGroupRef?.current?.close();
+
+      setLoading(true);
+      for (const element of selectedGroupsList) {
+        count++;
+        let data = {
+          group_id: element,
+          challenge_id: challengeId,
+        };
+        console.log("data pass  to add members in challgee api  : ", data);
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+
+        fetch(api.remove_group_from_challenge, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("remove group from challenge response   :: ", result);
+            if (result?.error == false || result?.error == "false") {
+              const filter = challenge_GroupsList?.filter(
+                (item) => item?.group_info?.id != element
+              );
+              setChallenge_GroupsList(filter);
+            }
+            // Snackbar.show({
+            //   text: result[0]?.message,
+            //   duration: Snackbar.LENGTH_SHORT,
+            // });
+          })
+          .catch((error) => {
+            console.log("error in remove group  ::::  ", error);
+            Snackbar.show({
+              text: "Something went wrong.Members are not removed to challenge.",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          })
+          .finally(() => {
+            if (count >= selectedGroupsList?.length) {
+              Snackbar.show({
+                text: "Groups are successfully removed.",
+                duration: Snackbar.LENGTH_SHORT,
+              });
+              setLoading(false);
+            }
+          });
+      }
+    } else {
+      setLoading(false);
+      Snackbar.show({
+        text: "Please Select Groups to remove.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -932,7 +1090,7 @@ const ChallengesDetail = ({ navigation, route }) => {
               marginTop: 20,
             }}
           >
-            {logged_in_user_id == adminId && (
+            {logged_in_user_id == adminId && challenge_type != "group" && (
               <TouchableOpacity
                 style={styles.btn}
                 onPress={() => bottomSheetAddMemberRef?.current?.open()}
@@ -1029,16 +1187,41 @@ const ChallengesDetail = ({ navigation, route }) => {
         {challenge_type == "group" ? (
           <View style={{ marginTop: 10 }}>
             {/* ____________________________________Groups _____________________________________________ */}
-            <Text
+            <View
               style={{
-                color: "#000000",
-                fontSize: 16,
-                fontFamily: "Rubik-Regular",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
                 paddingHorizontal: 20,
               }}
             >
-              Groups/Results
-            </Text>
+              <Text
+                style={{
+                  color: "#000000",
+                  fontSize: 16,
+                  fontFamily: "Rubik-Regular",
+                  paddingHorizontal: 20,
+                }}
+              >
+                Groups/Results
+              </Text>
+
+              {logged_in_user_id == adminId && (
+                <TouchableOpacity
+                  onPress={() => bottomSheetRemoveGroupRef?.current?.open()}
+                >
+                  <Text
+                    style={{
+                      color: "#6f92c9",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Remove Groups
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <View
               style={{
@@ -1114,6 +1297,159 @@ const ChallengesDetail = ({ navigation, route }) => {
                 }}
               />
             </View>
+            {/* ------------------------------------------Remove Group Bottom Sheet-------------------------------------------- */}
+            <RBSheet
+              ref={bottomSheetRemoveGroupRef}
+              openDuration={250}
+              closeOnDragDown={true}
+              closeOnPressMask={false}
+              dragFromTopOnly
+              animationType={"slide"}
+              customStyles={{
+                container: {
+                  padding: 5,
+                  height: 460,
+                  backgroundColor: "#ffffff",
+                  borderRadius: 30,
+                },
+                draggableIcon: {
+                  backgroundColor: "#003e6b",
+                },
+              }}
+            >
+              <View
+                style={{
+                  alignItems: "center",
+                  flex: 1,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#003e6b",
+                    fontSize: 18,
+                    textAlign: "center",
+                    fontFamily: "Rubik-Regular",
+                    marginTop: 5,
+                  }}
+                >
+                  Remove Group
+                </Text>
+                <View
+                  style={{
+                    marginVertical: 15,
+                    paddingHorizontal: 20,
+                    flex: 1,
+                    width: "100%",
+                  }}
+                >
+                  <FlatList
+                    data={challenge_GroupsList}
+                    numColumns={3}
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListEmptyComponent={() => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            height: SCREEN_HEIGHT * 0.4,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#000000",
+                              fontSize: 16,
+                            }}
+                          >
+                            No Result Found
+                          </Text>
+                        </View>
+                      );
+                    }}
+                    renderItem={(item) => {
+                      return (
+                        <TouchableOpacity
+                          onPress={() =>
+                            handleSelectGroup_ToRemove(
+                              item.item?.group_info?.id
+                            )
+                          }
+                          style={{
+                            ...styles.bootSheetCardView,
+                            width: "28.9%",
+                            marginVertical: 5,
+                            marginHorizontal: 7,
+                            borderWidth: item.item.selected ? 1 : 0,
+                            borderColor: item.item.selected
+                              ? "#38ACFF"
+                              : "transparent",
+                          }}
+                        >
+                          {item?.item?.group_info?.image != "" ? (
+                            <Image
+                              source={{ uri: item.item?.group_info.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                              }}
+                            />
+                          )}
+
+                          <Text
+                            numberOfLines={2}
+                            style={{
+                              color: "#040103",
+                              fontFamily: "Rubik-Regular",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item?.item?.group_info?.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleRemoveGroup_FromChallenge()}
+                  style={{
+                    backgroundColor: "#38ACFF",
+                    marginBottom: 10,
+                    height: 50,
+                    width: "92%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#FFF",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Remove From Challenge
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </RBSheet>
+
+            {/* -------------------------------------------------------------- */}
           </View>
         ) : (
           <View style={{ marginTop: 10 }}>

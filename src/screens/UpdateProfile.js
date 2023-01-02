@@ -24,11 +24,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { ScrollView } from "react-native-gesture-handler";
 
+import { BASE_URL_Image } from "../constants/Base_URL_Image";
+import { useDispatch, useSelector } from "react-redux";
+
 import RNFetchBlob from "rn-fetch-blob";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
-
-import axios from "react-native-axios";
 
 const UpdateProfile = ({
   navigation,
@@ -43,7 +44,9 @@ const UpdateProfile = ({
   const [profileImage, setProfileImage] = useState(null);
   const [fileName, setFileName] = useState("");
   const [mimeType, setMimeType] = useState("");
+  const [isImageChange, setIsImageChange] = useState(false);
 
+  const [userId, setUserId] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -96,6 +99,15 @@ const UpdateProfile = ({
           data: RNFetchBlob.wrap(res.assets[0].uri),
         };
         setImage_to_upload(obj);
+        setIsImageChange(true);
+        //upload profile image
+        // id, profileImage,fileName,mimeType
+        updateProfile(
+          userId,
+          res.assets[0].uri,
+          res.assets[0].fileName,
+          res.assets[0].type
+        );
       })
       .catch((error) => console.log(error));
   };
@@ -130,6 +142,15 @@ const UpdateProfile = ({
           data: RNFetchBlob.wrap(res.assets[0].uri),
         };
         setImage_to_upload(obj);
+
+        //upload profile image
+        // id, profileImage,fileName,mimeType
+        updateProfile(
+          userId,
+          res.assets[0].uri,
+          res.assets[0].fileName,
+          res.assets[0].type
+        );
       })
       .catch((error) => console.log(error));
   };
@@ -154,6 +175,12 @@ const UpdateProfile = ({
           setFirstName(result[0]?.first_name);
           setLastName(result[0]?.last_name);
           setPhoneNo(result[0]?.phoneno);
+
+          let profile = result[0]["profile image"]
+            ? BASE_URL_Image + "/" + result[0]["profile image"]
+            : "";
+          setProfileImage(profile);
+          setIsImageChange(true);
         } else {
           Snackbar.show({
             text: result?.Message,
@@ -171,6 +198,7 @@ const UpdateProfile = ({
   };
   const getUser = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
+    setUserId(user_id);
     getSpecificUserDetail(user_id);
     // let user_info = await AsyncStorage.getItem("user");
     // console.log("logged in user info ::: ", user_info);
@@ -187,7 +215,7 @@ const UpdateProfile = ({
     setLoading(false);
   }, []);
 
-  const updateProfile = async (id) => {
+  const updateProfile = async (id, profileImage, fileName, mimeType) => {
     if (profileImage) {
       console.log("user id passed ::: ", id);
       console.log("profile image ::: ", profileImage);
@@ -215,6 +243,10 @@ const UpdateProfile = ({
         .then((response) => {
           let myresponse = JSON.parse(response.data);
           console.log("updaing profile response _____", myresponse);
+          Snackbar.show({
+            text: "Image uploaded successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
         })
         .catch((error) => {
           console.log("error in updating profile image ::: ", error);
@@ -300,13 +332,15 @@ const UpdateProfile = ({
       fetch(api.updateprofile, requestOptions)
         .then((response) => response.json())
         .then((result) => {
+          console.log("profile update response ::", result);
+
           if (result[0]) {
             if (result[0]?.error == false) {
               Snackbar.show({
                 text: "Profile Updated Successfully",
                 duration: Snackbar.LENGTH_SHORT,
               });
-              updateProfile(user_id);
+              // updateProfile(user_id);
               updateDeviceToken(user_id);
             } else {
               Snackbar.show({
@@ -365,7 +399,7 @@ const UpdateProfile = ({
 
           <View style={{ marginVertical: 10, alignItems: "center" }}>
             <View style={{}}>
-              {profileImage == null ? (
+              {profileImage == null || profileImage == "" ? (
                 <Image
                   source={require("../../assets/images/friend-profile.png")}
                   style={{
@@ -382,6 +416,7 @@ const UpdateProfile = ({
                     height: 123,
                     width: 123,
                     borderRadius: 123,
+                    backgroundColor: "#ccc",
                   }}
                 />
               )}
