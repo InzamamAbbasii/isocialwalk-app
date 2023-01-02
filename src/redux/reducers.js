@@ -2,26 +2,34 @@ import {
   SET_LOGIN_USER_DETAIL,
   SET_USER_FOR_CHAT,
   SET_LOGIN_USER_DATA,
-} from './actions';
+  SET_LOGIN_USER_NAME,
+  SET_LOGIN_USER_PROFILE,
+} from "./actions";
 
 const initialState = {
   //
-  userDetail: '',
+  userDetail: "",
+  username: "",
+  userProfile: "",
   loggedInUser: null,
   selectedChatUser: {
-    chatroomId: '',
-    name: '',
+    chatroomId: "",
+    name: "",
   },
 };
 
 function userReducer(state = initialState, action) {
   switch (action.type) {
     case SET_LOGIN_USER_DETAIL:
-      return {...state, userDetail: action.payload};
+      return { ...state, userDetail: action.payload };
     case SET_USER_FOR_CHAT:
-      return {...state, selectedChatUser: action.payload};
+      return { ...state, selectedChatUser: action.payload };
     case SET_LOGIN_USER_DATA:
-      return {...state, loggedInUser: action.payload};
+      return { ...state, loggedInUser: action.payload };
+    case SET_LOGIN_USER_NAME:
+      return { ...state, username: action.payload };
+    case SET_LOGIN_USER_PROFILE:
+      return { ...state, userProfile: action.payload };
     default:
       return state;
   }

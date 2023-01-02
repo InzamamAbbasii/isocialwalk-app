@@ -27,6 +27,7 @@ import {
   useNavigationState,
 } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL_Image } from "../constants/Base_URL_Image";
 
 const DrawerTest = ({ navigation, route }) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -41,6 +42,7 @@ const DrawerTest = ({ navigation, route }) => {
   const challengesIcon = require("../../assets/images/trophy-light.png");
 
   const [firstName, setFirstName] = useState("");
+  const [profile, setProfile] = useState("");
 
   const [menuList, setMenuList] = useState([
     {
@@ -108,20 +110,29 @@ const DrawerTest = ({ navigation, route }) => {
     if (user_info != null) {
       let parse = JSON.parse(user_info);
       setFirstName(parse?.first_name);
+      let image = parse?.profile_image
+        ? BASE_URL_Image + "/" + parse?.profile_image
+        : "";
+      setProfile(image);
+
       // setLastName(parse?.last_name);
       //   setPhoneNo(parse?.first_name);
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getUser();
-    }, [])
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     getUser();
+  //   }, [])
+  // );
+
   useEffect(() => {
     setTimeout(() => {
       StatusBar.setBackgroundColor(showMenu ? "#38ACFF" : "#fff");
     }, 200);
+    console.log("active");
+    console.log({ profile });
+    getUser();
   }, [showMenu]);
 
   return (
@@ -159,16 +170,30 @@ const DrawerTest = ({ navigation, route }) => {
             // marginTop: ,
           }}
         >
-          <Image
-            source={require("../../assets/images/friend-profile.png")}
-            style={{
-              width: 55,
-              height: 55,
-              borderRadius: 55,
-              resizeMode: "contain",
-              marginLeft: 8,
-            }}
-          />
+          {profile != "" ? (
+            <Image
+              source={{ uri: profile }}
+              style={{
+                width: 55,
+                height: 55,
+                borderRadius: 55,
+                resizeMode: "contain",
+                marginLeft: 8,
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../../assets/images/friend-profile.png")}
+              style={{
+                width: 55,
+                height: 55,
+                borderRadius: 55,
+                resizeMode: "contain",
+                marginLeft: 8,
+              }}
+            />
+          )}
+
           <Text style={{ color: "#002138", marginLeft: 10, fontSize: 16 }}>
             {/* Jonathan */}
             {firstName}
