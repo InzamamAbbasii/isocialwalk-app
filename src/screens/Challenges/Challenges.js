@@ -22,6 +22,7 @@ import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import { BASE_URL_Image } from "../../constants/Base_URL_Image";
+import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 
@@ -512,7 +513,7 @@ const Challenges = ({
       .finally(() => setLoading(false));
   };
 
-  const handleJoinChallenge = async (id, type) => {
+  const handleJoinChallenge = async (id, type, admin, item) => {
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let data = {
@@ -539,6 +540,9 @@ const Challenges = ({
           } else {
             updateSuggestedChallengStatus(id);
           }
+          //sending push notification to admin of this challenge
+          sendPushNotification(admin, item?.name);
+
           Snackbar.show({
             text: "Challenge Joined successfully!",
             duration: Snackbar.LENGTH_SHORT,
@@ -563,6 +567,45 @@ const Challenges = ({
         navigation.openDrawer();
       })
       .catch((error) => console.log(error));
+  };
+
+  //sending push notification to admin of challenge --> when new user join challenge
+
+  const sendPushNotification = async (id, challange_name) => {
+    let user_info = await AsyncStorage.getItem("user");
+    let name = "";
+    if (user_info != null) {
+      let parse = JSON.parse(user_info);
+      name = parse?.first_name;
+    }
+
+    let user = await firebaseNotificationApi.getFirebaseUser(id);
+    if (!user) {
+      user = await firebaseNotificationApi.getFirebaseUser(id);
+    }
+    console.log("user find____", user);
+
+    if (user) {
+      let token = user?.fcmToken;
+
+      let title = challange_name
+        ? challange_name + " Challenge"
+        : "Challenge Request";
+      let description = `${name} wants to join your challenge...`;
+      let data = {
+        id: id,
+        // user_id: id,
+        // to_id: user?.ui
+        type: "friend_request",
+      };
+      await firebaseNotificationApi
+        .sendPushNotification(token, title, description, data)
+        .then((res) => console.log("notification response.....", res))
+        .catch((err) => console.log(err));
+      console.log("notification sent.......");
+    } else {
+      console.log("user not found");
+    }
   };
 
   useEffect(() => {
@@ -850,8 +893,12 @@ const Challenges = ({
                           ) : (
                             <TouchableOpacity
                               onPress={() => {
-                                handleJoinChallenge(item.item.id, "search");
-
+                                handleJoinChallenge(
+                                  item?.item?.id,
+                                  "search",
+                                  item?.item?.created_by_user_id,
+                                  item?.item
+                                );
                                 // handleJoin_InSearchList(item?.item?.id);
                               }}
                               style={styles.cardButton}
@@ -989,12 +1036,14 @@ const Challenges = ({
                               </TouchableOpacity>
                             ) : (
                               <TouchableOpacity
-                                onPress={() =>
+                                onPress={() => {
                                   handleJoinChallenge(
                                     item.item.id,
-                                    item?.item?.admin
-                                  )
-                                }
+                                    "",
+                                    item?.item?.admin,
+                                    item?.item
+                                  );
+                                }}
                                 style={styles.cardButton}
                               >
                                 <Text

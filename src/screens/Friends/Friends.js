@@ -239,7 +239,6 @@ const Friends = ({
   //send push notification to user
   const sendPushNotification = async (id) => {
     console.log("id passed to sendPushNotification", id);
-
     let user = await firebaseNotificationApi.getFirebaseUser(id);
     if (!user) {
       user = await firebaseNotificationApi.getFirebaseUser(id);
@@ -247,10 +246,17 @@ const Friends = ({
     console.log("user find____", user);
 
     if (user) {
+      //getting logged in user profile
+      let user_info = await AsyncStorage.getItem("user");
+      let name = "";
+      if (user_info != null) {
+        let parse = JSON.parse(user_info);
+        name = parse?.first_name;
+      }
+
       let token = user?.fcmToken;
-      console.log("token_____", token);
       let title = "Friend Request";
-      let description = `${firstName} wants to be your friend...`;
+      let description = `${name} wants to be your friend...`;
       let data = {
         id: id,
         // user_id: id,
