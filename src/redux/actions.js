@@ -1,6 +1,7 @@
 export const SET_LOGIN_USER_DETAIL = "SET_LOGIN_USER_DETAIL";
 export const SET_LOGIN_USER_DATA = "SET_LOGIN_USER_DATA";
 export const SET_USER_FOR_CHAT = "SET_USER_FOR_CHAT";
+export const SET_GROUP_FOR_CHAT = "SET_GROUP_FOR_CHAT";
 export const SET_LOGIN_USER_NAME = "SET_LOGIN_USER_NAME";
 export const SET_LOGIN_USER_PROFILE = "SET_LOGIN_USER_PROFILE";
 
@@ -13,6 +14,12 @@ export const setLoginUserDetail = (data) => (dispatch) => {
 export const setUserForChat = (data) => (dispatch) => {
   dispatch({
     type: SET_USER_FOR_CHAT,
+    payload: data,
+  });
+};
+export const setGroupForChat = (data) => (dispatch) => {
+  dispatch({
+    type: SET_GROUP_FOR_CHAT,
     payload: data,
   });
 };

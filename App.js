@@ -48,6 +48,7 @@ import UpdateProfile from "./src/screens/UpdateProfile";
 // chat
 import Chat from "./src/screens/Chat/Chat";
 import Conversations from "./src/screens/Chat/Conversations";
+import GroupConversations from "./src/screens/Chat/GroupConversations";
 
 import Summary from "./src/screens/Summary";
 import DaySummary from "./src/screens/History/DaySummary";
@@ -222,6 +223,11 @@ function App() {
           <Stack.Screen
             name="Conversations"
             component={Conversations}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="GroupConversations"
+            component={GroupConversations}
             options={{ headerShown: false }}
           />
           <Stack.Screen
