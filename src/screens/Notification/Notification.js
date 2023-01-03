@@ -125,7 +125,7 @@ const Notification = ({ navigation }) => {
       }),
       redirect: "follow",
     };
-    fetch(api.get_notifications, requestOptions)
+    fetch(api.get_all_notifications, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
         if (result?.error == false || result?.error == "false") {
@@ -135,11 +135,16 @@ const Notification = ({ navigation }) => {
           let list = [];
           for (const element of notificationList) {
             let user_info = await getUser_Info(element?.from_id);
-            let obj = {
-              ...element,
-              user_info,
-            };
-            list?.push(obj);
+            let notification_detail = await getNotification_Detail(element?.id);
+            console.log("notification_detail ::: ", notification_detail);
+            if (user_info) {
+              let obj = {
+                ...element,
+                user_info,
+                notification_detail,
+              };
+              list?.push(obj);
+            }
           }
           setNotificationsList(list);
         } else {
@@ -157,6 +162,40 @@ const Notification = ({ navigation }) => {
       })
       .finally(() => setLoading(false));
   };
+
+  //getting notification detail
+  const getNotification_Detail = async (id) => {
+    return new Promise(async (resolve) => {
+      if (!id) {
+        resolve(false);
+      } else {
+        try {
+          var requestOptions = {
+            method: "POST",
+            body: JSON.stringify({
+              id: id,
+            }),
+            redirect: "follow",
+          };
+          fetch(api.get_notification_detail, requestOptions)
+            .then((response) => response.json())
+            .then(async (result) => {
+              if (result != null) {
+                resolve(result[0]);
+              } else {
+                resolve(false);
+              }
+            })
+            .catch((error) => {
+              resolve(false);
+            });
+        } catch (error) {
+          resolve(false);
+        }
+      }
+    });
+  };
+
   const getSpecificUserDetail = async (id, type) => {
     setLoading(true);
     var requestOptions = {

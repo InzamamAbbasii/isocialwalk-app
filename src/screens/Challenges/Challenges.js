@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,8 @@ import {
   ScrollView,
   Animated,
 } from "react-native";
+
+import RBSheet from "react-native-raw-bottom-sheet";
 
 import { captureScreen } from "react-native-view-shot";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -34,6 +36,12 @@ const Challenges = ({
   setActiveTab,
 }) => {
   const navigation = useNavigation();
+  const RBSheet_GroupRef = useRef();
+
+  const [selectedChallenge, setSelectedChallenge] = useState("");
+  const [selectedChallengeId, setSelectedChallengeId] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -151,9 +159,16 @@ const Challenges = ({
   ]);
 
   const [joinedChallenge, setJoinedChallenge] = useState([]);
+
+  //groups list
+  const [groupsList, setGroupsList] = useState([]);
+  const [joinedGroupsList, setJoinedGroupsList] = useState([]);
+
   useEffect(() => {
     setLoading(true);
     getSuggestedChallengesList();
+    //get groups list of logged in user
+    getLogged_in_user_groups();
   }, []);
 
   useFocusEffect(
@@ -162,6 +177,154 @@ const Challenges = ({
       getUserJoinedChallenges();
     }, [])
   );
+
+  const getLogged_in_user_groups = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setGroupsList([]);
+    let data = {
+      created_by_user_id: user_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.search_group_by_specific_admin, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == false || result?.error == "false") {
+          let list = result?.Groups ? result?.Groups : [];
+          let joinedGroupsList = await getJoinedGroups(list);
+
+          // setGroupList(list);
+          let list1 = [];
+          for (const element of list) {
+            let obj = {
+              id: element?.id,
+              created_by_user_id: element?.created_by_user_id,
+              image: element?.image
+                ? BASE_URL_Image + "/" + element?.image
+                : "",
+              name: element?.name,
+              group_privacy: element?.group_privacy,
+              group_visibility: element?.group_visibility,
+              created_at: element?.created_at,
+            };
+            list1.push(obj);
+          }
+          list1 = list1.concat(joinedGroupsList);
+          setGroupsList(list1);
+        } else {
+          setGroupsList([]);
+          Snackbar.show({
+            text: result?.Message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong.Unable to get groups.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //getting logged in user joinned challenges
+  //getting login user joined groups list
+  const getJoinedGroups = async () => {
+    return new Promise(async (resolve) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        let data = {
+          user_id: user_id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+        fetch(api.get_user_joined_groups, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            // console.log("groups list ::: ", result);
+            if (result?.error == false || result?.error == "false") {
+              let list = result?.Group ? result?.Group : [];
+              let joinedGroup_List = [];
+              let listOfGroups = [];
+              if (list?.length > 0) {
+                let filter = list?.filter((item) => item?.status == "membered");
+                for (const element of filter) {
+                  let groupInfo = await getGroup_Info(element?.group_id);
+                  if (groupInfo != false) {
+                    let obj = {
+                      // id: element?.id,
+                      // group_id: element?.group_id,
+                      // user_id: element?.user_id,
+                      // status: element?.status,
+                      // created_at: element?.created_at,
+                      // group_info: {
+                      id: groupInfo?.id,
+                      image: groupInfo?.image_link
+                        ? BASE_URL_Image + "/" + groupInfo?.image_link
+                        : "",
+                      name: groupInfo?.name,
+                      // adminId: groupInfo?.["Admin id"],
+                      created_by_user_id: groupInfo?.["Admin id"],
+                      group_privacy: groupInfo?.group_privacy,
+                      group_visibility: groupInfo?.group_visibility,
+                      created_at: groupInfo?.created_at,
+                      type: "joined",
+                      // },
+                    };
+                    listOfGroups.push(obj);
+                  }
+                }
+              }
+              resolve(listOfGroups);
+            } else {
+              resolve([]);
+            }
+          })
+          .catch((error) => {
+            resolve([]);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
+  //getting specific group info
+  const getGroup_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_group_detail, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            resolve(false);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
   const getLogged_in_user_Challenges = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
     setChallengesList([]);
@@ -283,7 +446,6 @@ const Challenges = ({
       setLoading(false);
     }
   };
-
   //getting joined challenges list
   const getUserJoinedChallenges = async () => {
     try {
@@ -356,7 +518,6 @@ const Challenges = ({
       setLoading(false);
     }
   };
-
   const getChallengeDetail = (id) => {
     return new Promise((resolve, reject) => {
       let data = {
@@ -386,7 +547,6 @@ const Challenges = ({
         });
     });
   };
-
   const get_Challenge_Image = (id) => {
     return new Promise((resolve, reject) => {
       let data = {
@@ -410,7 +570,6 @@ const Challenges = ({
         });
     });
   };
-
   const handleonJoin = (id, adminId, item, item1) => {
     const newData = suggestedChallenges.map((item) => {
       if (id == item.id) {
@@ -513,52 +672,56 @@ const Challenges = ({
   };
 
   const handleJoinChallenge = async (id, type, admin, item) => {
-    // console.log({ id, type, admin });
-    // console.log("challenge type  ::: ", item.challenge_type);
-    // return;
-
-    let user_id = await AsyncStorage.getItem("user_id");
-    setLoading(true);
-    let data = {
-      challenge_id: id,
-      user_id: user_id,
-    };
-    console.log("data passs to join challange ::: ", data);
-    var requestOptions = {
-      method: "POST",
-      body: JSON.stringify(data),
-      redirect: "follow",
-    };
-    fetch(api.join_individual_challenge, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("result  :: ", result);
-        if (
-          result?.error == false ||
-          result[0]?.error == false ||
-          result[0]?.error == "false"
-        ) {
-          if (type == "search") {
-            updateSearchListStatus(id);
+    console.log({ id, type, admin });
+    console.log("challenge type  ::: ", item.challenge_type);
+    setSelectedChallenge(item?.name);
+    setSelectedChallengeId(item?.id);
+    setSelectedType(type);
+    if (item?.challenge_type == "group") {
+      // alert("handleGroup join");
+      RBSheet_GroupRef?.current?.open();
+    } else {
+      let user_id = await AsyncStorage.getItem("user_id");
+      setLoading(true);
+      let data = {
+        challenge_id: id,
+        user_id: user_id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.join_individual_challenge, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("result  :: ", result);
+          if (
+            result?.error == false ||
+            result[0]?.error == false ||
+            result[0]?.error == "false"
+          ) {
+            if (type == "search") {
+              updateSearchListStatus(id);
+            } else {
+              updateSuggestedChallengStatus(id);
+            }
+            //sending push notification to admin of this challenge
+            sendPushNotification(admin, item?.name);
+            Snackbar.show({
+              text: "Challenge Joined successfully!",
+              duration: Snackbar.LENGTH_SHORT,
+            });
           } else {
-            updateSuggestedChallengStatus(id);
+            Snackbar.show({
+              text: result?.message,
+              duration: Snackbar.LENGTH_SHORT,
+            });
           }
-          //sending push notification to admin of this challenge
-          sendPushNotification(admin, item?.name);
-
-          Snackbar.show({
-            text: "Challenge Joined successfully!",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-        } else {
-          Snackbar.show({
-            text: result?.message,
-            duration: Snackbar.LENGTH_SHORT,
-          });
-        }
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => setLoading(false));
+        })
+        .catch((error) => console.log("error", error))
+        .finally(() => setLoading(false));
+    }
   };
   const handleOpenDrawer = (navigation) => {
     captureScreen({
@@ -647,6 +810,7 @@ const Challenges = ({
                     ? BASE_URL_Image + "/" + element?.image
                     : "",
                   name: element?.name,
+                  challenge_type: element?.challenge_type,
                   status: false,
                 };
                 list.push(obj);
@@ -701,7 +865,8 @@ const Challenges = ({
         </Text>
         <TouchableOpacity
           style={styles.btnCreateGroup}
-          onPress={() => navigation.navigate("CreateChallenges")}
+          // onPress={() => navigation.navigate("CreateChallenges")}
+          onPress={() => RBSheet_GroupRef?.current?.open()}
         >
           <Text
             style={{
@@ -716,6 +881,89 @@ const Challenges = ({
       </View>
     );
   };
+
+  const handleSelectGroup = async (item) => {
+    console.log("handleSelectGroup :::: ", item);
+    let admin = item?.created_by_user_id;
+    console.log("admin  :::: ", admin);
+    console.log("selectedChallengeId  :::: ", selectedChallengeId);
+
+    RBSheet_GroupRef?.current?.close();
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      challenge_id: selectedChallengeId,
+      user_id: user_id,
+    };
+    console.log("data passs to join challange ::: ", data);
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+    fetch(api.join_individual_challenge, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("result  :: ", result);
+        if (
+          result?.error == false ||
+          result[0]?.error == false ||
+          result[0]?.error == "false"
+        ) {
+          if (selectedType == "search") {
+            updateSearchListStatus(selectedChallengeId);
+          } else {
+            updateSuggestedChallengStatus(selectedChallengeId);
+          }
+          // sendPushNotification(admin, item?.name);
+          //user id to send push notification, name1,challenge name2
+          sendPushNotification_TO_Group_Admin(admin, "", selectedChallenge);
+
+          Snackbar.show({
+            text: "Challenge Joined successfully!",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        } else {
+          Snackbar.show({
+            text: result?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => console.log("error", error))
+      .finally(() => setLoading(false));
+  };
+  const sendPushNotification_TO_Group_Admin = async (id, name1, challenge) => {
+    let user_info = await AsyncStorage.getItem("user");
+    let name = "";
+    if (user_info != null) {
+      let parse = JSON.parse(user_info);
+      name = parse?.first_name;
+    }
+    let user = await firebaseNotificationApi.getFirebaseUser(id);
+    if (!user) {
+      user = await firebaseNotificationApi.getFirebaseUser(id);
+    }
+    if (user) {
+      let token = user?.fcmToken;
+      let title = "Join Challenge";
+      let description = `${name} wants to join challenge ${challenge}...`;
+      let data = {
+        id: id,
+        // user_id: id,
+        // to_id: user?.ui
+        type: "challenge_request",
+      };
+      await firebaseNotificationApi
+        .sendPushNotification(token, title, description, data)
+        .then((res) => console.log("notification response.....", res))
+        .catch((err) => console.log(err));
+      console.log("notification sent.......");
+    } else {
+      console.log("user not found");
+    }
+  };
+
   return (
     <Animated.View
       style={{
@@ -816,6 +1064,27 @@ const Challenges = ({
                   scrollEnabled={false}
                   showsVerticalScrollIndicator={false}
                   keyExtractor={(item, index) => index.toString()}
+                  ListEmptyComponent={() => {
+                    return (
+                      <View
+                        style={{
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: 300,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#000000",
+                            fontSize: 16,
+                            fontFamily: "Rubik-Regular",
+                          }}
+                        >
+                          No Results Found
+                        </Text>
+                      </View>
+                    );
+                  }}
                   renderItem={(item) => {
                     return (
                       <TouchableOpacity
@@ -1087,7 +1356,8 @@ const Challenges = ({
                         width: 130,
                         height: 33,
                       }}
-                      onPress={() => navigation.navigate("CreateChallenges")}
+                      // onPress={() => navigation.navigate("CreateChallenges")}
+                      onPress={() => RBSheet_GroupRef?.current?.open()}
                     >
                       <Text
                         style={{
@@ -1270,6 +1540,118 @@ const Challenges = ({
               {/* -------------------------------------Joinned challenges list _______________________________________________________ */}
             </View>
           )}
+
+          {/* ------------------------------------------Groups Bottom Sheet--------------------------------------------- */}
+
+          <RBSheet
+            ref={RBSheet_GroupRef}
+            height={300}
+            openDuration={250}
+            closeOnDragDown={true}
+            closeOnPressMask={false}
+            animationType={"slide"}
+            customStyles={{
+              container: {
+                padding: 5,
+                //   alignItems: 'center',
+                height: 530,
+                flex: 1,
+                backgroundColor: "#ffffff",
+                borderRadius: 30,
+              },
+              draggableIcon: {
+                backgroundColor: "#003e6b",
+              },
+            }}
+          >
+            <Text
+              style={{
+                color: "#003e6b",
+                fontSize: 18,
+                textAlign: "center",
+                marginTop: 5,
+                fontFamily: "Rubik-Regular",
+              }}
+            >
+              Select Group
+            </Text>
+            <View
+              style={{
+                marginVertical: 15,
+                paddingHorizontal: 20,
+                flex: 1,
+              }}
+            >
+              <FlatList
+                data={groupsList}
+                numColumns={3}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={() => {
+                  return (
+                    <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: 200,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "#000000",
+                          fontSize: 16,
+                          fontFamily: "Rubik-Regular",
+                        }}
+                      >
+                        No Results Found
+                      </Text>
+                    </View>
+                  );
+                }}
+                renderItem={(item) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() =>
+                        // navigation.navigate("GroupDetail", {
+                        //   item: item?.item,
+                        // })
+
+                        handleSelectGroup(item?.item)
+                      }
+                      style={{
+                        ...styles.cardView,
+                        justifyContent: "center",
+                        height: 110,
+                        width: "28.9%",
+                      }}
+                    >
+                      {item?.item?.image ? (
+                        <Image
+                          source={{ uri: item?.item?.image }}
+                          style={{
+                            marginVertical: 8,
+                            height: 44,
+                            width: 44,
+                            borderRadius: 44,
+                            backgroundColor: "#ccc",
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          source={require("../../../assets/images/group-profile.png")}
+                          style={{ marginVertical: 8 }}
+                        />
+                      )}
+
+                      <Text style={styles.cardText}>{item.item.name}</Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+          </RBSheet>
+
+          {/* ------------------------------------------Groups Bottom Sheet--------------------------------------------- */}
         </ScrollView>
       </View>
     </Animated.View>
@@ -1362,5 +1744,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
+  },
+
+  bootSheetCardView: {
+    height: 100,
+    width: 101,
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    shadowColor: "blue",
+    elevation: 2,
+    padding: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 5,
   },
 });

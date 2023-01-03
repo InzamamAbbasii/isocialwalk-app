@@ -36,6 +36,8 @@ export const api = {
   //notifications
   getAllGroup_notifications: BASE_URL + "/notifications/getallgroup.php",
   get_notifications: BASE_URL + "/notifications/get.php",
+  get_all_notifications: BASE_URL + "/notifications/getall.php",
+  get_notification_detail: BASE_URL + "/notifications/get.php",
 
   // //Goals
   // add_goals: BASE_URL + '/goals/insert.php',
