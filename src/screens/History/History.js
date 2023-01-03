@@ -382,11 +382,16 @@ const History = ({ scale, showMenu, setShowMenu, moveToRight }) => {
               renderItem={(item) => {
                 return (
                   <TouchableOpacity
-                    onPress={() => {
-                      selectedDay == "1"
-                        ? navigation.navigate("DaySummary")
-                        : navigation.navigate("Summary");
-                    }}
+                    // onPress={() => {
+                    //   selectedDay == "1"
+                    //     ? navigation.navigate("DaySummary")
+                    //     : navigation.navigate("Summary");
+                    // }}
+                    onPress={() =>
+                      navigation.navigate("Summary", {
+                        data: item?.item,
+                      })
+                    }
                     style={styles.cardView}
                   >
                     <Text style={{ ...styles.cardText, color: "#38ACFF" }}>
