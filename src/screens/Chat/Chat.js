@@ -31,13 +31,18 @@ import {
 } from "firebase/database";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setLoginUserDetail, setUserForChat } from "../../redux/actions";
+import {
+  setLoginUserDetail,
+  setUserForChat,
+  setGroupForChat,
+} from "../../redux/actions";
 import moment from "moment/moment";
 import { api } from "../../constants/api";
 import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import { firebase } from "@react-native-firebase/storage";
 import { BASE_URL_Image } from "../../constants/Base_URL_Image";
+import { async } from "@firebase/util";
 
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 
@@ -245,6 +250,13 @@ const Chat = ({
     // },
   ]);
 
+  const [groupsList, setGroupsList] = useState([]);
+
+  // useEffect(() => {
+  //   //gettig group chat list
+  //   getGroupsList();
+  // }, []);
+
   //----------------------------------------------------------------------
   useEffect(() => {
     setLoading(true);
@@ -268,7 +280,19 @@ const Chat = ({
         data.sort(function (a, b) {
           return b.isPinned - a.isPinned;
         });
-        setChatList(data);
+        // setChatList(data);
+        //getting group chat list
+        let groupsChat = await getGroupsList();
+        // setGroupsList(groupsChat);
+
+        //merge friend chat and group chat list
+        let arr = [...data, ...groupsChat];
+        arr.sort(function (a, b) {
+          return b.isPinned - a.isPinned;
+        });
+
+        setChatList(arr);
+
         setLoading(false);
       };
       loadData();
@@ -431,10 +455,13 @@ const Chat = ({
     dispatch(setUserForChat(filter[0]));
     navigation.navigate("Conversations");
   };
+  const handleGroupChatItemPress = async (selectedGroup) => {
+    dispatch(setGroupForChat(selectedGroup));
+    navigation.navigate("GroupConversations");
+  };
   //----------------------------------------------------------------------
 
   //getting logged in user friend list
-
   const getFriendsList = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
@@ -484,6 +511,104 @@ const Chat = ({
         });
       })
       .finally(() => setLoading(false));
+  };
+
+  //getting logged in user groups list --> where he is added or chat with
+  const getGroupsList = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        const database = getDatabase();
+        const groupsRef = ref(database, `groups`);
+        const mySnapshot = await get(ref(database, `groups`));
+        let data = mySnapshot?.val();
+        let allGroupsList = data ? data : [];
+        // var result = Object.keys(allGroupsList).map((key) => [
+        //   Number(key),
+        //   allGroupsList[key],
+        // ]);
+        var result = Object.keys(allGroupsList).map((key) => {
+          return {
+            id: Number(key),
+            data: allGroupsList[key],
+          };
+        });
+        let myGroups = [];
+        for (const element of result) {
+          //filter to check user exist in this group or not
+          let filter = element?.data?.members?.filter(
+            (item) => item?.id == user_id
+          );
+
+          if (filter?.length > 0) {
+            let lastMessage_info = await getGroup_LatestMessage(
+              element?.data?.chatroomId
+            );
+            let obj = {
+              // group: element,
+              id: element?.id,
+              name: element?.data?.name,
+              admin: element?.data?.admin,
+              type: element?.data?.type,
+              // isPinned: element?.data?.isPinned,
+              isPinned: filter[0]?.isPinned,
+              chatroomId: element?.data?.chatroomId,
+              createdAt:
+                lastMessage_info != "" ? lastMessage_info?.createdAt : "",
+              unReadCount:
+                lastMessage_info != "" ? lastMessage_info?.unReadCount : "",
+              read: lastMessage_info != "" ? lastMessage_info?.read : "",
+              message: lastMessage_info != "" ? lastMessage_info?.message : "",
+              image: lastMessage_info != "" ? lastMessage_info?.image : "",
+            };
+            myGroups.push(obj);
+          }
+        }
+        myGroups.sort(function (a, b) {
+          return b.isPinned - a.isPinned;
+        });
+        resolve(myGroups);
+        // setGroupsList(myGroups);
+      } catch (error) {
+        resolve([]);
+      }
+    });
+  };
+
+  //getting group last message detail
+  const getGroup_LatestMessage = (chatroomId) => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (chatroomId) {
+          console.log("getting latest messages list ::::::: ");
+          const database = getDatabase();
+          const chatroomRef = ref(database, `group_chatroom/${chatroomId}`);
+          onValue(chatroomRef, (snapshot) => {
+            const data = snapshot.val();
+            let messagesList = data?.messages ? data.messages : [];
+
+            const unreadMessages = messagesList?.filter(
+              (item) => item?.read == false && item?.user?._id != userId
+            );
+            let lastitem = messagesList?.pop();
+
+            let lastMessage = lastitem?.text;
+            let obj = {
+              createdAt: lastitem?.createdAt,
+              message: lastitem?.text,
+              image: lastitem?.image,
+              read: lastitem?.read,
+              unReadCount: unreadMessages?.length,
+            };
+            resolve(obj);
+          });
+        } else {
+          resolve("");
+        }
+      } catch (error) {
+        resolve("");
+      }
+    });
   };
 
   const getSuggestedFriendsList = async () => {
@@ -647,7 +772,7 @@ const Chat = ({
                     />
                   ) : (
                     <Image
-                      source={require("../../../assets/images/user1.png")}
+                      source={require("../../../assets/images/friend-profile.png")}
                       style={{ marginVertical: 8, width: 44, height: 44 }}
                     />
                   )}
@@ -860,6 +985,99 @@ const Chat = ({
     }
   };
 
+  //pin group chat
+  const handlePinGroupChat = async (groupId) => {
+    try {
+      let user_id = await AsyncStorage.getItem("user_id");
+      const myDetail = await findGroup(groupId);
+      let groupMembers = myDetail?.members ? myDetail?.members : [];
+      //change pin status in firebase
+      const newData = groupMembers.map((item) => {
+        if (user_id === item.id) {
+          return {
+            ...item,
+            isPinned: !item.isPinned,
+          };
+        } else {
+          return {
+            ...item,
+          };
+        }
+      });
+
+      let newObj = {
+        ...myDetail,
+        members: newData,
+      };
+
+      const database = getDatabase();
+      update(ref(database, `groups/${groupId}`), newObj);
+
+      //also update chatlist state value to show pinned chat on top of list
+      const newData1 = chatList.map((item) => {
+        if (groupId === item.id) {
+          return {
+            ...item,
+            isPinned: !item.isPinned,
+          };
+        } else {
+          return {
+            ...item,
+          };
+        }
+      });
+      newData1.sort(function (a, b) {
+        return b.isPinned - a.isPinned;
+      });
+      // setGroupsList(newData1);
+      setChatList(newData1);
+
+      // setLoading(false);
+    } catch (error) {
+      console.log("error occur in pin item   :: ", error);
+    }
+  };
+
+  //delete group from firebase
+  const handleDeleteGroup = async (groupId, item) => {
+    console.log("groupId  to remove ::: ", groupId);
+    let user_id = await AsyncStorage.getItem("user_id");
+    if (user_id == item?.admin) {
+      // alert("handle remvoe");
+      try {
+        const groupDetail = await findGroup(groupId);
+        const database = getDatabase();
+
+        //remove group from database
+        remove(ref(database, `groups/${groupId}`));
+        //also room chatting from chatroom
+        remove(ref(database, `group_chatroom/${item?.chatroomId}`));
+        //also delete from flatlist
+        const newData = chatList.filter((item) => item.id != groupId);
+        setChatList(newData);
+      } catch (error) {
+        Snackbar.show({
+          text: "Something went wrong.",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      }
+    } else {
+      Snackbar.show({
+        text: "Only admin will allow to delete this group",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+    // console.log("group id  ::", groupId);
+    // console.log("item :: ", item);
+  };
+
+  const findGroup = async (id) => {
+    console.log("find user name...", id);
+    const database = getDatabase();
+    const mySnapshot = await get(ref(database, `groups/${id}`));
+    return mySnapshot.val();
+  };
+
   const ChatListComponent = () => {
     return (
       <SwipeListView
@@ -870,14 +1088,24 @@ const Chat = ({
               // navigation.navigate('Conversations', {
               //   user: data.item,
               // })
-              handlePress(data?.item)
+              data?.item?.type == "group"
+                ? handleGroupChatItemPress(data?.item)
+                : handlePress(data?.item)
             }
             style={styles.chatCardView}
           >
-            <Image
-              source={require("../../../assets/images/user1.png")}
-              style={{ width: 45, height: 45 }}
-            />
+            {data?.item?.type == "group" ? (
+              <Image
+                source={require("../../../assets/images/group-profile2.png")}
+                style={{ width: 45, height: 45 }}
+              />
+            ) : (
+              <Image
+                source={require("../../../assets/images/friend-profile.png")}
+                style={{ width: 45, height: 45 }}
+              />
+            )}
+
             <View style={{ marginLeft: 15, flex: 1 }}>
               <Text style={styles.userName}>{data.item.name}</Text>
               {/* <Text style={styles.userName}>{data?.item?.unReadCount}</Text> */}
@@ -889,7 +1117,7 @@ const Chat = ({
                   }}
                 >
                   <Image
-                    source={require("../../../assets/images/user1.png")}
+                    source={require("../../../assets/images/friend-profile.png")}
                     style={{
                       width: 15,
                       height: 15,
@@ -931,7 +1159,8 @@ const Chat = ({
                 {data?.item?.createdAt &&
                   moment(data?.item?.createdAt).fromNow()}
               </Text>
-              {data?.item?.unReadCount > 0 && (
+
+              {data?.item?.type !== "group" && data?.item?.unReadCount > 0 && (
                 <View
                   style={{
                     height: 15,
@@ -962,7 +1191,12 @@ const Chat = ({
         renderHiddenItem={(data, rowMap) => (
           <View style={styles.rowBack}>
             <TouchableOpacity
-              onPress={() => deleteItem(data.item.id, data?.item)}
+              // onPress={() => deleteItem(data.item.id, data?.item)}
+              onPress={() => {
+                data?.item?.type === "group"
+                  ? handleDeleteGroup(data?.item?.id, data?.item)
+                  : deleteItem(data.item.id, data?.item);
+              }}
               style={[styles.backRightBtn, styles.backRightBtnRight]}
             >
               <Image
@@ -971,7 +1205,142 @@ const Chat = ({
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => pinItem(data.item.id)}
+              // onPress={() => pinItem(data.item.id)}
+              onPress={() => {
+                data?.item?.type == "group"
+                  ? handlePinGroupChat(data?.item?.id)
+                  : pinItem(data.item.id);
+              }}
+              style={[styles.backRightBtn, { right: 50 }]}
+            >
+              <Image
+                source={require("../../../assets/images/pin.png")}
+                style={{ height: 40, width: 40 }}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+        // leftOpenValue={175}
+        rightOpenValue={-115}
+      />
+    );
+  };
+
+  const Group_ChatListComponent = () => {
+    return (
+      <SwipeListView
+        data={groupsList}
+        renderItem={(data, rowMap) => (
+          <Pressable
+            onPress={() =>
+              // navigation.navigate('Conversations', {
+              //   user: data.item,
+              // })
+              // handlePress(data?.item)
+
+              handleGroupChatItemPress(data?.item)
+            }
+            style={styles.chatCardView}
+          >
+            <Image
+              source={require("../../../assets/images/friend-profile.png")}
+              style={{ width: 45, height: 45 }}
+            />
+            <View style={{ marginLeft: 15, flex: 1 }}>
+              <Text style={styles.userName}>{data.item.name}</Text>
+              {/* <Text style={styles.userName}>{data?.item?.unReadCount}</Text> */}
+              {data?.item?.unReadCount > 0 ? (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/images/friend-profile.png")}
+                    style={{
+                      width: 15,
+                      height: 15,
+                      resizeMode: "contain",
+                      marginRight: 4,
+                    }}
+                  />
+                  <Text
+                    numberOfLines={1}
+                    style={{ ...styles.messageText, color: "#003E6B" }}
+                  >
+                    {typeof data?.item?.image == "undefined" &&
+                    typeof data.item.message == "undefined"
+                      ? ""
+                      : data?.item?.image != ""
+                      ? "photo"
+                      : data.item.message}
+                  </Text>
+                </View>
+              ) : (
+                <Text numberOfLines={1} style={styles.messageText}>
+                  {typeof data?.item?.image == "undefined" &&
+                  typeof data.item.message == "undefined"
+                    ? ""
+                    : data?.item?.image != ""
+                    ? "photo"
+                    : data.item.message}
+                </Text>
+              )}
+            </View>
+            <View style={{ marginLeft: 15, alignItems: "flex-end" }}>
+              <Text
+                style={{
+                  color: "#838383",
+                  fontSize: 12,
+                }}
+              >
+                {/* {data.item.createdAt} */}
+                {data?.item?.createdAt &&
+                  moment(data?.item?.createdAt).fromNow()}
+              </Text>
+              {/* {data?.item?.unReadCount > 0 && (
+                <View
+                  style={{
+                    height: 15,
+                    width: 15,
+                    borderRadius: 15,
+                    backgroundColor: "red",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      fontSize: 10,
+                    }}
+                  >
+              
+                    {data?.item?.unReadCount}
+                  </Text>
+                </View>
+              )} */}
+            </View>
+          </Pressable>
+        )}
+        // disableLeftSwipe={true}
+
+        disableRightSwipe={true}
+        renderHiddenItem={(data, rowMap) => (
+          <View style={styles.rowBack}>
+            <TouchableOpacity
+              //onPress={() => deleteItem(data.item.id, data?.item)}
+              style={[styles.backRightBtn, styles.backRightBtnRight]}
+            >
+              <Image
+                source={require("../../../assets/images/delete.png")}
+                style={{ height: 40, width: 40 }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              // onPress={() => pinItem(data.item.id)}
+              onPress={() => handlePinGroupChat(data.item.id)}
               style={[styles.backRightBtn, { right: 50 }]}
             >
               <Image
@@ -1217,6 +1586,24 @@ const Chat = ({
                   <ChatListComponent />
                 )}
               </View>
+              {/* __________________________________________groups list  ___________________________________________________ */}
+
+              {/* <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    color: "#000000",
+                    fontSize: 16,
+                    paddingHorizontal: 20,
+                    marginBottom: 20,
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
+                  Group Chats
+                </Text>
+
+                <Group_ChatListComponent />
+              </View> */}
+              {/* __________________________________________groups list  ___________________________________________________ */}
             </View>
           )}
 

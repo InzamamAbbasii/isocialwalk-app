@@ -18,7 +18,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/Feather";
 import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
+import {
+  getDatabase,
+  get,
+  ref,
+  set,
+  onValue,
+  push,
+  update,
+  off,
+} from "firebase/database";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setLoginUserDetail,
+  setGroupForChat,
+  setUserForChat,
+} from "../../redux/actions";
+
 const GroupDetail = ({ navigation, route }) => {
+  const dispatch = useDispatch();
   const bottomSheetRef = useRef();
   const bottomSheetAddMemberRef = useRef();
 
@@ -669,6 +687,141 @@ const GroupDetail = ({ navigation, route }) => {
   const handleEditPress = (groupId) => {
     navigation?.navigate("EditGroup", { id: groupId });
   };
+
+  // ------------------------------------------------handle group chat -----------------------------------------------------
+  const handleGroupChatPress = () => {
+    if (groupId) {
+      onAddGroup(groupId);
+    } else {
+      Snackbar.show({
+        text: "Something went wrong.Group id Not found",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
+  // -------------------------------
+  // addding data to firebase for chatting
+  const createGroup = async (id, name, admin) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const database = getDatabase();
+        //first check if the user registered before
+
+        //create chat room
+        const newChatroomRef = push(ref(database, "group_chatroom"), {
+          messages: [],
+          id: id,
+        });
+        console.log("newChatroomRef :: ", newChatroomRef);
+        const newChatroomId = newChatroomRef?.key;
+
+        const newGroupObj = {
+          id: id ? id : "",
+          name: name ? name : "",
+          chatroomId: newChatroomId ? newChatroomId : "",
+          isPinned: false,
+          type: "group",
+          admin: admin,
+        };
+        set(ref(database, `groups/${id}`), newGroupObj);
+        resolve(true);
+      } catch (error) {
+        console.log("error while creating new user", error);
+        resolve(false);
+      }
+    });
+  };
+  const onAddGroup = async (selected_group_id) => {
+    if (!adminId) {
+      Snackbar.show({
+        text: "Group Details not found.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    } else {
+      try {
+        // navigation?.navigate("GroupConversations");
+        setLoading(true);
+        let user_id = await AsyncStorage.getItem("user_id");
+        let logged_in_user_detail = await AsyncStorage.getItem("user");
+        logged_in_user_detail =
+          logged_in_user_detail == null
+            ? null
+            : JSON.parse(logged_in_user_detail);
+        // setLoading(true);
+        const database = getDatabase();
+
+        let group = await findGroup(selected_group_id);
+        console.log("group find  ::: ", group);
+        if (group == null) {
+          let result = await createGroup(
+            selected_group_id,
+            group_name,
+            adminId
+          );
+          group = await findGroup(selected_group_id);
+          console.log("group detail after creating ::: ", group);
+        }
+
+        //add group memeber to group if it does not exist
+        if (group) {
+          //check member is added in this group or not
+          let filter = group?.members?.filter(
+            (element) => element?.id == user_id
+          );
+
+          if (filter?.length > 0) {
+            console.log("this user already in this group");
+            dispatch(setGroupForChat(group));
+            dispatch(setLoginUserDetail(logged_in_user_detail));
+            navigation?.navigate("GroupConversations");
+            setLoading(false);
+          } else {
+            //add this member to group
+            console.log("this user  does not exist in this group..");
+
+            const groupMembers = group?.members || [];
+            let clicked_user_Obj = {
+              // id: user?.id,
+              // name: user?.name,
+              // email: user?.email,
+              members: [
+                ...groupMembers,
+                {
+                  id: user_id,
+                  name: logged_in_user_detail?.first_name,
+                  // chatroomId: newChatroomId,
+                  isPinned: false,
+                },
+              ],
+            };
+            update(ref(database, `groups/${group?.id}`), clicked_user_Obj);
+            dispatch(setGroupForChat(group));
+            dispatch(setLoginUserDetail(logged_in_user_detail));
+            navigation?.navigate("GroupConversations");
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        setLoading(false);
+      }
+    }
+  };
+  const findGroup = async (id) => {
+    const database = getDatabase();
+    const mySnapshot = await get(ref(database, `groups/${id}`));
+    return mySnapshot.val();
+  };
+
+  const findUser = async (id) => {
+    console.log("find user name...", id);
+    const database = getDatabase();
+    const mySnapshot = await get(ref(database, `users/${id}`));
+    return mySnapshot.val();
+  };
+
+  // ------------------------------------------------handle group chat -----------------------------------------------------
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -721,17 +874,37 @@ const GroupDetail = ({ navigation, route }) => {
               }}
             />
           )}
-
-          <Text
+          <View style={{}}>
+            <Text
+              style={{
+                color: "#000000",
+                fontSize: 17,
+                fontFamily: "Rubik-Regular",
+              }}
+            >
+              {/* Cyanide */}
+              {group_name}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => handleGroupChatPress()}
             style={{
-              color: "#000000",
-              fontSize: 17,
-              fontFamily: "Rubik-Regular",
+              padding: 10,
+              // backgroundColor: "blue",
+              height: 50,
+              width: 50,
+              alignSelf: "flex-end",
             }}
           >
-            {/* Cyanide */}
-            {group_name}
-          </Text>
+            <Image
+              source={require("../../../assets/images/chat1.png")}
+              style={{
+                height: 32,
+                width: 32,
+              }}
+            />
+          </TouchableOpacity>
+
           <View
             style={{
               flexDirection: "row",

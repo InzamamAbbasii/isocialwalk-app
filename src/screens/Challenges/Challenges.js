@@ -258,12 +258,12 @@ const Challenges = ({
           if (result?.length > 0) {
             for (const element of result) {
               let img = await get_Challenge_Image(element["challenge ID"]);
-
               let obj = {
                 id: element["challenge ID"],
                 name: element["challenge Name"],
                 privacy: element["challenge privacy"],
                 visibility: element["challenge visibility"],
+                challenge_type: element["challenge type"],
                 admin: element?.admin,
                 start_date: element?.start_date,
                 // status: element?.status,
@@ -284,8 +284,7 @@ const Challenges = ({
     }
   };
 
-  //getting joinned challenges list
-
+  //getting joined challenges list
   const getUserJoinedChallenges = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
@@ -514,6 +513,10 @@ const Challenges = ({
   };
 
   const handleJoinChallenge = async (id, type, admin, item) => {
+    // console.log({ id, type, admin });
+    // console.log("challenge type  ::: ", item.challenge_type);
+    // return;
+
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let data = {
@@ -587,7 +590,6 @@ const Challenges = ({
 
     if (user) {
       let token = user?.fcmToken;
-
       let title = challange_name
         ? challange_name + " Challenge"
         : "Challenge Request";
@@ -596,7 +598,7 @@ const Challenges = ({
         id: id,
         // user_id: id,
         // to_id: user?.ui
-        type: "friend_request",
+        type: "challenge_request",
       };
       await firebaseNotificationApi
         .sendPushNotification(token, title, description, data)

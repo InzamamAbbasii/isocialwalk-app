@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect, useRef} from 'react';
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-} from 'react-native';
+} from "react-native";
 import {
   GiftedChat,
   Send,
@@ -16,29 +16,29 @@ import {
   Composer,
   SystemMessage,
   Actions,
-} from 'react-native-gifted-chat';
-import uuid from 'react-native-uuid';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import Header from '../../Reuseable Components/Header';
-import {getDatabase, get, ref, onValue, off, update} from 'firebase/database';
-import {useSelector} from 'react-redux';
-import storage from '@react-native-firebase/storage';
-import Loader from '../../Reuseable Components/Loader';
+} from "react-native-gifted-chat";
+import uuid from "react-native-uuid";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import Header from "../../Reuseable Components/Header";
+import { getDatabase, get, ref, onValue, off, update } from "firebase/database";
+import { useSelector } from "react-redux";
+import storage from "@react-native-firebase/storage";
+import Loader from "../../Reuseable Components/Loader";
 
-const Conversations = ({navigation, route}) => {
+const Conversations = ({ navigation, route }) => {
   const chatRef = useRef(null);
   const _messageContainerRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [isSearch, setIsSearch] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [userId, setUserId] = useState('-1');
+  const [searchText, setSearchText] = useState("");
+  const [userId, setUserId] = useState("-1");
   // const [userId, setUserId] = useState(route.params.user.id);
   // console.log(route.params.user.id);
 
   //
-  const [selectedUserType, setSelectedUserType] = useState('');
+  const [selectedUserType, setSelectedUserType] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedUser_PhoneNo, setSelectedUser_PhoneNo] = useState('');
+  const [selectedUser_PhoneNo, setSelectedUser_PhoneNo] = useState("");
   const [profile_Image, setProfile_Image] = useState(null);
 
   useEffect(() => {
@@ -48,9 +48,9 @@ const Conversations = ({navigation, route}) => {
         animated: true,
         index: 6,
       });
-      console.log('chatRaf :: ');
+      console.log("chatRaf :: ");
     } else {
-      console.log('chat ref is undefiend......');
+      console.log("chat ref is undefiend......");
     }
   }, []);
 
@@ -59,12 +59,12 @@ const Conversations = ({navigation, route}) => {
 
   // chating through firebase
   const [myData, setMyData] = useState(null);
-  let {userDetail, routeUserType, selectedChatUser} = useSelector(
-    state => state.userReducer,
+  let { userDetail, routeUserType, selectedChatUser } = useSelector(
+    (state) => state.userReducer
   );
   let selectedUser = selectedChatUser;
 
-  const findUser = async name => {
+  const findUser = async (name) => {
     const database = getDatabase();
 
     const mySnapshot = await get(ref(database, `users/${name}`));
@@ -89,9 +89,9 @@ const Conversations = ({navigation, route}) => {
           myArr.push(obj);
         });
         let unReadMessages = myArr?.filter(
-          item =>
+          (item) =>
             item?.data?.user?._id == selectedUser?.id &&
-            item?.data?.read == false,
+            item?.data?.read == false
         );
         // console.log('unReadMessages :: ', unReadMessages);
         //mark all new messages as read
@@ -100,11 +100,11 @@ const Conversations = ({navigation, route}) => {
           update(
             ref(
               db,
-              `chatrooms/${selectedUser.chatroomId}/messages/${element?.node}`,
+              `chatrooms/${selectedUser.chatroomId}/messages/${element?.node}`
             ),
             {
               read: true,
-            },
+            }
           );
         }
 
@@ -115,7 +115,7 @@ const Conversations = ({navigation, route}) => {
     loadData();
   }, [fetchMessages, renderMessages, selectedUser?.chatroomId]);
   const renderMessages = useCallback(
-    msgs => {
+    (msgs) => {
       return msgs
         ? msgs.reverse().map((msg, index) => ({
             ...msg,
@@ -142,19 +142,19 @@ const Conversations = ({navigation, route}) => {
       userDetail?.name,
       selectedUser?.avatar,
       selectedUser?.name,
-    ],
+    ]
   );
 
   const fetchMessages = useCallback(async () => {
     const database = getDatabase();
     const snapshot = await get(
-      ref(database, `chatrooms/${selectedUser.chatroomId}`),
+      ref(database, `chatrooms/${selectedUser.chatroomId}`)
     );
     return snapshot.val();
   }, [selectedUser?.chatroomId]);
 
   const handleSend = useCallback(
-    async (msg = '', url, isImage) => {
+    async (msg = "", url, isImage) => {
       //send the msg[0] to the other user
       const database = getDatabase();
       //fetch fresh messages from server
@@ -168,9 +168,9 @@ const Conversations = ({navigation, route}) => {
           // _id: newMessage?._id,
           _id: uuid.v4(),
           // text: newMessage?.text,
-          text: isImage ? '' : newMessage?.text,
-          image: isImage ? url : '',
-          type: isImage ? 'image' : 'text',
+          text: isImage ? "" : newMessage?.text,
+          image: isImage ? url : "",
+          type: isImage ? "image" : "text",
           createdAt: isImage ? new Date() : newMessage?.createdAt,
           read: false,
           user: {
@@ -184,12 +184,12 @@ const Conversations = ({navigation, route}) => {
           messages: [...lastMessages, obj_newMessage],
         });
 
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, obj_newMessage),
+        setMessages((previousMessages) =>
+          GiftedChat.append(previousMessages, obj_newMessage)
         );
       }
     },
-    [fetchMessages, myData?.username, selectedUser?.chatroomId],
+    [fetchMessages, myData?.username, selectedUser?.chatroomId]
   );
 
   const handleImageUpload = useCallback(async (fileName, filePath) => {
@@ -200,24 +200,24 @@ const Conversations = ({navigation, route}) => {
 
       const uploadTask = storage().ref().child(fileName).putFile(filePath);
       uploadTask.on(
-        'state_changed',
-        snapshot => {
+        "state_changed",
+        (snapshot) => {
           // const progress = Math.round(
           //   (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
           // );
         },
-        error => {
+        (error) => {
           // alert(error);
           setLoading(false);
         },
         async () => {
           const url = await storage().ref(fileName).getDownloadURL();
           let isImage = true;
-          let message = '';
+          let message = "";
           setLoading(false);
 
           handleSend(message, url, isImage);
-        },
+        }
       );
     } catch (error) {
       setLoading(false);
@@ -263,26 +263,28 @@ const Conversations = ({navigation, route}) => {
     // );
   }, []);
 
-  const SendComponent = props => {
+  const SendComponent = (props) => {
     return (
       <Send
         {...props}
         containerStyle={{
           borderWidth: 0,
-        }}>
+        }}
+      >
         <View
           style={{
-            justifyContent: 'center',
-            height: '100%',
+            justifyContent: "center",
+            height: "100%",
             marginRight: 10,
             borderWidth: 0,
-          }}>
+          }}
+        >
           <Image
-            source={require('../../../assets/images/send.png')}
+            source={require("../../../assets/images/send.png")}
             style={{
               height: 20,
               width: 20,
-              resizeMode: 'contain',
+              resizeMode: "contain",
               // marginBottom: 14,
             }}
           />
@@ -315,26 +317,26 @@ const Conversations = ({navigation, route}) => {
   //   );
   // };
 
-  const CustomBubble = props => {
+  const CustomBubble = (props) => {
     return (
       <Bubble
         ref={_messageContainerRef}
         {...props}
         textStyle={{
           right: {
-            color: '#ffffff',
+            color: "#ffffff",
           },
           left: {
-            color: '#ffffff',
+            color: "#ffffff",
           },
         }}
         wrapperStyle={{
           left: {
-            backgroundColor: '#0496FF',
+            backgroundColor: "#0496FF",
             marginBottom: 25,
           },
           right: {
-            backgroundColor: '#003E6B',
+            backgroundColor: "#003E6B",
             marginBottom: 25,
           },
         }}
@@ -342,17 +344,17 @@ const Conversations = ({navigation, route}) => {
     );
   };
 
-  const CustomTime = props => {
+  const CustomTime = (props) => {
     return (
-      <View style={{position: 'relative', top: 25}}>
+      <View style={{ position: "relative", top: 25 }}>
         <Time
           {...props}
           timeTextStyle={{
             left: {
-              color: '#838383',
+              color: "#838383",
             },
             right: {
-              color: '#838383',
+              color: "#838383",
             },
           }}
         />
@@ -360,39 +362,41 @@ const Conversations = ({navigation, route}) => {
     );
   };
 
-  const CustomInputToolbar = props => {
+  const CustomInputToolbar = (props) => {
     return (
       <View
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: "#fff",
           height: 60,
-          alignContent: 'center',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'relative',
+          alignContent: "center",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
           left: 0,
           right: 0,
           bottom: 9,
-        }}>
+        }}
+      >
         <View
           style={{
-            backgroundColor: 'red',
-            position: 'absolute',
+            backgroundColor: "red",
+            position: "absolute",
             top: 52,
             left: 18,
-            width: '100%',
-          }}>
+            width: "100%",
+          }}
+        >
           <InputToolbar
             {...props}
             containerStyle={{
               //   backgroundColor: 'red',
               height: 42,
-              borderColor: '#ccc',
-              borderTopColor: '#ccc',
+              borderColor: "#ccc",
+              borderTopColor: "#ccc",
               borderTopWidth: 1,
               borderWidth: 1,
               borderRadius: 10,
-              width: '90%',
+              width: "90%",
             }}
           />
         </View>
@@ -404,12 +408,12 @@ const Conversations = ({navigation, route}) => {
     var options = {
       storageOptions: {
         skipBackup: true,
-        path: 'images',
+        path: "images",
       },
     };
     let id = messages.length;
     await launchCamera(options)
-      .then(res => {
+      .then((res) => {
         handleImageUpload(res.assets[0].fileName, res.assets[0].uri);
 
         // let obj1 = {
@@ -426,19 +430,19 @@ const Conversations = ({navigation, route}) => {
         // };
         // onSend(obj1);
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   };
 
   const handleGallery = async () => {
     var options = {
       storageOptions: {
         skipBackup: true,
-        path: 'images',
+        path: "images",
       },
     };
     let id = messages.length;
     await launchImageLibrary(options)
-      .then(res => {
+      .then((res) => {
         handleImageUpload(res.assets[0].fileName, res.assets[0].uri);
         // let obj1 = {
         //   _id: uuid.v4(),
@@ -454,7 +458,7 @@ const Conversations = ({navigation, route}) => {
         // };
         // onSend(obj1);
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   };
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -464,19 +468,19 @@ const Conversations = ({navigation, route}) => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchText]);
 
-  const handleSearch = txt => {
+  const handleSearch = (txt) => {
     if (txt) {
       let index = messages?.findIndex(
-        obj => obj?.text?.toLocaleLowerCase() === txt?.toLocaleLowerCase(),
+        (obj) => obj?.text?.toLocaleLowerCase() === txt?.toLocaleLowerCase()
       );
       if (index != -1 && chatRef) {
-        console.log('scrolling to index ::: ', index);
+        console.log("scrolling to index ::: ", index);
         chatRef?.current?._messageContainerRef?.current?.scrollToIndex({
           animated: true,
           index: index,
         });
       } else {
-        console.log('not scrolling index find ::: ', index);
+        console.log("not scrolling index find ::: ", index);
       }
     }
   };
@@ -485,40 +489,42 @@ const Conversations = ({navigation, route}) => {
       {!isSearch ? (
         <View style={styles.headerView}>
           <TouchableOpacity
-            style={{padding: 10, paddingLeft: 0}}
-            onPress={() => navigation?.goBack()}>
+            style={{ padding: 10, paddingLeft: 0 }}
+            onPress={() => navigation?.goBack()}
+          >
             <Image
-              source={require('../../../assets/images/left-arrow.png')}
-              style={{width: 12, height: 20}}
+              source={require("../../../assets/images/left-arrow.png")}
+              style={{ width: 12, height: 20 }}
             />
           </TouchableOpacity>
           <Image
-            source={require('../../../assets/images/user1.png')}
-            style={{width: 40, height: 40, marginHorizontal: 10}}
+            source={require("../../../assets/images/friend-profile.png")}
+            style={{ width: 40, height: 40, marginHorizontal: 10 }}
           />
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text
               style={{
-                color: '#000000',
+                color: "#000000",
                 fontSize: 17,
-                fontFamily: 'Rubik-Medium',
-              }}>
+                fontFamily: "Rubik-Medium",
+              }}
+            >
               {/* {route?.params?.user?.name} */}
               {/* test */}
               {selectedUser?.name}
             </Text>
-            <Text
+            {/* <Text
               style={{
                 color: '#4BE36C',
                 fontSize: 14,
                 fontFamily: 'Rubik-Regular',
               }}>
               Online Now
-            </Text>
+            </Text> */}
           </View>
           <TouchableOpacity onPress={() => setIsSearch(true)}>
             <Image
-              source={require('../../../assets/images/search-small.png')}
+              source={require("../../../assets/images/search-small.png")}
             />
           </TouchableOpacity>
         </View>
@@ -527,36 +533,37 @@ const Conversations = ({navigation, route}) => {
           <View style={styles.searchView}>
             <TextInput
               style={styles.searchTextIntput}
-              placeholder={'Search'}
+              placeholder={"Search"}
               value={searchText}
-              onChangeText={txt => {
+              onChangeText={(txt) => {
                 setSearchText(txt);
               }}
             />
             <Image
-              source={require('../../../assets/images/search.png')}
-              style={{height: 20, width: 20}}
+              source={require("../../../assets/images/search.png")}
+              style={{ height: 20, width: 20 }}
             />
           </View>
           <TouchableOpacity
             style={styles.btnCancel}
             onPress={() => {
               setIsSearch(false);
-              setSearchText('');
-            }}>
+              setSearchText("");
+            }}
+          >
             <Text style={styles.btnCancelText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <View style={{flex: 0.97, backgroundColor: '#DAE7F1'}}>
+      <View style={{ flex: 0.97, backgroundColor: "#DAE7F1" }}>
         {loading && <Loader />}
         <GiftedChat
           // isTyping
           ref={chatRef}
           messages={messages}
-          placeholder={'Type something...'}
-          onSend={messages => {
+          placeholder={"Type something..."}
+          onSend={(messages) => {
             onSend(messages);
           }}
           user={{
@@ -579,64 +586,66 @@ const Conversations = ({navigation, route}) => {
           //     </View>
           //   );
           // }}
-          renderInputToolbar={props => {
+          renderInputToolbar={(props) => {
             return <CustomInputToolbar {...props} />;
           }}
-          renderAvatar={props => {
+          renderAvatar={(props) => {
             return null;
           }}
-          renderBubble={props => {
+          renderBubble={(props) => {
             return <CustomBubble {...props} />;
           }}
-          renderSend={props => {
+          renderSend={(props) => {
             return <SendComponent {...props} />;
           }}
-          renderTime={props => {
+          renderTime={(props) => {
             return <CustomTime {...props} />;
           }}
           alwaysShowSend
-          renderActions={props => {
+          renderActions={(props) => {
             return (
               <Actions
-                style={{backgroundColor: 'red', marginBottom: 20}}
+                style={{ backgroundColor: "red", marginBottom: 20 }}
                 {...props}
                 options={{
-                  ['Open Camera']: props => {
+                  ["Open Camera"]: (props) => {
                     handleImagePick();
                   },
-                  ['Open Gallery']: props => {
+                  ["Open Gallery"]: (props) => {
                     handleGallery();
                   },
 
-                  Cancel: props => {
-                    console.log('Cancel');
+                  Cancel: (props) => {
+                    console.log("Cancel");
                   },
                 }}
                 icon={() => (
                   <Image
-                    source={require('../../../assets/images/Bitmap.png')}
-                    style={{width: 20, height: 20, marginTop: 2}}
+                    source={require("../../../assets/images/Bitmap.png")}
+                    style={{ width: 20, height: 20, marginTop: 2 }}
                   />
                 )}
                 // onSend={args => console.log(args)}
               />
             );
           }}
-          renderChatEmpty={props => {
+          renderChatEmpty={(props) => {
             return (
               <View
                 {...props}
                 style={{
                   flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 <Text
                   style={{
-                    color: '#000',
+                    color: "#000",
                     fontSize: 14,
-                    transform: [{scaleY: -1}],
-                  }}>
+                    transform: [{ scaleY: -1 }],
+                  }}
+                >
                   No Conversations Yet
                 </Text>
               </View>
@@ -653,12 +662,12 @@ export default Conversations;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     // paddingBottom: 30,
   },
   headerView: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     // marginTop: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -667,30 +676,30 @@ const styles = StyleSheet.create({
 
   searchView: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#CCC',
+    borderColor: "#CCC",
     paddingHorizontal: 10,
     marginRight: 15,
     height: 40,
   },
   searchTextIntput: {
     flex: 1,
-    borderColor: '#FFFFFF',
+    borderColor: "#FFFFFF",
     padding: 8,
-    color: '#000000',
+    color: "#000000",
   },
   btnCancel: {
     // alignSelf: 'flex-end',
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   btnCancelText: {
-    textAlign: 'right',
-    color: '#4e4e4e',
+    textAlign: "right",
+    color: "#4e4e4e",
     fontSize: 16,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
 });
