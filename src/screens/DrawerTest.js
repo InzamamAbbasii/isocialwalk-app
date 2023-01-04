@@ -28,6 +28,7 @@ import {
 } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL_Image } from "../constants/Base_URL_Image";
+import { api } from "../constants/api";
 
 const DrawerTest = ({ navigation, route }) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -104,20 +105,62 @@ const DrawerTest = ({ navigation, route }) => {
       ]
     );
 
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      if (id) {
+        try {
+          var requestOptions = {
+            method: "POST",
+            body: JSON.stringify({
+              user_id: id,
+            }),
+            redirect: "follow",
+          };
+          fetch(api.get_specific_user, requestOptions)
+            .then((response) => response.json())
+            .then((result) => {
+              if (result?.length > 0) {
+                resolve(result[0]);
+              } else {
+                resolve(false);
+              }
+            })
+            .catch((error) => {
+              console.log("error in getting user detail ::", error);
+              resolve(false);
+            });
+        } catch (error) {
+          console.log("error occur in getting user profile detail ::", error);
+          resolve(false);
+        }
+      } else {
+        resolve(false);
+      }
+    });
+  };
+
   const getUser = async () => {
     let user_info = await AsyncStorage.getItem("user");
-
-    if (user_info != null) {
-      let parse = JSON.parse(user_info);
-      setFirstName(parse?.first_name);
-      let image = parse?.profile_image
-        ? BASE_URL_Image + "/" + parse?.profile_image
-        : "";
-      setProfile(image);
-
-      // setLastName(parse?.last_name);
-      //   setPhoneNo(parse?.first_name);
+    let user_id = await AsyncStorage.getItem("user_id");
+    if (user_id) {
+      let user_info = await getUser_Info(user_id);
+      if (user_info) {
+        setFirstName(user_info.first_name);
+        let image = user_info["profile image"]
+          ? BASE_URL_Image + "/" + user_info["profile image"]
+          : "";
+        setProfile(image);
+      }
     }
+    // if (user_info != null) {
+    //   let parse = JSON.parse(user_info);
+    //   setFirstName(parse?.first_name);
+    //   let image = parse?.profile_image
+    //     ? BASE_URL_Image + "/" + parse?.profile_image
+    //     : "";
+    //   setProfile(image);
+
+    // }
   };
 
   // useFocusEffect(
@@ -130,8 +173,6 @@ const DrawerTest = ({ navigation, route }) => {
     setTimeout(() => {
       StatusBar.setBackgroundColor(showMenu ? "#38ACFF" : "#fff");
     }, 200);
-    console.log("active");
-    console.log({ profile });
     getUser();
   }, [showMenu]);
 
@@ -168,6 +209,7 @@ const DrawerTest = ({ navigation, route }) => {
             marginBottom: 15,
             marginTop: 120,
             // marginTop: ,
+            width: "45%",
           }}
         >
           {profile != "" ? (

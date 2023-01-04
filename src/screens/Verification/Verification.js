@@ -15,6 +15,7 @@ import Snackbar from "react-native-snackbar";
 
 const Verification = ({ navigation, route }) => {
   let { email } = route?.params;
+
   const left_arrow = require("../../../assets/images/left-arrow.png");
   const [optCode, setOptCode] = useState("");
   const [invalidOTP, setInvalidOTP] = useState(false);
@@ -22,12 +23,20 @@ const Verification = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
 
   const handleVerify = () => {
+    console.log("verifying....");
+
     if (optCode.length < 4) {
       setInvalidOTP(true);
       setErrorMessage("You need to enter a verification code");
+    } else if (optCode != route?.params?.code) {
+      console.log("invalid code", optCode, route?.params?.code);
+
+      setInvalidOTP(true);
+      setErrorMessage("Invalid code");
     } else {
       setInvalidOTP(false);
-      navigation.navigate("ChangePassword1", {
+
+      navigation?.replace("ChangePassword1", {
         email: email,
         code: optCode,
       });

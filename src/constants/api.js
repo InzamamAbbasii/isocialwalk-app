@@ -1,5 +1,6 @@
-// const BASE_URL = "https://teamsuit.co/isocialwalk/api";
-const BASE_URL = "https://beforevault.com/isocial/app/api";
+const BASE_URL = "https://teamsuit.co/isocialwalk/api";
+// const BASE_URL = "https://beforevault.com/isocial/app/api";
+// const BASE_URL = "https://isocialwalk.cloud/app/api";
 export const api = {
   // users
   signup: BASE_URL + "/users/signup.php",
@@ -9,10 +10,12 @@ export const api = {
   updatepassword: BASE_URL + "/users/updatepassword.php",
   updateprofile: BASE_URL + "/users/updateprofile.php",
   updatedevicetoken: BASE_URL + "/users/updatedevicetoken.php",
-  forgetpassword: BASE_URL + "/users/forgetpassword.php",
+  // forgetpassword: BASE_URL + "/users/forgetpassword.php",
+  forgetpassword: BASE_URL + "/users/verify.php",
   changePassword: BASE_URL + "/users/verify-otp(forgetpass).php",
   profileimage: BASE_URL + "/users/profileimage.php",
   get_specific_user: BASE_URL + "/users/getusers.php",
+  forget_change_password: BASE_URL + "/users/verify-otp(forgetchangepass).php",
   //Groups
   create_group: BASE_URL + "/groups/create.php",
   group_profileimage: BASE_URL + "/groups/profileimage.php",

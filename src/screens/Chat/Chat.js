@@ -1518,11 +1518,16 @@ const Chat = ({
                       return (
                         <TouchableOpacity
                           // onPress={() => navigation.navigate('FriendRequest')}
-                          onPress={() =>
-                            navigation.navigate("FriendProfile", {
+                          onPress={() => {
+                            // navigation.navigate("FriendProfile", {
+                            //   user: item?.item,
+                            // })
+
+                            navigation.navigate("AddFriend", {
+                              id: item?.item?.id,
                               user: item?.item,
-                            })
-                          }
+                            });
+                          }}
                           style={{
                             ...styles.cardView,
                             width: 101,

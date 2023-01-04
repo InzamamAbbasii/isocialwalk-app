@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,12 +9,12 @@ import {
   Alert,
   Animated,
   Pressable,
-} from 'react-native';
-import MenuHeader from '../Reuseable Components/MenuHeader';
-import Loader from '../Reuseable Components/Loader';
-import Snackbar from 'react-native-snackbar';
-import {api} from '../constants/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import MenuHeader from "../Reuseable Components/MenuHeader";
+import Loader from "../Reuseable Components/Loader";
+import Snackbar from "react-native-snackbar";
+import { api } from "../constants/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ConnectDevices = ({
   navigation,
@@ -23,32 +23,33 @@ const ConnectDevices = ({
   setShowMenu,
   moveToRight,
 }) => {
-  const right_arrow = require('../../assets/images/right-arrow.png');
-  const tick_icon = require('../../assets/images/tick-icon.png');
+  const right_arrow = require("../../assets/images/right-arrow.png");
+  const tick_icon = require("../../assets/images/tick-icon.png");
   const [loading, setLoading] = useState(false);
   const [devicesList, setDevicesList] = useState([
     {
       id: 0,
-      name: 'Apple Watch',
+      name: "Apple Watch",
       isConnected: false,
     },
     {
       id: 1,
-      name: 'Fitbit',
+      name: "Fitbit",
       isConnected: false,
     },
     {
       id: 2,
-      name: 'Garmin',
+      name: "Garmin",
       isConnected: false,
     },
   ]);
-  const updateStatus = id => {
-    const newData = devicesList.map(item => {
+  const updateStatus = (id, deviceId) => {
+    const newData = devicesList.map((item) => {
       if (id === item.id) {
         return {
           ...item,
           isConnected: !item.isConnected,
+          device_id: deviceId,
         };
       } else {
         return {
@@ -63,25 +64,24 @@ const ConnectDevices = ({
   }, []);
 
   const getAllConnectedDevices = async () => {
-    let user_id = await AsyncStorage.getItem('user_id');
+    let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let data = {
       this_user_id: user_id,
     };
 
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
-      redirect: 'follow',
+      redirect: "follow",
     };
 
     fetch(api.get_device_connected, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('devices list  ::: ', result);
-        result?.map(element => {
-          console.log('element :: ', element);
-          const newData = devicesList.map(item => {
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("devices list  ::: ", result);
+        result?.map((element) => {
+          const newData = devicesList.map((item) => {
             if (
               element?.device_name?.toLocaleLowerCase() ===
               item.name.toLocaleLowerCase()
@@ -90,6 +90,7 @@ const ConnectDevices = ({
                 ...item,
                 // isConnected: !item.isConnected,
                 isConnected: true,
+                device_id: element.id,
               };
             } else {
               return {
@@ -100,47 +101,58 @@ const ConnectDevices = ({
           setDevicesList(newData);
         });
       })
-      .catch(error => console.log('error occur in create challenge ', error))
+      .catch((error) => console.log("error occur in create challenge ", error))
       .finally(() => setLoading(false));
   };
-  // const handleDisconnectDevice = async () => {
-  //   let user_id = await AsyncStorage.getItem('user_id');
-  //   setLoading(true);
-  //   let data = {
-  //     id: user_id,
-  //   };
-  //   var requestOptions = {
-  //     method: 'POST',
-  //     body: JSON.stringify(data),
-  //     redirect: 'follow',
-  //   };
+  const handleDisconnectDevice = async (id, name, device_id) => {
+    console.log({ id, name, device_id });
 
-  //   fetch(api.delete_device, requestOptsions)
-  //     .then(response => response.json())
-  //     .then(result => {
-  //       console.log('response delete device ::: ', result);
-  //       if (
-  //         result?.error == false ||
-  //         result[0]?.error == false ||
-  //         result[0]?.error == 'false'
-  //       ) {
-  //         updateStatus(id);
-  //         Snackbar.show({
-  //           text: 'Device Connected successfully!',
-  //           duration: Snackbar.LENGTH_SHORT,
-  //         });
-  //       } else {
-  //         Snackbar.show({
-  //           text: result?.message,
-  //           duration: Snackbar.LENGTH_SHORT,
-  //         });
-  //       }
-  //     })
-  //     .catch(error => console.log('error occur in create challenge ', error))
-  //     .finally(() => setLoading(false));
-  // };
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let data = {
+      // id: user_id,
+      id: device_id,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.delete_device, requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        console.log("response delete device ::: ", result);
+
+        updateStatus(id, device_id);
+        Snackbar.show({
+          text: "Device Disconnected successfully!",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+
+        // if (
+        //   result?.error == false ||
+        //   result[0]?.error == false ||
+        //   result[0]?.error == "false"
+        // ) {
+        //   updateStatus(id);
+        //   Snackbar.show({
+        //     text: "Device Connected successfully!",
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // } else {
+        //   Snackbar.show({
+        //     text: result?.message,
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+      })
+      .catch((error) => console.log("error occur in disconnect device ", error))
+      .finally(() => setLoading(false));
+  };
+
   const handleConnectDevice = async (id, name) => {
-    let user_id = await AsyncStorage.getItem('user_id');
+    let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let data = {
       user_id: user_id,
@@ -150,23 +162,23 @@ const ConnectDevices = ({
     };
 
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
-      redirect: 'follow',
+      redirect: "follow",
     };
 
     fetch(api.connect_device, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log('response create challenge ::: ', result);
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("response create challenge ::: ", result);
         if (
           result?.error == false ||
           result[0]?.error == false ||
-          result[0]?.error == 'false'
+          result[0]?.error == "false"
         ) {
-          updateStatus(id);
+          updateStatus(id, result?.id);
           Snackbar.show({
-            text: 'Device Connected successfully!',
+            text: "Device Connected successfully!",
             duration: Snackbar.LENGTH_SHORT,
           });
         } else {
@@ -176,21 +188,38 @@ const ConnectDevices = ({
           });
         }
       })
-      .catch(error => console.log('error occur in create challenge ', error))
+      .catch((error) => console.log("error occur in create challenge ", error))
       .finally(() => setLoading(false));
   };
-  const showAlert = item =>
+  const showAlert = (item) =>
     Alert.alert(
-      'Connect Device',
+      "Connect Device",
       `Are you sure you want to connect your ${item.name} to isocialWalk?`,
       [
         {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
         },
-        {text: 'OK', onPress: () => handleConnectDevice(item.id, item?.name)},
-      ],
+        { text: "OK", onPress: () => handleConnectDevice(item.id, item?.name) },
+      ]
+    );
+  const showDisconnectAlert = (item) =>
+    Alert.alert(
+      "Connect Device",
+      `Are you sure you want to disconnect your ${item.name} to isocialWalk?`,
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () =>
+            handleDisconnectDevice(item.id, item?.name, item?.device_id),
+        },
+      ]
     );
 
   const handleOpenCustomDrawer = () => {
@@ -210,19 +239,20 @@ const ConnectDevices = ({
     <Animated.View
       style={{
         flex: 1,
-        backgroundColor: 'white',
-        position: 'absolute',
+        backgroundColor: "white",
+        position: "absolute",
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
         borderRadius: showMenu ? 15 : 0,
-        transform: [{scale: scale}, {translateX: moveToRight}],
-      }}>
+        transform: [{ scale: scale }, { translateX: moveToRight }],
+      }}
+    >
       <View style={styles.container}>
         {loading && <Loader />}
         <MenuHeader
-          title={'Connect Devices'}
+          title={"Connect Devices"}
           navigation={navigation}
           onPress={() => handleOpenCustomDrawer()}
         />
@@ -253,26 +283,30 @@ const ConnectDevices = ({
         </View> */}
 
         <FlatList
-          style={{marginBottom: 10, marginTop: 30}}
+          style={{ marginBottom: 10, marginTop: 30 }}
           data={devicesList}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={item => {
+          renderItem={(item) => {
             return (
               <View style={styles.itemView}>
                 <Text
                   style={{
-                    color: '#000000',
+                    color: "#000000",
                     fontSize: 17,
-                    fontFamily: 'Rubik-Regular',
-                  }}>
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
                   {item.item.name}
                 </Text>
                 <TouchableOpacity
-                  style={{padding: 10}}
+                  style={{ padding: 10 }}
                   // onPress={() => handleConnectDevice(item.item.id)}>
                   onPress={() =>
-                    !item.item.isConnected && showAlert(item.item)
-                  }>
+                    !item.item.isConnected
+                      ? showAlert(item.item)
+                      : showDisconnectAlert(item.item)
+                  }
+                >
                   {item.item.isConnected ? (
                     <Image
                       source={tick_icon}
@@ -305,19 +339,19 @@ export default ConnectDevices;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
   },
   headerView: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 20,
   },
   itemView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginVertical: 5,
     marginHorizontal: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });
