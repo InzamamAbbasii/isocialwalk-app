@@ -365,6 +365,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
           });
           setChartData(list);
         } else {
+          console.log("no hisotry found");
           Snackbar.show({
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,

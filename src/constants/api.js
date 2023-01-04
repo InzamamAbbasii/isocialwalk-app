@@ -1,4 +1,5 @@
-const BASE_URL = "https://teamsuit.co/isocialwalk/api";
+// const BASE_URL = "https://teamsuit.co/isocialwalk/api";
+const BASE_URL = "https://beforevault.com/isocial/app/api";
 export const api = {
   // users
   signup: BASE_URL + "/users/signup.php",
@@ -32,6 +33,7 @@ export const api = {
   get_group_detail: BASE_URL + "/groups/getsinglegroupinfo.php",
   get_user_joined_groups: BASE_URL + "/groups/specificusersofgroup.php",
   get_common_groups: BASE_URL + "/groups/groupsincommon.php",
+  get_requested_groups: BASE_URL + "/groups/getrequestedstats.php",
 
   //notifications
   getAllGroup_notifications: BASE_URL + "/notifications/getallgroup.php",
@@ -53,6 +55,7 @@ export const api = {
   search_friend: BASE_URL + "/friends/search.php",
   unFriend: BASE_URL + "/friends/unfriend.php",
   get_friend_status: BASE_URL + "/friends/getstatus.php",
+  get_requested_friends: BASE_URL + "/friends/getrequestedstatus.php",
 
   //challenges
   create_challenge: BASE_URL + "/challenges/create.php",
@@ -80,6 +83,7 @@ export const api = {
     BASE_URL + "/challenges/specificgroupactivechallengeslist.php",
   remove_group_from_challenge:
     BASE_URL + "/challenges/removegroupchallenge.php",
+  get_requested_challenges: BASE_URL + "/challenges/getstatusrequest.php",
 
   //goals
   add_goals: BASE_URL + "/goals/insert.php",

@@ -179,6 +179,7 @@ const DrawerTest = ({ navigation, route }) => {
                 borderRadius: 55,
                 resizeMode: "contain",
                 marginLeft: 8,
+                backgroundColor: "#ccc",
               }}
             />
           ) : (

@@ -248,7 +248,7 @@ const ChallengesDetail = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
-        console.log("error :: ", error);
+        console.log("error in getting challenge detail  :: ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -319,7 +319,7 @@ const ChallengesDetail = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
-        console.log("error :: ", error);
+        console.log("error in getting ranking:: ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
