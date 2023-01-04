@@ -21,7 +21,6 @@ const ForgotPassword = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState(
     "The email doesn't look right"
   );
-
   const handleSend = async () => {
     // navigation.navigate("Verification", {
     //   email: "test",
@@ -29,18 +28,15 @@ const ForgotPassword = ({ navigation }) => {
     // });
 
     // return;
-
     if (email?.length === 0) {
       setIsInvalidEmail(true);
       setErrorMessage("The email doesn't look right");
     } else {
       setIsInvalidEmail(false);
       setLoading(true);
-
       var data = {
         email: email,
       };
-
       var requestOptions = {
         method: "POST",
         body: JSON.stringify(data),
@@ -56,13 +52,23 @@ const ForgotPassword = ({ navigation }) => {
                 email: result[0]?.sentto,
                 code: result[0]?.code,
               });
+              let message = `Verification email sent to ${result[0]?.sentto} successfully`;
+              Snackbar.show({
+                text: message,
+                duration: Snackbar.LENGTH_SHORT,
+              });
             } else {
               setIsInvalidEmail(true);
               setErrorMessage(result[0]?.message);
             }
           }
         })
-        .catch((error) => console.log("error", error))
+        .catch((error) => {
+          Snackbar.show({
+            text: "Something went wrong.Please try again.",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
         .finally(() => setLoading(false));
     }
   };

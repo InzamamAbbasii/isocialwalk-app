@@ -45,7 +45,7 @@ const ChangePassword1 = ({ navigation, route }) => {
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
 
-  const handleUpdate = async () => {
+  const handleUpdate1 = async () => {
     console.log("update......");
 
     setIsInvalidPassword(false);
@@ -87,7 +87,7 @@ const ChangePassword1 = ({ navigation, route }) => {
         fetch(api.changePassword, requestOptions)
           .then((response) => response.json())
           .then((result) => {
-            console.log("result   : :  ", result);
+            console.log("result  change password 1 screen : :  ", result);
             if (result[0]?.error == false || result[0]?.error == "false") {
               Snackbar.show({
                 text: "Password Updated Successfully",
@@ -136,6 +136,86 @@ const ChangePassword1 = ({ navigation, route }) => {
       // });
     }
   };
+
+  const handleUpdate = async () => {
+    console.log("update......");
+
+    setIsInvalidPassword(false);
+    setIsInvalidConfirmPassword(false);
+    if (password.length === 0) {
+      setIsInvalidPassword(true);
+    } else if (confirmPassword.length === 0) {
+      setIsInvalidConfirmPassword(true);
+      setConfirmPassErrorMSG(
+        "Enter a password with a cap, small letter, symbol and a number"
+      );
+    } else if (password !== confirmPassword) {
+      console.log("password and confirm password not matchedrd....");
+      setIsInvalidConfirmPassword(true);
+      setConfirmPassErrorMSG("New Password and confirm password not matched.");
+    } else {
+      console.log("new password :::: ", password);
+      setIsInvalidPassword(false);
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        console.log("logged in user id :: ", user_id);
+        setLoading(true);
+        let data = {
+          // code: route?.params?.code,
+          // email: route?.params?.email,
+          // newpass: password,
+          // confirmpass: confirmPassword,
+          email: route?.params?.email,
+          newpass: password,
+          confirmpass: confirmPassword,
+        };
+        console.log(
+          "data  pass to verify email and change password  ::: ",
+          data
+        );
+
+        console.log(" url ::::::: ", api.forget_change_password);
+
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+
+        fetch(api.forget_change_password, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result[0]?.error == false || result[0]?.error == "false") {
+              Snackbar.show({
+                text: "Password Updated Successfully",
+                duration: Snackbar.LENGTH_SHORT,
+              });
+              navigation?.replace("AuthScreen");
+            } else {
+              Snackbar.show({
+                text: result[0]?.messsage,
+                duration: Snackbar.LENGTH_SHORT,
+              });
+              navigation?.goBack();
+            }
+          })
+          .catch((error) => {
+            Snackbar.show({
+              text: "Something went wrong, please try again",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          })
+          .finally(() => setLoading(false));
+      } catch (error) {
+        Snackbar.show({
+          text: "Something went wrong, please try again",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Toasts />

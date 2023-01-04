@@ -286,16 +286,16 @@ const Groups = ({
   useEffect(() => {
     setLoading(true);
     // setSuggestedGroups([]);
-    getSuggestedGroupsList();
+    // getSuggestedGroupsList();
   }, []);
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     getSuggestedGroupsList();
-  //     getLogged_in_user_groups();
-  //     getMembersList();
-  //     getJoinedGroups();
-  //   }, [])
-  // );
+  useFocusEffect(
+    React.useCallback(() => {
+      getSuggestedGroupsList();
+      getLogged_in_user_groups();
+      getMembersList();
+      getJoinedGroups();
+    }, [])
+  );
 
   const getRequestedGroupsList = async () => {
     return new Promise(async (resolve, reject) => {

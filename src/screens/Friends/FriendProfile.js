@@ -261,11 +261,12 @@ const FriendProfile = ({ navigation, route }) => {
     }
   };
   //get user daily goals steps
-  const getUserDailyGoal = async () => {
+  const getUserDailyGoal = async (id) => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
       let data = {
-        this_user_id: user_id,
+        // this_user_id: user_id,
+        this_user_id: id,
       };
       var requestOptions = {
         method: "POST",

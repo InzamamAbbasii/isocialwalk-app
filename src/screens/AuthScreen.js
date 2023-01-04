@@ -56,6 +56,10 @@ const AuthScreen = ({ navigation }) => {
   const [invalidFirstName, setInvalidFirstName] = useState(false);
   const [invalidLastName, setInvalidLastName] = useState(false);
 
+  //login
+  const [login_email, setLogin_email] = useState("");
+  const [login_password, setLogin_password] = useState("");
+
   const handleRegister = (firstName, lastName, email, password) => {
     setInvalidEmail(false);
     setInvalidPassword(false);
@@ -93,21 +97,33 @@ const AuthScreen = ({ navigation }) => {
 
       fetch(api.signup, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
+        .then(async (result) => {
           console.log("register response :: ", result);
           if (result[0]) {
-            if (result[0]?.error == false) {
+            if (result[0]?.error == false || result[0]?.error == "false") {
               Snackbar.show({
                 text: "Register Successfully",
                 duration: Snackbar.LENGTH_SHORT,
               });
+              await AsyncStorage.setItem("user_id", result[0]?.id);
+              await AsyncStorage.setItem("user", JSON.stringify(result[0]));
+              createUserIn_firebase(
+                result[0]?.id,
+                result[0]?.first_name,
+                result[0]?.email
+              );
+              navigation.replace("DrawerTest");
             } else {
               if (result[0]?.message == "Email Already Exist") {
                 setInvalidEmail(true);
                 setEmailErrorMessage(result[0]?.message);
               } else {
-                setInvalidPassword(true);
-                setPasswordErrorMessage(result[0]?.message);
+                // setInvalidPassword(true);
+                // setPasswordErrorMessage(result[0]?.message);
+                Snackbar.show({
+                  text: result[0]?.message,
+                  duration: Snackbar.LENGTH_SHORT,
+                });
               }
             }
           }
@@ -161,11 +177,15 @@ const AuthScreen = ({ navigation }) => {
                 result[0]?.first_name,
                 result[0]?.email
               );
-
-              navigation.navigate("DrawerTest");
+              navigation.replace("DrawerTest");
             } else {
-              setInvalidPassword(true);
-              setPasswordErrorMessage(result[0]?.message);
+              // setInvalidPassword(true);
+              // setPasswordErrorMessage(result[0]?.message);
+
+              Snackbar.show({
+                text: result[0]?.message,
+                duration: Snackbar.LENGTH_SHORT,
+              });
             }
           }
         })
@@ -494,7 +514,6 @@ const AuthScreen = ({ navigation }) => {
                 ...styles.textInput,
                 borderColor: invalidLastName ? "#D66262" : "#ccc",
               }}
-              autoFocus
               placeholder={"Enter your LastName"}
               value={lastName}
               onChangeText={(txt) => setLastName(txt)}
@@ -519,7 +538,6 @@ const AuthScreen = ({ navigation }) => {
                 ...styles.textInput,
                 borderColor: invalidEmail ? "#D66262" : "#ccc",
               }}
-              autoFocus
               placeholder={"Enter your Email"}
               value={email}
               onChangeText={(txt) => setEmail(txt)}
@@ -659,9 +677,9 @@ const AuthScreen = ({ navigation }) => {
                 ...styles.textInput,
                 borderColor: invalidEmail ? "#D66262" : "#ccc",
               }}
-              autoFocus={true}
-              value={email}
-              onChangeText={(txt) => setEmail(txt)}
+              autoFocus
+              value={login_email}
+              onChangeText={(txt) => setLogin_email(txt)}
               placeholder={"Enter your Email"}
             />
             {invalidEmail && (
@@ -679,8 +697,8 @@ const AuthScreen = ({ navigation }) => {
                 }}
                 secureTextEntry={!isPasswordShow}
                 placeholder={"Enter your Password"}
-                value={password}
-                onChangeText={(txt) => setPassword(txt)}
+                value={login_password}
+                onChangeText={(txt) => setLogin_password(txt)}
               />
               <TouchableOpacity
                 onPress={() => setIsPasswordShow(!isPasswordShow)}
@@ -712,7 +730,8 @@ const AuthScreen = ({ navigation }) => {
           <TouchableOpacity
             style={{ ...styles.btnRegister, marginBottom: 18 }}
             disabled={loading}
-            onPress={() => handleLogin(email, password)}
+            // onPress={() => handleLogin(email, password)}
+            onPress={() => handleLogin(login_email, login_password)}
           >
             <Text
               style={{
@@ -727,9 +746,14 @@ const AuthScreen = ({ navigation }) => {
             {loading && <ActivityIndicator size={"small"} color={"#fff"} />}
           </TouchableOpacity>
           <TouchableOpacity
+            style={{
+              width: 130,
+              paddingVertical: 7,
+              alignSelf: "flex-end",
+            }}
             onPress={() => navigation.navigate("ForgotPassword")}
           >
-            <Text
+            {/* <Text
               style={{
                 color: "#000",
                 fontSize: 14,
@@ -737,7 +761,7 @@ const AuthScreen = ({ navigation }) => {
               }}
             >
               Forgot Password?
-            </Text>
+            </Text> */}
             <Text
               style={{
                 color: "#3BADFF",
@@ -745,7 +769,8 @@ const AuthScreen = ({ navigation }) => {
                 marginBottom: 10,
               }}
             >
-              Reset Password
+              {/* Reset Password */}
+              Forgot Password?
             </Text>
           </TouchableOpacity>
           <View>
