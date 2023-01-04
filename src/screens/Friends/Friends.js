@@ -348,52 +348,201 @@ const Friends = ({
       }
     });
   };
-  const getSuggestedFriendsList = async () => {
-    try {
-      let user_id = await AsyncStorage.getItem("user_id");
-      setLoading(true);
-      setSuggestedFriends([]);
-      let data = {
-        this_user_id: user_id,
-      };
-      var requestOptions = {
-        method: "POST",
-        body: JSON.stringify(data),
-        redirect: "follow",
-      };
 
-      fetch(api.getfriendsuggestions, requestOptions)
-        .then((response) => response.json())
-        .then(async (result) => {
-          let responseList = [];
-          if (result?.length > 0) {
-            for (const element of result) {
-              let isRequested = await getRequestStatus(element["Friend ID"]);
-              console.log("isRequested ::: ", isRequested);
-              let obj = {
-                id: element["Friend ID"],
-                firstName: element["First Name"],
-                lastname: element["lastname"],
-                full_name: element["First Name"] + " " + element["lastname"],
-                // status: element?.status,
-                // status: false,
-                status: isRequested,
-                image: element?.image
-                  ? BASE_URL_Image + "/" + element?.image
-                  : "",
-                active_watch: element["active watch"],
-              };
-              responseList.push(obj);
+  //getting user detail
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
             }
-          }
-          setSuggestedFriends(responseList);
-        })
-        .catch((error) => console.log("error", error))
-        .finally(() => setLoading(false));
-    } catch (error) {
-      console.log("error :", error);
-      setLoading(false);
-    }
+          })
+          .catch((error) => {
+            resolve(false);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
+  //getting requested friends list
+  const getRequestFriendList = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            this_user_id: user_id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_requested_friends, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result[0]?.error == "true" || result[0]?.error == true) {
+              resolve([]);
+            } else {
+              let responseList = result ? result : [];
+              let list = [];
+              for (const element of responseList) {
+                let user_info = await getUser_Info(element?.friend_user_id);
+                if (user_info) {
+                  let obj = {
+                    // id: element?.id,
+                    // this_user_id: element?.id,
+                    // friend_user_id: element?.id,
+                    // status: element?.id,
+                    id: element?.friend_user_id,
+                    firstName: user_info?.first_name,
+                    lastname: user_info?.last_name,
+                    full_name:
+                      user_info?.first_name + " " + user_info?.last_name,
+                    status: true,
+                    image: element["profile image"]
+                      ? BASE_URL_Image + "/" + element["profile image"]
+                      : "",
+                    active_watch: user_info?.active_watch,
+                  };
+                  list.push(obj);
+                }
+              }
+              resolve(list);
+            }
+          })
+          .catch((error) => {
+            resolve([]);
+          });
+      } catch (error) {
+        resolve([]);
+      }
+    });
+  };
+
+  const getSuggestedFriendsList1 = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        let requestedFriendList = await getRequestFriendList();
+        let data = {
+          this_user_id: user_id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+
+        fetch(api.getfriendsuggestions, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            let responseList = [];
+            if (result?.length > 0) {
+              for (const element of result) {
+                // let isRequested = await getRequestStatus(element["Friend ID"]);
+
+                let obj = {
+                  id: element["Friend ID"],
+                  firstName: element["First Name"],
+                  lastname: element["lastname"],
+                  full_name: element["First Name"] + " " + element["lastname"],
+                  // status: element?.status,
+                  status: false,
+                  // status: isRequested,
+                  image: element?.image
+                    ? BASE_URL_Image + "/" + element?.image
+                    : "",
+                  active_watch: element["active watch"],
+                };
+                responseList.push(obj);
+              }
+            }
+            console.log("response List  :::: ", responseList);
+            // setSuggestedFriends(responseList);
+            resolve(responseList);
+          })
+          .catch((error) => {
+            console.log(
+              "error in getting suggested friends :::___________ ",
+              error
+            );
+
+            resolve([]);
+          });
+      } catch (error) {
+        console.log("error in getting suggested friends ::: ", error);
+        resolve([]);
+      }
+    });
+  };
+
+  const getSuggestedFriendsList = async () => {
+    setLoading(true);
+    let requestedFriendList = await getRequestFriendList();
+    let suggestedFriendsList = await getSuggestedFriendsList1();
+    let friendsList = requestedFriendList.concat(suggestedFriendsList);
+    setSuggestedFriends(friendsList);
+    setLoading(false);
+
+    // try {
+    //   let user_id = await AsyncStorage.getItem("user_id");
+    //   let requestedFriendList = await getRequestFriendList();
+    //   setLoading(true);
+    //   setSuggestedFriends([]);
+    //   let data = {
+    //     this_user_id: user_id,
+    //   };
+    //   var requestOptions = {
+    //     method: "POST",
+    //     body: JSON.stringify(data),
+    //     redirect: "follow",
+    //   };
+
+    //   fetch(api.getfriendsuggestions, requestOptions)
+    //     .then((response) => response.json())
+    //     .then(async (result) => {
+    //       let responseList = [];
+    //       if (result?.length > 0) {
+    //         for (const element of result) {
+    //           // let isRequested = await getRequestStatus(element["Friend ID"]);
+    //           console.log("isRequested ::: ", isRequested);
+    //           let obj = {
+    //             id: element["Friend ID"],
+    //             firstName: element["First Name"],
+    //             lastname: element["lastname"],
+    //             full_name: element["First Name"] + " " + element["lastname"],
+    //             // status: element?.status,
+    //             status: false,
+    //             // status: isRequested,
+    //             image: element?.image
+    //               ? BASE_URL_Image + "/" + element?.image
+    //               : "",
+    //             active_watch: element["active watch"],
+    //           };
+    //           responseList.push(obj);
+    //         }
+    //       }
+    //       setSuggestedFriends(responseList);
+    //     })
+    //     .catch((error) => console.log("error", error))
+    //     .finally(() => setLoading(false));
+    // } catch (error) {
+    //   console.log("error :", error);
+    //   setLoading(false);
+    // }
   };
 
   const getFriendsList = async () => {
@@ -790,7 +939,7 @@ const Friends = ({
                           >
                             {item.item.status == true ? (
                               <TouchableOpacity
-                                onPress={() => handleonAdd(item.item.id)}
+                                // onPress={() => handleonAdd(item.item.id)}
                                 style={styles.cardButton}
                               >
                                 <Text

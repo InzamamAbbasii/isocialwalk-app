@@ -285,61 +285,170 @@ const Groups = ({
   };
   useEffect(() => {
     setLoading(true);
-    setSuggestedGroups([]);
+    // setSuggestedGroups([]);
+    getSuggestedGroupsList();
   }, []);
-  useFocusEffect(
-    React.useCallback(() => {
-      getSuggestedGroupsList();
-      getLogged_in_user_groups();
-      getMembersList();
-      getJoinedGroups();
-    }, [])
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     getSuggestedGroupsList();
+  //     getLogged_in_user_groups();
+  //     getMembersList();
+  //     getJoinedGroups();
+  //   }, [])
+  // );
+
+  const getRequestedGroupsList = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: user_id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_requested_groups, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result[0]?.error == "true" || result[0]?.error == true) {
+              resolve([]);
+            } else {
+              let responseList = result ? result : [];
+              let list = [];
+              for (const element of responseList) {
+                let groupInfo = await getGroup_Info(element["Group id"]);
+                if (groupInfo) {
+                  let obj = {
+                    id: element["Group id"],
+                    group_name: groupInfo.name,
+                    adminId: groupInfo["Admin id"],
+                    // status: element?.status,
+                    image:
+                      groupInfo !== false && groupInfo?.image_link
+                        ? BASE_URL_Image + "/" + groupInfo?.image_link
+                        : "",
+                    status: true,
+                  };
+                  list.push(obj);
+                } else {
+                  console.log("group info not found :::: ");
+                }
+              }
+              resolve(list);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting requested groups", error);
+            resolve([]);
+          });
+      } catch (error) {
+        console.log("error in getting requested groups :::: ", error);
+        resolve([]);
+      }
+    });
+  };
+
+  const getSuggestedGroupsList1 = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        let data = {
+          this_user_id: user_id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+        fetch(api.groupsuggestions, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            let responseList = [];
+            if (result?.length > 0) {
+              // setSuggestedGroups(result);
+
+              for (const element of result) {
+                let groupInfo = await getGroup_Info(element["Group ID"]);
+                let obj = {
+                  id: element["Group ID"],
+                  group_name: element["Group Name"],
+                  adminId: element?.admin,
+                  // status: element?.status,
+                  image:
+                    groupInfo !== false && groupInfo?.image_link
+                      ? BASE_URL_Image + "/" + groupInfo?.image_link
+                      : "",
+                  status: false,
+                };
+                responseList.push(obj);
+              }
+            }
+            // setSuggestedGroups(responseList);
+            resolve(responseList);
+          })
+          .catch((error) => {
+            resolve([]);
+          });
+      } catch (error) {
+        resolve([]);
+      }
+    });
+  };
 
   const getSuggestedGroupsList = async () => {
-    try {
-      let user_id = await AsyncStorage.getItem("user_id");
-      let data = {
-        this_user_id: user_id,
-      };
-      var requestOptions = {
-        method: "POST",
-        body: JSON.stringify(data),
-        redirect: "follow",
-      };
-
-      fetch(api.groupsuggestions, requestOptions)
-        .then((response) => response.json())
-        .then(async (result) => {
-          let responseList = [];
-          if (result?.length > 0) {
-            // setSuggestedGroups(result);
-
-            for (const element of result) {
-              let groupInfo = await getGroup_Info(element["Group ID"]);
-              let obj = {
-                id: element["Group ID"],
-                group_name: element["Group Name"],
-                adminId: element?.admin,
-                // status: element?.status,
-                image:
-                  groupInfo !== false && groupInfo?.image_link
-                    ? BASE_URL_Image + "/" + groupInfo?.image_link
-                    : "",
-                status: false,
-              };
-              responseList.push(obj);
-            }
-          }
-          setSuggestedGroups(responseList);
-        })
-        .catch((error) => console.log("error", error))
-        .finally(() => setLoading(false));
-    } catch (error) {
-      console.log("error :", error);
-      setLoading(false);
-    }
+    setLoading(true);
+    let requestedGroupsList = await getRequestedGroupsList();
+    let suggestedGroupsList = await getSuggestedGroupsList1();
+    let groupsList = requestedGroupsList.concat(suggestedGroupsList);
+    setSuggestedGroups(groupsList);
+    setLoading(false);
   };
+
+  // const getSuggestedGroupsList = async () => {
+  //   try {
+  //     let user_id = await AsyncStorage.getItem("user_id");
+  //     let data = {
+  //       this_user_id: user_id,
+  //     };
+  //     var requestOptions = {
+  //       method: "POST",
+  //       body: JSON.stringify(data),
+  //       redirect: "follow",
+  //     };
+
+  //     fetch(api.groupsuggestions, requestOptions)
+  //       .then((response) => response.json())
+  //       .then(async (result) => {
+  //         let responseList = [];
+  //         if (result?.length > 0) {
+  //           // setSuggestedGroups(result);
+
+  //           for (const element of result) {
+  //             let groupInfo = await getGroup_Info(element["Group ID"]);
+  //             let obj = {
+  //               id: element["Group ID"],
+  //               group_name: element["Group Name"],
+  //               adminId: element?.admin,
+  //               // status: element?.status,
+  //               image:
+  //                 groupInfo !== false && groupInfo?.image_link
+  //                   ? BASE_URL_Image + "/" + groupInfo?.image_link
+  //                   : "",
+  //               status: false,
+  //             };
+  //             responseList.push(obj);
+  //           }
+  //         }
+  //         setSuggestedGroups(responseList);
+  //       })
+  //       .catch((error) => console.log("error", error))
+  //       .finally(() => setLoading(false));
+  //   } catch (error) {
+  //     console.log("error :", error);
+  //     setLoading(false);
+  //   }
+  // };
   const getLogged_in_user_groups = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
     setGroupList([]);
@@ -916,7 +1025,7 @@ const Groups = ({
                             {item.item.status ? (
                               <TouchableOpacity
                                 // onPress={() => handleonJoin(item.item.id)}
-                                onPress={() => console.log("item :: ", item)}
+                                //onPress={() => console.log("item :: ", item)}
                                 style={{
                                   ...styles.cardButton,
                                   backgroundColor: "#d8d8d8",

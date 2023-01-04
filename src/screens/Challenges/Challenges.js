@@ -399,52 +399,165 @@ const Challenges = ({
       .finally(() => setLoading(false));
   };
 
-  const getSuggestedChallengesList = async () => {
-    try {
-      let user_id = await AsyncStorage.getItem("user_id");
-      setLoading(true);
-      // setSuggestedFriends([]);
-      console.log("url ::: ", api.getSuggestedChallenges);
-      let data = {
-        this_user_id: user_id,
-      };
-      var requestOptions = {
-        method: "POST",
-        body: JSON.stringify(data),
-        redirect: "follow",
-      };
-
-      fetch(api.getSuggestedChallenges, requestOptions)
-        .then((response) => response.json())
-        .then(async (result) => {
-          let responseList = [];
-          if (result?.length > 0) {
-            for (const element of result) {
-              let img = await get_Challenge_Image(element["challenge ID"]);
-              let obj = {
-                id: element["challenge ID"],
-                name: element["challenge Name"],
-                privacy: element["challenge privacy"],
-                visibility: element["challenge visibility"],
-                challenge_type: element["challenge type"],
-                admin: element?.admin,
-                start_date: element?.start_date,
-                // status: element?.status,
-                image: img ? BASE_URL_Image + "/" + img : "",
-                status: false,
-              };
-              responseList.push(obj);
+  //getting requested challenges
+  const getRequestedChallengesList = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        console.log("user id to get requested challenges", user_id);
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: user_id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_requested_challenges, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result[0]?.error == "true" || result[0]?.error == true) {
+              resolve([]);
+            } else {
+              let responseList = result ? result : [];
+              let list = [];
+              for (const element of responseList) {
+                let challangeInfo = await getChallengeDetail(
+                  element["Challlenge id"]
+                );
+                if (challangeInfo) {
+                  let obj = {
+                    id: challangeInfo?.id,
+                    name: challangeInfo?.name,
+                    privacy: challangeInfo?.challenge_privacy,
+                    visibility: challangeInfo?.challenge_visibility,
+                    challenge_type: challangeInfo?.challenge_type,
+                    admin: challangeInfo?.created_by_user_id,
+                    start_date: challangeInfo?.start_date,
+                    // status: element?.status,
+                    image: challangeInfo?.image
+                      ? BASE_URL_Image + "/" + challangeInfo?.image
+                      : "",
+                    status: true,
+                  };
+                  list.push(obj);
+                }
+              }
+              resolve(list);
             }
-          }
+          })
+          .catch((error) => {
+            console.log("error in getting requested challenges :: ", error);
+            resolve([]);
+          });
+      } catch (error) {
+        console.log("error in getting requested challenges :: ", error);
+        resolve([]);
+      }
+    });
+  };
 
-          setSuggestedChallenges(responseList);
-        })
-        .catch((error) => console.log("error", error))
-        .finally(() => setLoading(false));
-    } catch (error) {
-      console.log("error :", error);
-      setLoading(false);
-    }
+  const getSuggestedChallengesList1 = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        let data = {
+          this_user_id: user_id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+
+        fetch(api.getSuggestedChallenges, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            let responseList = [];
+            if (result?.length > 0) {
+              for (const element of result) {
+                let img = await get_Challenge_Image(element["challenge ID"]);
+                let obj = {
+                  id: element["challenge ID"],
+                  name: element["challenge Name"],
+                  privacy: element["challenge privacy"],
+                  visibility: element["challenge visibility"],
+                  challenge_type: element["challenge type"],
+                  admin: element?.admin,
+                  start_date: element?.start_date,
+                  // status: element?.status,
+                  image: img ? BASE_URL_Image + "/" + img : "",
+                  status: false,
+                };
+                responseList.push(obj);
+              }
+            }
+
+            // setSuggestedChallenges(responseList);
+            resolve(responseList);
+          })
+          .catch((error) => {
+            resolve([]);
+          });
+      } catch (error) {
+        console.log("error :", error);
+        resolve([]);
+      }
+    });
+  };
+
+  const getSuggestedChallengesList = async () => {
+    setLoading(true);
+    let requestedChallenges = await getRequestedChallengesList();
+    let suggestedChallenges = await getSuggestedChallengesList1();
+    let challengesList = requestedChallenges.concat(suggestedChallenges);
+    setSuggestedChallenges(challengesList);
+    setLoading(false);
+
+    // try {
+    //   let user_id = await AsyncStorage.getItem("user_id");
+    //   setLoading(true);
+    //   // setSuggestedFriends([]);
+    //   console.log("url ::: ", api.getSuggestedChallenges);
+    //   let data = {
+    //     this_user_id: user_id,
+    //   };
+    //   var requestOptions = {
+    //     method: "POST",
+    //     body: JSON.stringify(data),
+    //     redirect: "follow",
+    //   };
+
+    //   fetch(api.getSuggestedChallenges, requestOptions)
+    //     .then((response) => response.json())
+    //     .then(async (result) => {
+    //       let responseList = [];
+    //       if (result?.length > 0) {
+    //         for (const element of result) {
+    //           let img = await get_Challenge_Image(element["challenge ID"]);
+    //           let obj = {
+    //             id: element["challenge ID"],
+    //             name: element["challenge Name"],
+    //             privacy: element["challenge privacy"],
+    //             visibility: element["challenge visibility"],
+    //             challenge_type: element["challenge type"],
+    //             admin: element?.admin,
+    //             start_date: element?.start_date,
+    //             // status: element?.status,
+    //             image: img ? BASE_URL_Image + "/" + img : "",
+    //             status: false,
+    //           };
+    //           responseList.push(obj);
+    //         }
+    //       }
+
+    //       setSuggestedChallenges(responseList);
+    //     })
+    //     .catch((error) => console.log("error", error))
+    //     .finally(() => setLoading(false));
+    // } catch (error) {
+    //   console.log("error :", error);
+    //   setLoading(false);
+    // }
   };
   //getting joined challenges list
   const getUserJoinedChallenges = async () => {
@@ -672,8 +785,6 @@ const Challenges = ({
   };
 
   const handleJoinChallenge = async (id, type, admin, item) => {
-    console.log({ id, type, admin });
-    console.log("challenge type  ::: ", item.challenge_type);
     setSelectedChallenge(item?.name);
     setSelectedChallengeId(item?.id);
     setSelectedType(type);
@@ -865,8 +976,8 @@ const Challenges = ({
         </Text>
         <TouchableOpacity
           style={styles.btnCreateGroup}
-          // onPress={() => navigation.navigate("CreateChallenges")}
-          onPress={() => RBSheet_GroupRef?.current?.open()}
+          onPress={() => navigation.navigate("CreateChallenges")}
+          // onPress={() => RBSheet_GroupRef?.current?.open()}
         >
           <Text
             style={{
@@ -1144,14 +1255,14 @@ const Challenges = ({
 
                           {item?.item?.status ? (
                             <TouchableOpacity
-                              onPress={() => {
-                                // handleLeaveChallenge(item.item.id)
-                                console.log(
-                                  "handleJoin_InSearchList",
-                                  item.item.id,
-                                  item?.item?.created_by_user_id
-                                );
-                              }}
+                              // onPress={() => {
+                              //   // handleLeaveChallenge(item.item.id)
+                              //   console.log(
+                              //     "handleJoin_InSearchList",
+                              //     item.item.id,
+                              //     item?.item?.created_by_user_id
+                              //   );
+                              // }}
                               style={{
                                 ...styles.cardButton,
                                 backgroundColor: "#d8d8d8",
@@ -1291,9 +1402,9 @@ const Challenges = ({
                           >
                             {item?.item?.status ? (
                               <TouchableOpacity
-                                onPress={() =>
-                                  handleLeaveChallenge(item.item.id)
-                                }
+                                // onPress={() =>
+                                //   handleLeaveChallenge(item.item.id)
+                                // }
                                 style={{
                                   ...styles.cardButton,
                                   backgroundColor: "#d8d8d8",
@@ -1356,8 +1467,8 @@ const Challenges = ({
                         width: 130,
                         height: 33,
                       }}
-                      // onPress={() => navigation.navigate("CreateChallenges")}
-                      onPress={() => RBSheet_GroupRef?.current?.open()}
+                      onPress={() => navigation.navigate("CreateChallenges")}
+                      // onPress={() => RBSheet_GroupRef?.current?.open()}
                     >
                       <Text
                         style={{
