@@ -20,6 +20,7 @@ import Loader from "../../Reuseable Components/Loader";
 import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment/moment";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const Notification = ({ navigation }) => {
   const bottomSheetRef = useRef();
@@ -32,6 +33,13 @@ const Notification = ({ navigation }) => {
   const [selected_friend_id, setSelected_friend_id] = useState("");
   const [selected_friend_name, setSelected_friend_name] = useState("");
   const [selected_friend_profile, setSelected_friend_profile] = useState("");
+  const [selected_request_status, setSelected_request_status] = useState("");
+
+  //challenge
+  const [selected_challenge_id, setSelected_challenge_id] = useState("");
+  const [selected_challenge_name, setSelected_challenge_name] = useState("");
+  const [selected_challenge_status, setSelected_challenge_status] =
+    useState("");
 
   const [selected_noti_id, setSelected_noti_id] = useState("");
 
@@ -125,7 +133,7 @@ const Notification = ({ navigation }) => {
       }),
       redirect: "follow",
     };
-    fetch(api.get_all_notifications, requestOptions)
+    fetch(api.get_all_notifications1, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
         if (result?.error == false || result?.error == "false") {
@@ -136,8 +144,7 @@ const Notification = ({ navigation }) => {
           for (const element of notificationList) {
             let user_info = await getUser_Info(element?.from_id);
             let notification_detail = await getNotification_Detail(element?.id);
-            console.log("notification_detail ::: ", notification_detail);
-            if (user_info) {
+            if (user_info && notification_detail != false) {
               let obj = {
                 ...element,
                 user_info,
@@ -370,18 +377,118 @@ const Notification = ({ navigation }) => {
       .finally(() => setLoading(false));
   };
 
-  const handleNotificationPress = (item) => {
-    // console.log('item::::', item);
-    // console.log('notificatio id ::: ', item?.id);
+  //get specific challenge info
+  const getChallengeInfo = (id) => {
+    return new Promise((resolve, reject) => {
+      let data = {
+        challenge_id: id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.get_challenge_details, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          if (result?.error == false || result?.error == "false") {
+            let detail = result?.Challenge[0] ? result?.Challenge[0] : null;
+            if (detail == null) {
+              resolve(false);
+            } else {
+              resolve(detail);
+            }
+          } else {
+            resolve(false);
+          }
+        })
+        .catch((error) => {
+          resolve(false);
+        });
+    });
+  };
+  //get specific group info
+
+  //mark specifc notification as read
+  const markAsRead = (id) => {
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify({
+        id: id,
+      }),
+      redirect: "follow",
+    };
+    fetch(api.mark_notification_as_read, requestOptions)
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (result?.error == false || result?.error == "false") {
+          const newData = notificationsList?.map((item) => {
+            if (id == item.id) {
+              return {
+                ...item,
+                status: "read",
+              };
+            } else {
+              return {
+                ...item,
+              };
+            }
+          });
+          setNotificationsList(newData);
+        } else {
+          console.log("something went wrong");
+        }
+      })
+      .catch((error) => {
+        console.log("error while marking notification as read", error);
+      });
+  };
+
+  const handleNotificationPress = async (item) => {
+    console.log("notification press ::: ", item);
+    let user_id = item.from_id;
+
+    let first_name = item?.user_info?.first_name;
+    let last_name = item?.user_info?.last_name;
+    let full_name = first_name + " " + last_name;
+    let img = item?.user_info["profile image"]
+      ? BASE_URL_Image + "/" + item?.user_info["profile image"]
+      : "";
+    setSelected_friend_id(user_id);
+    setSelected_friend_name(full_name);
+    setSelected_friend_profile(img);
+
     setSelected_noti_id(item?.id);
-    // bottomSheetRef?.current?.open();
+
+    //change notification status
+    markAsRead(item?.id);
+
     if (item?.noti_type == "friends to friends") {
-      getSpecificUserDetail(item?.from_id);
+      // getSpecificUserDetail(item?.from_id);
+
+      console.log(
+        "item?.notification_detail?.status ::: ",
+        item?.notification_detail?.status
+      );
+      setSelected_request_status(item?.notification_detail?.staus);
+      bottomSheetRef?.current?.open();
     } else if (item?.noti_type == "user to group") {
-      getSpecificUserDetail(item?.from_id, "group");
-      console.log("selected item  detil ::: ", item);
+      // getSpecificUserDetail(item?.from_id, "group");
+      groupRequest_RBSheetRef?.current?.open();
     } else if (item?.noti_type == "user to indiviual challenge") {
-      getSpecificUserDetail(item?.from_id, "challenge");
+      let challenge_id = item?.notification_detail?.challenge_id;
+      let challenge_info = await getChallengeInfo(challenge_id);
+      if (challenge_info) {
+        console.log("challenge_info", challenge_info);
+        let id = challenge_info?.id;
+        let name = challenge_info?.name;
+        setSelected_challenge_id(id);
+        setSelected_challenge_name(name);
+        setSelected_challenge_status(item?.notification_detail?.status);
+        challengeRequest_RBSheetRef?.current?.open();
+      } else {
+        alert("Something went wrong");
+      }
     }
   };
   return (
@@ -457,7 +564,8 @@ const Notification = ({ navigation }) => {
                         width: 60,
                       }}
                     />
-                  ) : item?.item?.noti_type == "user to indiviual challenge" ? (
+                  ) : item?.item?.noti_type == "user to indiviual challenge" ||
+                    item?.item?.noti_type == "admin to user for challenges" ? (
                     //challenge notification
                     <Image
                       source={require("../../../assets/images/Challenge.png")}
@@ -509,7 +617,9 @@ const Notification = ({ navigation }) => {
                           : item?.item?.noti_type == "user to group"
                           ? "Group Request"
                           : item?.item?.noti_type ==
-                            "user to indiviual challenge"
+                              "user to indiviual challenge" ||
+                            item?.item?.noti_type ==
+                              "admin to user for challenges"
                           ? "Challenge Request"
                           : "other"}
                       </Text>
@@ -538,11 +648,13 @@ const Notification = ({ navigation }) => {
                       {/* {item?.item?.noti_type} */}
 
                       {item?.item?.noti_type == "friends to friends"
-                        ? `${item?.item?.user_info?.first_name} wants to be your
-                            friend`
+                        ? `${item?.item?.user_info?.first_name} wants to be your friend`
                         : item?.item?.noti_type == "user to group"
                         ? `${item?.item?.user_info?.first_name} wants to join your group`
-                        : item?.item?.noti_type == "user to indiviual challenge"
+                        : item?.item?.noti_type ==
+                            "user to indiviual challenge" ||
+                          item?.item?.noti_type ==
+                            "admin to user for challenges"
                         ? `${item?.item?.user_info?.first_name} wants to join challenge`
                         : "other"}
                     </Text>
@@ -557,7 +669,7 @@ const Notification = ({ navigation }) => {
       {/* ---------------------------------------Friend Bottom Sheet------------------------------------------------------- */}
       <RBSheet
         ref={bottomSheetRef}
-        height={300}
+        height={320}
         openDuration={270}
         closeOnDragDown={true}
         closeOnPressMask={false}
@@ -567,7 +679,7 @@ const Notification = ({ navigation }) => {
             padding: 5,
             alignItems: "center",
             // height: 530,
-            flex: 1.1,
+            flex: 1.4,
             backgroundColor: "#ffffff",
             borderRadius: 30,
           },
@@ -586,16 +698,31 @@ const Notification = ({ navigation }) => {
         >
           Friend Request
         </Text>
-        <Image
-          source={profileImage}
-          style={{
-            marginTop: 20,
-            marginBottom: 10,
-            width: 110,
-            height: 110,
-            resizeMode: "contain",
-          }}
-        />
+        {selected_friend_profile ? (
+          <Image
+            source={{ uri: selected_friend_profile }}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              backgroundColor: "#ccc",
+              resizeMode: "contain",
+            }}
+          />
+        ) : (
+          <Image
+            source={profileImage}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              resizeMode: "contain",
+            }}
+          />
+        )}
+
         <Text
           style={{
             color: "#000000",
@@ -606,7 +733,16 @@ const Notification = ({ navigation }) => {
           {/* Boris Findlay */}
           {selected_friend_name}
         </Text>
-        {isFriendRequestApproved ? (
+        <Text
+          style={{
+            color: "#000000",
+            fontSize: 16,
+            fontFamily: "Rubik-Medium",
+          }}
+        >
+          status : {selected_request_status}
+        </Text>
+        {isFriendRequestApproved || selected_request_status == "friends" ? (
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
@@ -618,7 +754,7 @@ const Notification = ({ navigation }) => {
                 color: "#38ACFF",
               }}
             >
-              You and Boris are now friends
+              You are now friends
             </Text>
           </View>
         ) : (
@@ -638,7 +774,8 @@ const Notification = ({ navigation }) => {
                 backgroundColor: "transparent",
                 borderWidth: 1,
               }}
-              onPress={() => handleUnApprove_FriendRequest(selected_friend_id)}
+              // onPress={() => handleUnApprove_FriendRequest(selected_friend_id)}
+              onPress={() => bottomSheetRef?.current?.close()}
             >
               <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
                 Ignore Request
@@ -692,16 +829,30 @@ const Notification = ({ navigation }) => {
         >
           Group Request
         </Text>
-        <Image
-          source={profileImage}
-          style={{
-            marginTop: 20,
-            marginBottom: 10,
-            width: 110,
-            height: 110,
-            resizeMode: "contain",
-          }}
-        />
+        {selected_friend_profile ? (
+          <Image
+            source={{ uri: selected_friend_profile }}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              backgroundColor: "#ccc",
+              resizeMode: "contain",
+            }}
+          />
+        ) : (
+          <Image
+            source={profileImage}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              resizeMode: "contain",
+            }}
+          />
+        )}
         <Text
           style={{
             color: "#000000",
@@ -768,16 +919,30 @@ const Notification = ({ navigation }) => {
         >
           Challenge Request
         </Text>
-        <Image
-          source={profileImage}
-          style={{
-            marginTop: 20,
-            marginBottom: 10,
-            width: 110,
-            height: 110,
-            resizeMode: "contain",
-          }}
-        />
+        {selected_friend_profile ? (
+          <Image
+            source={{ uri: selected_friend_profile }}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              backgroundColor: "#ccc",
+              resizeMode: "contain",
+            }}
+          />
+        ) : (
+          <Image
+            source={profileImage}
+            style={{
+              marginTop: 20,
+              marginBottom: 10,
+              width: 110,
+              height: 110,
+              resizeMode: "contain",
+            }}
+          />
+        )}
         <Text
           style={{
             color: "#000000",
@@ -787,6 +952,42 @@ const Notification = ({ navigation }) => {
         >
           {/* Boris Findlay */}
           {selected_friend_name}
+        </Text>
+        <View
+          style={{
+            width: "87%",
+            justifyContent: "space-between",
+            flexDirection: "row",
+            marginVertical: 8,
+          }}
+        >
+          <Text
+            style={{
+              color: "#000000",
+              fontSize: 14,
+              fontFamily: "Rubik-Medium",
+            }}
+          >
+            Request For :
+          </Text>
+          <Text
+            style={{
+              color: "#000000",
+              fontSize: 14,
+              fontFamily: "Rubik-Medium",
+            }}
+          >
+            {selected_challenge_name}
+          </Text>
+        </View>
+        <Text
+          style={{
+            color: "#000000",
+            fontSize: 14,
+            fontFamily: "Rubik-Medium",
+          }}
+        >
+          status : {selected_challenge_status}
         </Text>
 
         <View style={{ width: "100%", alignItems: "center" }}>
