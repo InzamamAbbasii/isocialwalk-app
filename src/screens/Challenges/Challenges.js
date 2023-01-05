@@ -167,14 +167,15 @@ const Challenges = ({
   useEffect(() => {
     setLoading(true);
     getSuggestedChallengesList();
-    //get groups list of logged in user
-    getLogged_in_user_groups();
   }, []);
 
   useFocusEffect(
     React.useCallback(() => {
       getLogged_in_user_Challenges();
       getUserJoinedChallenges();
+
+      //get groups list of logged in user
+      getLogged_in_user_groups();
     }, [])
   );
 
@@ -217,7 +218,8 @@ const Challenges = ({
         } else {
           setGroupsList([]);
           Snackbar.show({
-            text: result?.Message,
+            // text: result?.Message,
+            text: "No Challenge Found",
             duration: Snackbar.LENGTH_SHORT,
           });
         }
@@ -580,8 +582,11 @@ const Challenges = ({
         .then(async (result) => {
           if (result?.error == false || result?.error == "false") {
             let responstList = result?.challenges ? result?.challenges : [];
+            let filter = responstList?.filter(
+              (item) => item?.status != "requested"
+            );
             let list = [];
-            for (const element of responstList) {
+            for (const element of filter) {
               let challengeInfo = await getChallengeDetail(
                 element?.challenge_id
               );
@@ -613,6 +618,8 @@ const Challenges = ({
             }
             setJoinedChallenge(list);
           } else {
+            setJoinedChallenge([]);
+            console.log("else user join challenge   : :", result);
             Snackbar.show({
               text: result[0]?.message,
               duration: Snackbar.LENGTH_SHORT,
@@ -1391,7 +1398,7 @@ const Challenges = ({
                             />
                           )}
 
-                          <Text style={styles.cardText}>
+                          <Text style={styles.cardText} numberOfLines={2}>
                             {item?.item?.name}
                           </Text>
                           <View

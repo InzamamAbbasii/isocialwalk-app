@@ -41,6 +41,11 @@ const Notification = ({ navigation }) => {
   const [selected_challenge_status, setSelected_challenge_status] =
     useState("");
 
+  //group request
+  const [selected_group_id, setSelected_group_id] = useState("");
+  const [selected_group_name, setSelected_group_name] = useState("");
+  const [selected_group_status, setSelected_group_status] = useState("");
+
   const [selected_noti_id, setSelected_noti_id] = useState("");
 
   const [isFriendRequestApproved, setIsFriendRequestApproved] = useState(false);
@@ -78,6 +83,8 @@ const Notification = ({ navigation }) => {
     // },
   ]);
   useEffect(() => {
+    setLoading(true);
+    setNotificationsList([]);
     getAllNotification();
 
     // let str = '05-12-22';
@@ -123,8 +130,6 @@ const Notification = ({ navigation }) => {
   };
   const getAllNotification = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-    setLoading(true);
-    setNotificationsList([]);
 
     var requestOptions = {
       method: "POST",
@@ -153,8 +158,10 @@ const Notification = ({ navigation }) => {
               list?.push(obj);
             }
           }
-          setNotificationsList(list);
+
+          setNotificationsList(list?.reverse());
         } else {
+          setNotificationsList([]);
           Snackbar.show({
             text: result?.Message,
             duration: Snackbar.LENGTH_SHORT,
@@ -162,6 +169,7 @@ const Notification = ({ navigation }) => {
         }
       })
       .catch((error) => {
+        setNotificationsList([]);
         Snackbar.show({
           text: "Something went wrong.Unable to get notifications.",
           duration: Snackbar.LENGTH_SHORT,
@@ -243,16 +251,17 @@ const Notification = ({ navigation }) => {
       .finally(() => setLoading(false));
   };
   const handleApproveFriend = async (friend_id) => {
+    bottomSheetRef?.current?.close();
     console.log("friend id to approve -->", friend_id);
     let user_id = await AsyncStorage.getItem("user_id");
     console.log("logged in user id ::", user_id);
     setLoading(true);
     let obj = {
       noti_type_id: selected_noti_id,
-      // this_user_id: user_id,
-      // friend_user_id: friend_id,
       this_user_id: friend_id,
       friend_user_id: user_id,
+      // this_user_id: user_id,
+      // friend_user_id: friend_id,
     };
     console.log("data pass to approve request ::: ", obj);
     var requestOptions = {
@@ -271,7 +280,8 @@ const Notification = ({ navigation }) => {
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,
           });
-          bottomSheetRef?.current?.close();
+
+          getAllNotification();
         } else {
           Snackbar.show({
             text: result?.Message,
@@ -321,7 +331,7 @@ const Notification = ({ navigation }) => {
     // setIsFriendRequestApproved(!isFriendRequestApproved);
   };
 
-  const hanldeApprove_GroupRequest = () => {
+  const hanldeApprove_GroupRequest1 = () => {
     setLoading(true);
     let data = {
       group_id: groupId,
@@ -362,9 +372,21 @@ const Notification = ({ navigation }) => {
       redirect: "follow",
     };
     fetch(api.approve_individual_challenge, requestOptions)
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
         console.log("challenge request approve response :::: ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Request approved successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          getAllNotification();
+        } else {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
       })
       .catch((error) => {
         console.log("error in unapproveing request :: ", error);
@@ -373,6 +395,49 @@ const Notification = ({ navigation }) => {
           duration: Snackbar.LENGTH_SHORT,
         });
         console.log("error in unapproveing request :: ", error);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //handle approve group request
+  const hanldeApprove_GroupRequest = (noti_id, group_id) => {
+    console.log("notification id :::: ", noti_id);
+    console.log("group id :::: ", group_id);
+    // alert("handle approve group request");
+
+    setLoading(true);
+    let data = {
+      noti_type_id: noti_id,
+      status: "approved",
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.update_group_request, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("update group request response   :::: ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Request approved Successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          getAllNotification();
+        } else {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
       })
       .finally(() => setLoading(false));
   };
@@ -408,6 +473,35 @@ const Notification = ({ navigation }) => {
     });
   };
   //get specific group info
+  const getGroup_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_group_detail, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
+  };
 
   //mark specifc notification as read
   const markAsRead = (id) => {
@@ -472,12 +566,32 @@ const Notification = ({ navigation }) => {
       );
       setSelected_request_status(item?.notification_detail?.staus);
       bottomSheetRef?.current?.open();
-    } else if (item?.noti_type == "user to group") {
+    } else if (
+      item?.noti_type == "user to group" ||
+      item?.noti_type == "Admin to User For group"
+    ) {
       // getSpecificUserDetail(item?.from_id, "group");
-      groupRequest_RBSheetRef?.current?.open();
+
+      let group_id = item?.notification_detail?.group_id;
+      setLoading(true);
+      let group_info = await getGroup_Info(group_id);
+      setLoading(false);
+      if (group_info) {
+        console.log("group_info:::::: ", group_info);
+        let id = group_info?.id;
+        let name = group_info?.name;
+        setSelected_group_id(id);
+        setSelected_group_name(name);
+        setSelected_group_status(item?.notification_detail?.status);
+        groupRequest_RBSheetRef?.current?.open();
+      } else {
+        alert("Something went wrong");
+      }
     } else if (item?.noti_type == "user to indiviual challenge") {
       let challenge_id = item?.notification_detail?.challenge_id;
+      setLoading(true);
       let challenge_info = await getChallengeInfo(challenge_id);
+      setLoading(false);
       if (challenge_info) {
         console.log("challenge_info", challenge_info);
         let id = challenge_info?.id;
@@ -706,6 +820,7 @@ const Notification = ({ navigation }) => {
               marginBottom: 10,
               width: 110,
               height: 110,
+              borderRadius: 110,
               backgroundColor: "#ccc",
               resizeMode: "contain",
             }}
@@ -837,6 +952,7 @@ const Notification = ({ navigation }) => {
               marginBottom: 10,
               width: 110,
               height: 110,
+              borderRadius: 110,
               backgroundColor: "#ccc",
               resizeMode: "contain",
             }}
@@ -864,11 +980,50 @@ const Notification = ({ navigation }) => {
           {selected_friend_name}
         </Text>
 
+        <View
+          style={{
+            width: "87%",
+            justifyContent: "space-between",
+            flexDirection: "row",
+            marginVertical: 8,
+          }}
+        >
+          <Text
+            style={{
+              color: "#000000",
+              fontSize: 14,
+              fontFamily: "Rubik-Medium",
+            }}
+          >
+            Request For :
+          </Text>
+          <Text
+            style={{
+              color: "#000000",
+              fontSize: 14,
+              fontFamily: "Rubik-Medium",
+            }}
+          >
+            {selected_group_name}
+          </Text>
+        </View>
+
+        <Text
+          style={{
+            color: "#000000",
+            fontSize: 14,
+            fontFamily: "Rubik-Medium",
+          }}
+        >
+          status : {selected_group_status}
+        </Text>
+
         <View style={{ width: "100%", alignItems: "center" }}>
           <TouchableOpacity
             style={styles.btnBottomSheet}
             onPress={() => {
               // handleApproveFriend(selected_friend_id)
+              hanldeApprove_GroupRequest(selected_noti_id, selected_group_id);
             }}
           >
             <Text style={styles.btnText}>Approve Request</Text>
@@ -927,6 +1082,7 @@ const Notification = ({ navigation }) => {
               marginBottom: 10,
               width: 110,
               height: 110,
+              borderRadius: 110,
               backgroundColor: "#ccc",
               resizeMode: "contain",
             }}

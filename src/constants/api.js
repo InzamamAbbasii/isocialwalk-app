@@ -1,6 +1,6 @@
-const BASE_URL = "https://teamsuit.co/isocialwalk/api";
+// const BASE_URL = "https://teamsuit.co/isocialwalk/api";
 // const BASE_URL = "https://beforevault.com/isocial/app/api";
-// const BASE_URL = "https://isocialwalk.cloud/app/api";
+const BASE_URL = "https://isocialwalk.cloud/app/api";
 export const api = {
   // users
   signup: BASE_URL + "/users/signup.php",
@@ -37,6 +37,7 @@ export const api = {
   get_user_joined_groups: BASE_URL + "/groups/specificusersofgroup.php",
   get_common_groups: BASE_URL + "/groups/groupsincommon.php",
   get_requested_groups: BASE_URL + "/groups/getrequestedstats.php",
+  update_group_request: BASE_URL + "/notifications/updategrouprequest.php",
 
   //notifications
   getAllGroup_notifications: BASE_URL + "/notifications/getallgroup.php",
@@ -75,7 +76,7 @@ export const api = {
   get_admin_challenges: BASE_URL + "/challenges/searchbyspecificadmin.php",
   show_challenge_participants: BASE_URL + "/challenges/showparticipants.php",
   approve_individual_challenge:
-    BASE_URL + "/challenges/updatenotificationschallengeindiviual.php",
+    BASE_URL + "/notifications/updatenotificationschallengeindiviual.php",
   get_challenge_details: BASE_URL + "/challenges/getspecificchallenge.php",
   remove_participant_from_challenge:
     BASE_URL + "/challenges/removeparticipant.php",
