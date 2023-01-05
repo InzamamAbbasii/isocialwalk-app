@@ -234,6 +234,8 @@ const FriendProfile = ({ navigation, route }) => {
             let img = result[0]["profile image"]
               ? BASE_URL_Image + "/" + result[0]["profile image"]
               : "";
+
+            console.log("img ::::: ", img);
             setProfileImage(img);
           } else {
             //user not found

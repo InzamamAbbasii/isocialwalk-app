@@ -21,6 +21,7 @@ import Snackbar from "react-native-snackbar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment/moment";
 import { BASE_URL_Image } from "../../constants/Base_URL_Image";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Notification = ({ navigation }) => {
   const bottomSheetRef = useRef();
@@ -84,8 +85,6 @@ const Notification = ({ navigation }) => {
   ]);
   useEffect(() => {
     setLoading(true);
-    setNotificationsList([]);
-    getAllNotification();
 
     // let str = '05-12-22';
     // const [month, day, year] = str.split('-');
@@ -95,6 +94,13 @@ const Notification = ({ navigation }) => {
     // let d = moment(date).fromNow();
     // console.log('d :::: ', d);
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAllNotification();
+    }, [])
+  );
+
   const getUser_Info = (id) => {
     return new Promise((resolve, reject) => {
       if (id) {
@@ -300,14 +306,23 @@ const Notification = ({ navigation }) => {
     // setIsFriendRequestApproved(!isFriendRequestApproved);
   };
 
-  const handleUnApprove_FriendRequest = async (friend_id) => {
+  const handleUnApprove_FriendRequest = async (friend_id, noti_id) => {
+    console.log({ friend_id, noti_id });
+
+    console.log("handle unapprove friend request ::: ", friend_id);
     let user_id = await AsyncStorage.getItem("user_id");
     bottomSheetRef?.current?.close();
     setLoading(true);
     let obj = {
+      // friend_user_id: user_id,
+      // this_user_id: friend_id,
+
       friend_user_id: user_id,
+      noti_type_id: noti_id,
       this_user_id: friend_id,
     };
+    console.log("daTA PASS :: ", obj);
+
     var requestOptions = {
       method: "POST",
       body: JSON.stringify(obj),
@@ -316,10 +331,13 @@ const Notification = ({ navigation }) => {
     fetch(api.unApproveRequest, requestOptions)
       .then((response) => response.text())
       .then((result) => {
+        console.log("result ::: ", result);
+
         Snackbar.show({
           text: "Request Canceled successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
+        getAllNotification();
       })
       .catch((error) => {
         console.log("error in unapproveing request :: ", error);
@@ -329,7 +347,7 @@ const Notification = ({ navigation }) => {
         });
       })
       .finally(() => setLoading(false));
-    // setIsFriendRequestApproved(!isFriendRequestApproved);
+    //setIsFriendRequestApproved(!isFriendRequestApproved);
   };
 
   const hanldeApprove_GroupRequest1 = () => {
@@ -358,7 +376,7 @@ const Notification = ({ navigation }) => {
       })
       .finally(() => setLoading(false));
   };
-  // TODO: this api is not uploaded on server yet
+  //approve challenge join request
   const handleApprove_ChallengeRequest = (notificationId) => {
     console.log("notificationId :::: ", notificationId);
     challengeRequest_RBSheetRef?.current?.close();
@@ -379,6 +397,47 @@ const Notification = ({ navigation }) => {
         if (result[0]?.error == false || result[0]?.error == "false") {
           Snackbar.show({
             text: "Request approved successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          getAllNotification();
+        } else {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error in unapproveing request :: ", error);
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        console.log("error in unapproveing request :: ", error);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //reject challenge join request
+  const handleIgnore_ChallengeRequest = (notificationId) => {
+    setLoading(true);
+    challengeRequest_RBSheetRef?.current?.close();
+    let obj = {
+      status: "rejected",
+      noti_type_id: notificationId,
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.approve_individual_challenge, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("challenge request approve response :::: ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Request rejected successfully",
             duration: Snackbar.LENGTH_SHORT,
           });
           getAllNotification();
@@ -583,6 +642,60 @@ const Notification = ({ navigation }) => {
       });
   };
 
+  //mark all notification as read
+  const handleMarkAllAsRead = async () => {
+    try {
+      let user_id = await AsyncStorage.getItem("user_id");
+      console.log("user_id", user_id);
+      setLoading(true);
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify({
+          to_id: user_id,
+        }),
+        redirect: "follow",
+      };
+      fetch(api.mark_all_notifications_as_read, requestOptions)
+        .then((response) => response.json())
+        .then(async (result) => {
+          console.log("mark all as read", result);
+          if (result?.error == false || result?.error == "false") {
+            const newData = notificationsList?.map((item) => {
+              return {
+                ...item,
+                status: "read",
+              };
+            });
+            setNotificationsList(newData);
+            Snackbar.show({
+              text: "Marked all notifications as read successfully",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          } else {
+            Snackbar.show({
+              text: "Something went wrong",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log("error while marking notification as read", error);
+          Snackbar.show({
+            text: "Something went wrong.Please try again",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        })
+        .finally(() => setLoading(false));
+    } catch (error) {
+      console.log("error catch ::", error);
+      setLoading(false);
+      Snackbar.show({
+        text: "Something went wrong.Please try again",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
   const handleNotificationPress = async (item) => {
     console.log("notification press ::: ", item);
     let user_id = item.from_id;
@@ -652,7 +765,52 @@ const Notification = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
-      <Header title={"Notifications"} navigation={navigation} />
+      {/* <Header title={"Notifications"} navigation={navigation} /> */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginTop: 20,
+        }}
+      >
+        <TouchableOpacity
+          style={{ padding: 10, paddingLeft: 0 }}
+          onPress={() => navigation?.goBack()}
+        >
+          <Image
+            source={require("../../../assets/images/left-arrow.png")}
+            style={{ width: 14, height: 22 }}
+          />
+        </TouchableOpacity>
+        <Text
+          style={{
+            color: "#000000",
+            textAlign: "right",
+            flex: 1,
+            marginRight: 14,
+            fontSize: 23,
+            fontFamily: "Rubik-Medium",
+          }}
+        >
+          Notifications
+        </Text>
+        <TouchableOpacity
+          style={{ paddingVertical: 10 }}
+          onPress={() => handleMarkAllAsRead()}
+        >
+          <Text
+            style={{
+              color: "#000000",
+              textAlign: "center",
+              fontSize: 11,
+              fontFamily: "Rubik-Regular",
+            }}
+          >
+            Mark All as Read
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {loading && <Loader />}
       {notificationsList.length == 0 ? (
         <View
@@ -897,7 +1055,7 @@ const Notification = ({ navigation }) => {
           {/* Boris Findlay */}
           {selected_friend_name}
         </Text>
-        <Text
+        {/* <Text
           style={{
             color: "#000000",
             fontSize: 16,
@@ -905,8 +1063,24 @@ const Notification = ({ navigation }) => {
           }}
         >
           status : {selected_request_status}
-        </Text>
-        {isFriendRequestApproved || selected_request_status == "friends" ? (
+        </Text> */}
+        {selected_request_status == "unapproved" ||
+        selected_request_status == "rejected" ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text
+              style={{
+                ...styles.btnText,
+                fontSize: 15,
+                fontFamily: "Rubik-Medium",
+                color: "#38ACFF",
+              }}
+            >
+              You rejected this request
+            </Text>
+          </View>
+        ) : isFriendRequestApproved || selected_request_status == "friends" ? (
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
@@ -938,8 +1112,13 @@ const Notification = ({ navigation }) => {
                 backgroundColor: "transparent",
                 borderWidth: 1,
               }}
-              // onPress={() => handleUnApprove_FriendRequest(selected_friend_id)}
-              onPress={() => bottomSheetRef?.current?.close()}
+              onPress={() =>
+                handleUnApprove_FriendRequest(
+                  selected_friend_id,
+                  selected_noti_id
+                )
+              }
+              // onPress={() => bottomSheetRef?.current?.close()}
             >
               <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
                 Ignore Request
@@ -954,6 +1133,7 @@ const Notification = ({ navigation }) => {
             navigation.navigate("FriendRequest", {
               id: selected_friend_id,
               selected_noti_id: selected_noti_id,
+              status: selected_request_status,
             });
             bottomSheetRef?.current?.close();
           }}
@@ -1057,7 +1237,7 @@ const Notification = ({ navigation }) => {
           </Text>
         </View>
 
-        <Text
+        {/* <Text
           style={{
             color: "#000000",
             fontSize: 14,
@@ -1065,7 +1245,7 @@ const Notification = ({ navigation }) => {
           }}
         >
           status : {selected_group_status}
-        </Text>
+        </Text> */}
         {selected_group_status == "requested" ? (
           <View style={{ width: "100%", alignItems: "center" }}>
             <TouchableOpacity
@@ -1187,7 +1367,7 @@ const Notification = ({ navigation }) => {
             width: "87%",
             justifyContent: "space-between",
             flexDirection: "row",
-            marginVertical: 8,
+            marginVertical: 10,
           }}
         >
           <Text
@@ -1209,7 +1389,7 @@ const Notification = ({ navigation }) => {
             {selected_challenge_name}
           </Text>
         </View>
-        <Text
+        {/* <Text
           style={{
             color: "#000000",
             fontSize: 14,
@@ -1217,9 +1397,9 @@ const Notification = ({ navigation }) => {
           }}
         >
           status : {selected_challenge_status}
-        </Text>
+        </Text> */}
 
-        {selected_challenge_status == "rejected" ? (
+        {selected_challenge_status == "requested" ? (
           <View style={{ width: "100%", alignItems: "center" }}>
             <TouchableOpacity
               style={styles.btnBottomSheet}
@@ -1236,7 +1416,7 @@ const Notification = ({ navigation }) => {
                 backgroundColor: "transparent",
                 borderWidth: 1,
               }}
-              onPress={() => challengeRequest_RBSheetRef?.current?.close()}
+              onPress={() => handleIgnore_ChallengeRequest(selected_noti_id)}
             >
               <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
                 Ignore Request
@@ -1255,7 +1435,9 @@ const Notification = ({ navigation }) => {
                 color: "#38ACFF",
               }}
             >
-              Request Accepted
+              {selected_challenge_status == "rejected"
+                ? "Request Rejected"
+                : "Request Accepted"}
             </Text>
           </View>
         )}
