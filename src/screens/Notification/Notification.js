@@ -129,6 +129,7 @@ const Notification = ({ navigation }) => {
     });
   };
   const getAllNotification = async () => {
+    setLoading(true);
     let user_id = await AsyncStorage.getItem("user_id");
 
     var requestOptions = {
@@ -404,7 +405,7 @@ const Notification = ({ navigation }) => {
     console.log("notification id :::: ", noti_id);
     console.log("group id :::: ", group_id);
     // alert("handle approve group request");
-
+    groupRequest_RBSheetRef?.current?.close();
     setLoading(true);
     let data = {
       noti_type_id: noti_id,
@@ -423,6 +424,50 @@ const Notification = ({ navigation }) => {
         if (result[0]?.error == false || result[0]?.error == "false") {
           Snackbar.show({
             text: "Request approved Successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          getAllNotification();
+        } else {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //handle unapprove group request
+
+  const handleUnApprove_GroupRequest = (noti_id, group_id) => {
+    console.log({ noti_id, group_id });
+
+    groupRequest_RBSheetRef?.current?.close();
+
+    setLoading(true);
+    let data = {
+      noti_type_id: noti_id,
+      status: "rejected",
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.update_group_request, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("update group request response   :::: ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Request Rejected Successfully",
             duration: Snackbar.LENGTH_SHORT,
           });
           getAllNotification();
@@ -669,7 +714,8 @@ const Notification = ({ navigation }) => {
                         width: 60,
                       }}
                     />
-                  ) : item?.item?.noti_type == "user to group" ? (
+                  ) : item?.item?.noti_type == "user to group" ||
+                    item?.item?.noti_type == "Admin to User For group" ? (
                     //group notification
                     <Image
                       source={require("../../../assets/images/group-profile2.png")}
@@ -728,7 +774,8 @@ const Notification = ({ navigation }) => {
 
                         {item?.item?.noti_type == "friends to friends"
                           ? "Friend Request"
-                          : item?.item?.noti_type == "user to group"
+                          : item?.item?.noti_type == "user to group" ||
+                            item?.item?.noti_type == "Admin to User For group"
                           ? "Group Request"
                           : item?.item?.noti_type ==
                               "user to indiviual challenge" ||
@@ -765,6 +812,8 @@ const Notification = ({ navigation }) => {
                         ? `${item?.item?.user_info?.first_name} wants to be your friend`
                         : item?.item?.noti_type == "user to group"
                         ? `${item?.item?.user_info?.first_name} wants to join your group`
+                        : item?.item?.noti_type == "Admin to User For group"
+                        ? `${item?.item?.user_info?.first_name} added you in group`
                         : item?.item?.noti_type ==
                             "user to indiviual challenge" ||
                           item?.item?.noti_type ==
@@ -1017,30 +1066,54 @@ const Notification = ({ navigation }) => {
         >
           status : {selected_group_status}
         </Text>
-
-        <View style={{ width: "100%", alignItems: "center" }}>
-          <TouchableOpacity
-            style={styles.btnBottomSheet}
-            onPress={() => {
-              // handleApproveFriend(selected_friend_id)
-              hanldeApprove_GroupRequest(selected_noti_id, selected_group_id);
-            }}
+        {selected_group_status == "requested" ? (
+          <View style={{ width: "100%", alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.btnBottomSheet}
+              onPress={() => {
+                // handleApproveFriend(selected_friend_id)
+                hanldeApprove_GroupRequest(selected_noti_id, selected_group_id);
+              }}
+            >
+              <Text style={styles.btnText}>Approve Request</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                ...styles.btnBottomSheet,
+                backgroundColor: "transparent",
+                borderWidth: 1,
+              }}
+              // onPress={() => groupRequest_RBSheetRef?.current?.close()}
+              onPress={() =>
+                handleUnApprove_GroupRequest(
+                  selected_noti_id,
+                  selected_group_id
+                )
+              }
+            >
+              <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
+                Ignore Request
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <Text style={styles.btnText}>Approve Request</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              ...styles.btnBottomSheet,
-              backgroundColor: "transparent",
-              borderWidth: 1,
-            }}
-            onPress={() => groupRequest_RBSheetRef?.current?.close()}
-          >
-            <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
-              Ignore Request
+            <Text
+              style={{
+                ...styles.btnText,
+                fontSize: 15,
+                fontFamily: "Rubik-Medium",
+                color: "#38ACFF",
+              }}
+            >
+              {selected_group_status == "rejected"
+                ? "Request Rejected"
+                : "Request Accepted"}
             </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
       </RBSheet>
       {/*------------------------------------------Challenge Bottom Sheet-------------------------------------------------------------- */}
       <RBSheet
@@ -1146,29 +1219,46 @@ const Notification = ({ navigation }) => {
           status : {selected_challenge_status}
         </Text>
 
-        <View style={{ width: "100%", alignItems: "center" }}>
-          <TouchableOpacity
-            style={styles.btnBottomSheet}
-            onPress={() => {
-              // handleApproveFriend(selected_friend_id)
-              handleApprove_ChallengeRequest(selected_noti_id);
-            }}
+        {selected_challenge_status == "rejected" ? (
+          <View style={{ width: "100%", alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.btnBottomSheet}
+              onPress={() => {
+                // handleApproveFriend(selected_friend_id)
+                handleApprove_ChallengeRequest(selected_noti_id);
+              }}
+            >
+              <Text style={styles.btnText}>Approve Request</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                ...styles.btnBottomSheet,
+                backgroundColor: "transparent",
+                borderWidth: 1,
+              }}
+              onPress={() => challengeRequest_RBSheetRef?.current?.close()}
+            >
+              <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
+                Ignore Request
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <Text style={styles.btnText}>Approve Request</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              ...styles.btnBottomSheet,
-              backgroundColor: "transparent",
-              borderWidth: 1,
-            }}
-            onPress={() => challengeRequest_RBSheetRef?.current?.close()}
-          >
-            <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
-              Ignore Request
+            <Text
+              style={{
+                ...styles.btnText,
+                fontSize: 15,
+                fontFamily: "Rubik-Medium",
+                color: "#38ACFF",
+              }}
+            >
+              Request Accepted
             </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
       </RBSheet>
     </View>
   );

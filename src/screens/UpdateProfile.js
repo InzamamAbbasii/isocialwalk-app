@@ -250,6 +250,10 @@ const UpdateProfile = ({
         })
         .catch((error) => {
           console.log("error in updating profile image ::: ", error);
+          Snackbar.show({
+            text: "Something went wrong, please try again",
+            duration: Snackbar.LENGTH_SHORT,
+          });
         })
         .finally(() => setLoading(false));
     } else {
