@@ -173,7 +173,6 @@ const Challenges = ({
     React.useCallback(() => {
       getLogged_in_user_Challenges();
       getUserJoinedChallenges();
-
       //get groups list of logged in user
       getLogged_in_user_groups();
     }, [])
@@ -1237,7 +1236,9 @@ const Challenges = ({
                             }}
                           />
                         )}
-                        <Text style={styles.cardText}>{item?.item?.name}</Text>
+                        <Text style={styles.cardText} numberOfLines={2}>
+                          {item?.item?.name}
+                        </Text>
                         <View
                           style={{
                             justifyContent: "flex-end",

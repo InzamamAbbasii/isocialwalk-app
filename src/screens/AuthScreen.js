@@ -38,7 +38,7 @@ import firebaseNotificationApi from "../constants/firebaseNotificationApi";
 
 const AuthScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -65,11 +65,17 @@ const AuthScreen = ({ navigation }) => {
     setInvalidPassword(false);
     setInvalidFirstName(false);
     setInvalidLastName(false);
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+
     if (firstName?.length == 0 || typeof firstName == "undefined") {
       setInvalidFirstName(true);
     } else if (lastName?.length == 0 || typeof lastName == "undefined") {
       setInvalidLastName(true);
-    } else if (email?.length === 0 || typeof email == "undefined") {
+    } else if (
+      email?.length === 0 ||
+      typeof email == "undefined" ||
+      reg.test(email) === false
+    ) {
       setInvalidEmail(true);
       setEmailErrorMessage("This email doesn't look right");
     } else if (password?.length === 0 || typeof password == "undefined") {
@@ -140,11 +146,14 @@ const AuthScreen = ({ navigation }) => {
   const handleLogin = async (email, password) => {
     setInvalidEmail(false);
     setInvalidPassword(false);
-    if (email?.length === 0 || typeof email == "undefined") {
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(email) === false) {
       setInvalidEmail(true);
       setEmailErrorMessage("This email doesn't look right");
-    }
-    if (password?.length === 0 || typeof password == "undefined") {
+    } else if (email?.length === 0 || typeof email == "undefined") {
+      setInvalidEmail(true);
+      setEmailErrorMessage("This email doesn't look right");
+    } else if (password?.length === 0 || typeof password == "undefined") {
       setInvalidPassword(true);
       setPasswordErrorMessage(
         "Enter a password with a cap, small letter, symbol and a number"
@@ -431,21 +440,21 @@ const AuthScreen = ({ navigation }) => {
           onPress={() => handleonTabChange()}
           style={{
             ...styles.btn,
-            backgroundColor: index == 0 ? "#FFF" : "transparent",
-            elevation: index == 0 ? 23 : 0,
-          }}
-        >
-          <Text style={styles.btnText}>Register</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleonTabChange()}
-          style={{
-            ...styles.btn,
             backgroundColor: index == 1 ? "#FFF" : "transparent",
             elevation: index == 1 ? 23 : 0,
           }}
         >
           <Text style={styles.btnText}>Sign in</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleonTabChange()}
+          style={{
+            ...styles.btn,
+            backgroundColor: index == 0 ? "#FFF" : "transparent",
+            elevation: index == 0 ? 23 : 0,
+          }}
+        >
+          <Text style={styles.btnText}>Register</Text>
         </TouchableOpacity>
       </View>
       {index == 0 ? (

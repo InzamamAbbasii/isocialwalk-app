@@ -95,6 +95,17 @@ const Notification = ({ navigation }) => {
     // console.log('d :::: ', d);
   }, []);
 
+  useEffect(() => {
+    let date = "2023-01-05 01:09:01";
+    let format = moment("05-01-23").format("YYYY-MM-DD");
+    console.log("fomate :: :", format);
+
+    let d = new Date(date);
+    console.log("d ::: ", d);
+    let d1 = moment(format).fromNow();
+    console.log("d1  :::: ", d1);
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
       getAllNotification();
@@ -159,7 +170,18 @@ const Notification = ({ navigation }) => {
             if (user_info && notification_detail != false) {
               let obj = {
                 ...element,
-                user_info,
+                user_info: {
+                  message: user_info?.message,
+                  email: user_info?.email,
+                  password: user_info?.password,
+                  "profile image": user_info["profile image"]
+                    ? BASE_URL_Image + "/" + user_info["profile image"]
+                    : "",
+                  first_name: user_info?.first_name,
+                  phoneno: user_info?.phoneno,
+                  last_name: user_info?.last_name,
+                  active_watch: user_info?.active_watch,
+                },
                 notification_detail,
               };
               list?.push(obj);
@@ -376,6 +398,7 @@ const Notification = ({ navigation }) => {
       })
       .finally(() => setLoading(false));
   };
+
   //approve challenge join request
   const handleApprove_ChallengeRequest = (notificationId) => {
     console.log("notificationId :::: ", notificationId);
@@ -703,8 +726,11 @@ const Notification = ({ navigation }) => {
     let first_name = item?.user_info?.first_name;
     let last_name = item?.user_info?.last_name;
     let full_name = first_name + " " + last_name;
+    // let img = item?.user_info["profile image"]
+    //   ? BASE_URL_Image + "/" + item?.user_info["profile image"]
+    //   : "";
     let img = item?.user_info["profile image"]
-      ? BASE_URL_Image + "/" + item?.user_info["profile image"]
+      ? item?.user_info["profile image"]
       : "";
     setSelected_friend_id(user_id);
     setSelected_friend_name(full_name);
@@ -721,6 +747,10 @@ const Notification = ({ navigation }) => {
       console.log(
         "item?.notification_detail?.status ::: ",
         item?.notification_detail?.status
+      );
+      console.log(
+        "item?.notification_detail?.staus ::: ",
+        item?.notification_detail?.staus
       );
       setSelected_request_status(item?.notification_detail?.staus);
       bottomSheetRef?.current?.open();
@@ -865,13 +895,29 @@ const Notification = ({ navigation }) => {
                 >
                   {item?.item?.noti_type == "friends to friends" ? (
                     //friend notification
-                    <Image
-                      source={require("../../../assets/images/friend-profile.png")}
-                      style={{
-                        height: 60,
-                        width: 60,
-                      }}
-                    />
+                    <>
+                      {item?.item?.user_info["profile image"] ? (
+                        <Image
+                          source={{
+                            uri: item?.item?.user_info["profile image"],
+                          }}
+                          style={{
+                            height: 60,
+                            width: 60,
+                            borderRadius: 60,
+                            backgroundColor: "#ccc",
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          source={require("../../../assets/images/friend-profile.png")}
+                          style={{
+                            height: 60,
+                            width: 60,
+                          }}
+                        />
+                      )}
+                    </>
                   ) : item?.item?.noti_type == "user to group" ||
                     item?.item?.noti_type == "Admin to User For group" ? (
                     //group notification
@@ -1067,7 +1113,11 @@ const Notification = ({ navigation }) => {
         {selected_request_status == "unapproved" ||
         selected_request_status == "rejected" ? (
           <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <Text
               style={{
@@ -1082,7 +1132,11 @@ const Notification = ({ navigation }) => {
           </View>
         ) : isFriendRequestApproved || selected_request_status == "friends" ? (
           <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <Text
               style={{
@@ -1278,7 +1332,11 @@ const Notification = ({ navigation }) => {
           </View>
         ) : (
           <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <Text
               style={{
@@ -1425,7 +1483,11 @@ const Notification = ({ navigation }) => {
           </View>
         ) : (
           <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <Text
               style={{

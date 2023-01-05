@@ -834,17 +834,19 @@ const GroupDetail = ({ navigation, route }) => {
         <View style={{ paddingHorizontal: 20 }}>
           {/* <Header title={"Carnage Coverage"} navigation={navigation} /> */}
           <Header title={group_name} navigation={navigation} />
-          <TouchableOpacity
-            onPress={() => handleEditPress(groupId)}
-            style={{
-              position: "absolute",
-              right: 20,
-              top: 12,
-              padding: 10,
-            }}
-          >
-            <Icon name="edit" color={"#38ACFF"} size={25} />
-          </TouchableOpacity>
+          {logged_in_user_id == adminId && (
+            <TouchableOpacity
+              onPress={() => handleEditPress(groupId)}
+              style={{
+                position: "absolute",
+                right: 20,
+                top: 12,
+                padding: 10,
+              }}
+            >
+              <Icon name="edit" color={"#38ACFF"} size={25} />
+            </TouchableOpacity>
+          )}
         </View>
         <View
           style={{
@@ -890,9 +892,10 @@ const GroupDetail = ({ navigation, route }) => {
             onPress={() => handleGroupChatPress()}
             style={{
               padding: 10,
-              // backgroundColor: "blue",
               height: 50,
               width: 50,
+              marginBottom: -10,
+              marginTop: -40,
               alignSelf: "flex-end",
             }}
           >

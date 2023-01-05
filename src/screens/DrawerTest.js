@@ -18,6 +18,7 @@ import ConnectDevices from "./ConnectDevices";
 import PrivacyPolicy from "./PrivacyPolicy";
 import UpdateGoals from "./UpdateGoals";
 import UpdateProfile from "./UpdateProfile";
+import MyProfile from "./MyProfile";
 
 import CustomTab from "./CustomTab";
 import TabNavigation from "./Navigation/TabNavigation";
@@ -329,7 +330,7 @@ const DrawerTest = ({ navigation, route }) => {
       {/*  screens */}
 
       {selectedMenuItem === -1 ? (
-        <UpdateProfile
+        <MyProfile
           scale={scale}
           showMenu={showMenu}
           setShowMenu={setShowMenu}
@@ -388,7 +389,7 @@ export default DrawerTest;
 
 const styles = StyleSheet.create({
   drawerItemView: {
-    width: 170,
+    width: 140,
     padding: 10,
     marginLeft: 20,
     marginTop: 20,

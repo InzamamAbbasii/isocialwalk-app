@@ -1169,6 +1169,7 @@ const Chat = ({
                     backgroundColor: "red",
                     justifyContent: "center",
                     alignItems: "center",
+                    marginTop: 3,
                   }}
                 >
                   <Text

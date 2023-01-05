@@ -621,24 +621,33 @@ const Friends = ({
       fetch(api.search_friend, requestOptions)
         .then((response) => response.json())
         .then((result) => {
+          console.log("search result: ", result);
+
           if (result[0]?.error == false || result[0]?.error == "false") {
             let responseList = result[0]?.friends ? result[0]?.friends : [];
             // setSearchResults(responseList);
 
             let list = [];
-            for (const element of responseList) {
-              let obj = {
-                id: element?.id,
-                first_name: element?.first_name,
-                last_name: element?.last_name,
-                image: element?.profile_image
-                  ? BASE_URL_Image + "/" + element?.profile_image
-                  : "",
-                active_watch: element?.active_watch,
-                phoneno: element?.phoneno,
-                createdat: element?.createdat,
-              };
-              list.push(obj);
+            if (responseList?.length > 0) {
+              for (const element of responseList) {
+                let obj = {
+                  id: element?.id,
+                  first_name: element?.first_name,
+                  last_name: element?.last_name,
+                  image: element?.profile_image
+                    ? BASE_URL_Image + "/" + element?.profile_image
+                    : "",
+                  active_watch: element?.active_watch,
+                  phoneno: element?.phoneno,
+                  createdat: element?.createdat,
+                };
+                list.push(obj);
+              }
+            } else {
+              Snackbar.show({
+                text: "No Search Result Found.",
+                duration: Snackbar.LENGTH_SHORT,
+              });
             }
             setSearchResults(list);
           } else {
