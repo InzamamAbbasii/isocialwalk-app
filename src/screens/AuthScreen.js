@@ -156,13 +156,11 @@ const AuthScreen = ({ navigation }) => {
         email: email,
         password: password,
       };
-
       var requestOptions = {
         method: "POST",
         body: JSON.stringify(data),
         redirect: "follow",
       };
-
       fetch(api.signin, requestOptions)
         .then((response) => response.json())
         .then(async (result) => {

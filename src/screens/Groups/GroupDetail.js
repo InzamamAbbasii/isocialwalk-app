@@ -913,12 +913,15 @@ const GroupDetail = ({ navigation, route }) => {
               marginTop: 20,
             }}
           >
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={() => bottomSheetAddMemberRef?.current?.open()}
-            >
-              <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
-            </TouchableOpacity>
+            {logged_in_user_id == adminId && (
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => bottomSheetAddMemberRef?.current?.open()}
+              >
+                <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
+              </TouchableOpacity>
+            )}
+
             {route?.params?.type == "joined" ? (
               <TouchableOpacity
                 onPress={() => handleExitGroup()}

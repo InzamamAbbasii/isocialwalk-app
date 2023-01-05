@@ -516,10 +516,13 @@ const Groups = ({
         // console.log("groups list ::: ", result);
         if (result?.error == false || result?.error == "false") {
           let list = result?.Group ? result?.Group : [];
+
           let joinedGroup_List = [];
           let listOfGroups = [];
           if (list?.length > 0) {
-            let filter = list?.filter((item) => item?.status == "membered");
+            let filter = list?.filter(
+              (item) => item?.status == "membered" || item?.status == "approved"
+            );
             for (const element of filter) {
               let groupInfo = await getGroup_Info(element?.group_id);
               if (groupInfo != false) {
@@ -545,7 +548,7 @@ const Groups = ({
               }
             }
           }
-
+          console.log("listOfGroups :::: ", listOfGroups);
           setJoinedGroupsList(listOfGroups);
         } else {
           setJoinedGroupsList([]);
