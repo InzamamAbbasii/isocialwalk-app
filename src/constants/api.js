@@ -47,6 +47,9 @@ export const api = {
   get_notification_detail: BASE_URL + "/notifications/get.php",
   mark_notification_as_read:
     BASE_URL + "/notifications/updatespecificnotification.php",
+  mark_all_notifications_as_read:
+    BASE_URL + "/notifications/updatenotification.php",
+
   // //Goals
   // add_goals: BASE_URL + '/goals/insert.php',
   // update_goals: BASE_URL + '/goals/update.php',

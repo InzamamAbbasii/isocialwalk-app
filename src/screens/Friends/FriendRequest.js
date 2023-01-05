@@ -221,7 +221,10 @@ const FriendRequest = ({ navigation, route }) => {
             setFullName(fullName);
             setFirstName(result[0]?.first_name);
             setLastName(result[0]?.last_name);
-            setProfileImage(result[0]["profile image"]);
+            let img = result[0]["profile image"]
+              ? BASE_URL_Image + "/" + result[0]["profile image"]
+              : "";
+            setProfileImage(img);
           } else {
             //user not found
             Snackbar.show({
@@ -675,7 +678,11 @@ const FriendRequest = ({ navigation, route }) => {
 
       setLoading(true);
       let obj = {
+        // friend_user_id: user_id,
+        // this_user_id: friend_id,
+
         friend_user_id: user_id,
+        noti_type_id: route?.params?.selected_noti_id,
         this_user_id: friend_id,
       };
       var requestOptions = {
@@ -761,35 +768,37 @@ const FriendRequest = ({ navigation, route }) => {
             {/* Boris Findlay */}
             {firstName} {lastName}
           </Text>
-          <View
-            style={{
-              flexDirection: "row",
-            }}
-          >
-            <TouchableOpacity
-              style={styles.btn}
-              // onPress={() => bottomSheetRef?.current?.open()}
-              onPress={() => handleApproveFriend(route?.params?.id)}
-            >
-              <Text style={styles.btnText}>Approve Request</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                // bottomSheetRef?.current?.open();
-                // navigation.goBack();
-                handleUnApprove_FriendRequest(route?.params?.id);
-              }}
+          {route?.params?.status == "requested" && (
+            <View
               style={{
-                ...styles.btn,
-                backgroundColor: "transparent",
-                borderWidth: 1,
+                flexDirection: "row",
               }}
             >
-              <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
-                Ignore Request
-              </Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={styles.btn}
+                // onPress={() => bottomSheetRef?.current?.open()}
+                onPress={() => handleApproveFriend(route?.params?.id)}
+              >
+                <Text style={styles.btnText}>Approve Request</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  // bottomSheetRef?.current?.open();
+                  // navigation.goBack();
+                  handleUnApprove_FriendRequest(route?.params?.id);
+                }}
+                style={{
+                  ...styles.btn,
+                  backgroundColor: "transparent",
+                  borderWidth: 1,
+                }}
+              >
+                <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
+                  Ignore Request
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
         <View
           style={{

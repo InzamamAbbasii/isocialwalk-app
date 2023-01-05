@@ -565,7 +565,7 @@ const Challenges = ({
   const getUserJoinedChallenges = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-
+      console.log("user_id :::: ", user_id);
       // setSuggestedFriends([]);
 
       let data = {
@@ -583,7 +583,8 @@ const Challenges = ({
           if (result?.error == false || result?.error == "false") {
             let responstList = result?.challenges ? result?.challenges : [];
             let filter = responstList?.filter(
-              (item) => item?.status != "requested"
+              (item) =>
+                item?.status != "requested" && item?.status != "rejected"
             );
             let list = [];
             for (const element of filter) {
