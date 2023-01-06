@@ -314,6 +314,8 @@ const Chat = ({
 
             for (const item of listofUsers) {
               let lastMessage_info = await getLatestMessage(item?.chatroomId);
+              let user_info = await getUser_Info(item?.id);
+
               // let user_info = await getUserInfo(item?.id);
               // console.log('user_info________________________', user_info);
               // let profile = '';
@@ -336,7 +338,10 @@ const Chat = ({
                   lastMessage_info != "" ? lastMessage_info?.message : "",
                 image: lastMessage_info != "" ? lastMessage_info?.image : "",
                 // message: "message",
-                // profile: profile,
+                profile:
+                  user_info != false && user_info["profile image"]
+                    ? BASE_URL_Image + "/" + user_info["profile image"]
+                    : "",
               };
               usersList.push(obj);
             }
@@ -441,6 +446,66 @@ const Chat = ({
     }
   };
 
+  //getting user detail
+  const getUser_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            resolve(false);
+          });
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+
+  //getting specific group info
+  const getGroup_Info = (id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_group_detail, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error in getting user detail ::", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error occur in getting user profile detail ::", error);
+        resolve(false);
+      }
+    });
+  };
+
   const findUser = async (name) => {
     const database = getDatabase();
     const mySnapshot = await get(ref(database, `users/${name}`));
@@ -488,18 +553,21 @@ const Chat = ({
           // setFriendsList(result[0]?.profile);
           let list = result[0]?.profile ? result[0]?.profile : [];
           for (const element of list) {
-            let obj = {
-              id: element?.id,
-              first_name: element?.first_name,
-              last_name: element?.last_name,
-              image: element?.profile_image
-                ? BASE_URL_Image + "/" + element?.profile_image
-                : "",
-              active_watch: element?.active_watch,
-              phoneno: element?.phoneno,
-              createdat: element?.createdat,
-            };
-            responseList.push(obj);
+            const found = responseList.some((el) => el.id === element?.id);
+            if (!found) {
+              let obj = {
+                id: element?.id,
+                first_name: element?.first_name,
+                last_name: element?.last_name,
+                image: element?.profile_image
+                  ? BASE_URL_Image + "/" + element?.profile_image
+                  : "",
+                active_watch: element?.active_watch,
+                phoneno: element?.phoneno,
+                createdat: element?.createdat,
+              };
+              responseList.push(obj);
+            }
           }
         }
         setFriendsList(responseList);
@@ -544,6 +612,7 @@ const Chat = ({
             let lastMessage_info = await getGroup_LatestMessage(
               element?.data?.chatroomId
             );
+            let group_info = await getGroup_Info(element?.id);
             let obj = {
               // group: element,
               id: element?.id,
@@ -560,6 +629,9 @@ const Chat = ({
               read: lastMessage_info != "" ? lastMessage_info?.read : "",
               message: lastMessage_info != "" ? lastMessage_info?.message : "",
               image: lastMessage_info != "" ? lastMessage_info?.image : "",
+              profile: group_info?.image_link
+                ? BASE_URL_Image + "/" + group_info?.image_link
+                : "",
             };
             myGroups.push(obj);
           }
@@ -1095,15 +1167,38 @@ const Chat = ({
             style={styles.chatCardView}
           >
             {data?.item?.type == "group" ? (
-              <Image
-                source={require("../../../assets/images/group-profile2.png")}
-                style={{ width: 45, height: 45 }}
-              />
+              <>
+                {data?.item?.profile ? (
+                  <Image
+                    source={{ uri: data?.item?.profile }}
+                    style={{
+                      width: 45,
+                      height: 45,
+                      borderRadius: 45,
+                      backgroundColor: "#ccc",
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/group-profile2.png")}
+                    style={{ width: 45, height: 45 }}
+                  />
+                )}
+              </>
             ) : (
-              <Image
-                source={require("../../../assets/images/friend-profile.png")}
-                style={{ width: 45, height: 45 }}
-              />
+              <>
+                {data?.item?.profile ? (
+                  <Image
+                    source={{ uri: data?.item?.profile }}
+                    style={{ width: 45, height: 45, borderRadius: 45 }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/friend-profile.png")}
+                    style={{ width: 45, height: 45 }}
+                  />
+                )}
+              </>
             )}
 
             <View style={{ marginLeft: 15, flex: 1 }}>
@@ -1116,15 +1211,30 @@ const Chat = ({
                     alignItems: "center",
                   }}
                 >
-                  <Image
-                    source={require("../../../assets/images/friend-profile.png")}
-                    style={{
-                      width: 15,
-                      height: 15,
-                      resizeMode: "contain",
-                      marginRight: 4,
-                    }}
-                  />
+                  {data?.item?.profile ? (
+                    <Image
+                      source={{ uri: data?.item?.profile }}
+                      style={{
+                        width: 15,
+                        height: 15,
+                        borderRadius: 15,
+                        backgroundColor: "#ccc",
+                        resizeMode: "contain",
+                        marginRight: 4,
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      source={require("../../../assets/images/friend-profile.png")}
+                      style={{
+                        width: 15,
+                        height: 15,
+                        resizeMode: "contain",
+                        marginRight: 4,
+                      }}
+                    />
+                  )}
+
                   <Text
                     numberOfLines={1}
                     style={{ ...styles.messageText, color: "#003E6B" }}
@@ -1425,8 +1535,9 @@ const Chat = ({
               onChangeText={(txt) => setSearchText(txt)}
             />
             <Image
-              source={require("../../../assets/images/search-small.png")}
-              style={{ height: 20, width: 20 }}
+              source={require("../../../assets/images/search.png")}
+              style={{ width: 23, height: 23 }}
+              resizeMode="stretch"
             />
           </View>
           {searchText.length > 0 ? (

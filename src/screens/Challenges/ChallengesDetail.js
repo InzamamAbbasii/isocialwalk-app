@@ -1200,7 +1200,7 @@ const ChallengesDetail = ({ navigation, route }) => {
                   color: "#000000",
                   fontSize: 16,
                   fontFamily: "Rubik-Regular",
-                  paddingHorizontal: 20,
+                  paddingHorizontal: 15,
                 }}
               >
                 Groups/Results

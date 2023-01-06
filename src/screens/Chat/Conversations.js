@@ -24,6 +24,8 @@ import { getDatabase, get, ref, onValue, off, update } from "firebase/database";
 import { useSelector } from "react-redux";
 import storage from "@react-native-firebase/storage";
 import Loader from "../../Reuseable Components/Loader";
+import { api } from "../../constants/api";
+import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const Conversations = ({ navigation, route }) => {
   const chatRef = useRef(null);
@@ -41,20 +43,69 @@ const Conversations = ({ navigation, route }) => {
   const [selectedUser_PhoneNo, setSelectedUser_PhoneNo] = useState("");
   const [profile_Image, setProfile_Image] = useState(null);
 
-  useEffect(() => {
-    if (chatRef) {
-      //scroll to specific message
-      chatRef?.current?._messageContainerRef?.current?.scrollToIndex({
-        animated: true,
-        index: 6,
-      });
-      console.log("chatRaf :: ");
-    } else {
-      console.log("chat ref is undefiend......");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (chatRef) {
+  //     //scroll to specific message
+  //     chatRef?.current?._messageContainerRef?.current?.scrollToIndex({
+  //       animated: true,
+  //       index: 6,
+  //     });
+  //     console.log("chatRaf :: ");
+  //   } else {
+  //     console.log("chat ref is undefiend......");
+  //   }
+  // }, []);
 
   //
+
+  useEffect(() => {
+    getUserDetail();
+  }, []);
+
+  const getUserDetail = async () => {
+    console.log("selectedUser?.id : ", selectedUser?.id);
+    let user_info = await getUser_Info(selectedUser?.id);
+    console.log("user_info : :;", user_info);
+    if (user_info) {
+      let img = user_info["profile image"]
+        ? BASE_URL_Image + "/" + user_info["profile image"]
+        : "";
+      setProfile_Image(img);
+    }
+  };
+
+  //getting user detail
+  const getUser_Info = (id) => {
+    console.log("id pass to get user info  ::", id);
+    return new Promise((resolve, reject) => {
+      try {
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify({
+            user_id: id,
+          }),
+          redirect: "follow",
+        };
+        fetch(api.get_specific_user, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            if (result?.length > 0) {
+              resolve(result[0]);
+            } else {
+              resolve(false);
+            }
+          })
+          .catch((error) => {
+            console.log("error : ", error);
+            resolve(false);
+          });
+      } catch (error) {
+        console.log("error catch  : ", error);
+        resolve(false);
+      }
+    });
+  };
+
   //--------------------------------------------------CHATTING USING FIREBASE---------------------------------------------
 
   // chating through firebase
@@ -70,6 +121,7 @@ const Conversations = ({ navigation, route }) => {
     const mySnapshot = await get(ref(database, `users/${name}`));
     return mySnapshot.val();
   };
+
   useEffect(() => {
     //getting user type i.e patient,doctor or hospital
     const loadData = async () => {
@@ -497,10 +549,24 @@ const Conversations = ({ navigation, route }) => {
               style={{ width: 12, height: 20 }}
             />
           </TouchableOpacity>
-          <Image
-            source={require("../../../assets/images/friend-profile.png")}
-            style={{ width: 40, height: 40, marginHorizontal: 10 }}
-          />
+          {profile_Image ? (
+            <Image
+              source={{ uri: profile_Image }}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 40,
+                backgroundColor: "#ccc",
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../../../assets/images/friend-profile.png")}
+              style={{ width: 40, height: 40, marginHorizontal: 10 }}
+            />
+          )}
+
           <View style={{ flex: 1 }}>
             <Text
               style={{
@@ -524,7 +590,9 @@ const Conversations = ({ navigation, route }) => {
           </View>
           <TouchableOpacity onPress={() => setIsSearch(true)}>
             <Image
-              source={require("../../../assets/images/search-small.png")}
+              source={require("../../../assets/images/search.png")}
+              style={{ width: 23, height: 23 }}
+              resizeMode="stretch"
             />
           </TouchableOpacity>
         </View>

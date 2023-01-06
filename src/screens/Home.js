@@ -1682,10 +1682,18 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                 <View style={{ padding: 10, marginTop: 10, flex: 1 }}>
                   {todayRankingList.length == 0 ? (
                     <View style={styles.bootSheetCardView}>
-                      <Image
-                        source={require("../../assets/images/friend-profile.png")}
-                        style={{ marginVertical: 8, width: 44, height: 44 }}
-                      />
+                      {myImage ? (
+                        <Image
+                          source={{ uri: myImage }}
+                          style={{ marginVertical: 8, width: 44, height: 44 }}
+                        />
+                      ) : (
+                        <Image
+                          source={require("../../assets/images/friend-profile.png")}
+                          style={{ marginVertical: 8, width: 44, height: 44 }}
+                        />
+                      )}
+
                       <Text
                         style={{
                           color: "#040103",

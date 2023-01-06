@@ -242,6 +242,7 @@ const JoinGroup = ({ navigation, route }) => {
       let data = {
         user_id: user_id,
         group_id: groupId,
+        date: new Date(),
       };
 
       var requestOptions = {
@@ -252,8 +253,6 @@ const JoinGroup = ({ navigation, route }) => {
       fetch(api.join_group, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log("result  ::: ", result);
-
           sendPushNotification(adminId);
           Snackbar.show({
             text: result[0]?.message,

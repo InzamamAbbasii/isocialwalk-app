@@ -189,6 +189,7 @@ const Friends = ({
     let data = {
       user_id: user_id,
       to_id: id,
+      date: new Date(),
     };
     var requestOptions = {
       method: "POST",
@@ -453,21 +454,23 @@ const Friends = ({
             if (result?.length > 0) {
               for (const element of result) {
                 // let isRequested = await getRequestStatus(element["Friend ID"]);
-
-                let obj = {
-                  id: element["Friend ID"],
-                  firstName: element["First Name"],
-                  lastname: element["lastname"],
-                  full_name: element["First Name"] + " " + element["lastname"],
-                  // status: element?.status,
-                  status: false,
-                  // status: isRequested,
-                  image: element?.image
-                    ? BASE_URL_Image + "/" + element?.image
-                    : "",
-                  active_watch: element["active watch"],
-                };
-                responseList.push(obj);
+                if (user_id != element["Friend ID"]) {
+                  let obj = {
+                    id: element["Friend ID"],
+                    firstName: element["First Name"],
+                    lastname: element["lastname"],
+                    full_name:
+                      element["First Name"] + " " + element["lastname"],
+                    // status: element?.status,
+                    status: false,
+                    // status: isRequested,
+                    image: element?.image
+                      ? BASE_URL_Image + "/" + element?.image
+                      : "",
+                    active_watch: element["active watch"],
+                  };
+                  responseList.push(obj);
+                }
               }
             }
             console.log("response List  :::: ", responseList);
@@ -571,19 +574,23 @@ const Friends = ({
         } else if (result[0]?.profile?.length > 0) {
           // setFriendsList(result[0]?.profile);
           let list = result[0]?.profile ? result[0]?.profile : [];
+
           for (const element of list) {
-            let obj = {
-              id: element?.id,
-              first_name: element?.first_name,
-              last_name: element?.last_name,
-              image: element?.profile_image
-                ? BASE_URL_Image + "/" + element?.profile_image
-                : "",
-              active_watch: element?.active_watch,
-              phoneno: element?.phoneno,
-              createdat: element?.createdat,
-            };
-            responseList.push(obj);
+            const found = responseList.some((el) => el.id === element?.id);
+            if (!found) {
+              let obj = {
+                id: element?.id,
+                first_name: element?.first_name,
+                last_name: element?.last_name,
+                image: element?.profile_image
+                  ? BASE_URL_Image + "/" + element?.profile_image
+                  : "",
+                active_watch: element?.active_watch,
+                phoneno: element?.phoneno,
+                createdat: element?.createdat,
+              };
+              responseList.push(obj);
+            }
           }
         }
         setFriendsList(responseList);
@@ -607,12 +614,15 @@ const Friends = ({
 
   const handleSearch = async (searchText) => {
     let user_id = await AsyncStorage.getItem("user_id");
+
+    console.log("logged in user id  to searchj   ::  ", user_id);
     if (searchText) {
       setLoading(true);
       let data = {
         this_user_id: user_id,
         name: searchText,
       };
+      console.log("data pass to search  : ", data);
       var requestOptions = {
         method: "POST",
         body: JSON.stringify(data),
@@ -653,7 +663,10 @@ const Friends = ({
           } else {
             setSearchResults([]);
             Snackbar.show({
-              text: result[0]?.Message,
+              text: "No Search Result Found.",
+              // text: result[0]?.Message
+              //   ? result[0]?.Message
+              //   : result[0]?.message,
               duration: Snackbar.LENGTH_SHORT,
             });
           }
@@ -721,6 +734,8 @@ const Friends = ({
             <TouchableOpacity onPress={() => bottomSheetRef?.current?.open()}>
               <Image
                 source={require("../../../assets/images/addFriend1.png")}
+                style={{ width: 30, height: 27 }}
+                resizeMode="stretch"
               />
             </TouchableOpacity>
           </View>
@@ -733,8 +748,9 @@ const Friends = ({
               onChangeText={(txt) => setSearchText(txt)}
             />
             <Image
-              source={require("../../../assets/images/search-small.png")}
-              style={{ height: 20, width: 20 }}
+              source={require("../../../assets/images/search.png")}
+              style={{ width: 23, height: 23 }}
+              resizeMode="stretch"
             />
           </View>
           {searchText.length > 0 ? (

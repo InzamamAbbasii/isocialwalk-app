@@ -166,11 +166,11 @@ const Challenges = ({
 
   useEffect(() => {
     setLoading(true);
-    getSuggestedChallengesList();
   }, []);
 
   useFocusEffect(
     React.useCallback(() => {
+      getSuggestedChallengesList();
       getLogged_in_user_Challenges();
       getUserJoinedChallenges();
       //get groups list of logged in user
@@ -328,7 +328,7 @@ const Challenges = ({
 
   const getLogged_in_user_Challenges = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-    setChallengesList([]);
+
     let data = {
       created_by_user_id: user_id,
     };
@@ -384,6 +384,7 @@ const Challenges = ({
           // }
           // console.log("response list", responseList);
         } else {
+          setChallengesList([]);
           console.log("no challeg found for logged in use");
           // Snackbar.show({
           //   text: result?.message ? result?.message : result?.Message,
@@ -392,6 +393,7 @@ const Challenges = ({
         }
       })
       .catch((error) => {
+        setChallengesList([]);
         Snackbar.show({
           text: "Something went wrong.Unable to get challenge list",
           duration: Snackbar.LENGTH_SHORT,
@@ -422,8 +424,11 @@ const Challenges = ({
               let responseList = result ? result : [];
               let list = [];
               for (const element of responseList) {
+                // let challangeInfo = await getChallengeDetail(
+                //   element["Challlenge id"]
+                // );
                 let challangeInfo = await getChallengeDetail(
-                  element["Challlenge id"]
+                  element?.challenge_id
                 );
                 if (challangeInfo) {
                   let obj = {
@@ -477,19 +482,21 @@ const Challenges = ({
             if (result?.length > 0) {
               for (const element of result) {
                 let img = await get_Challenge_Image(element["challenge ID"]);
-                let obj = {
-                  id: element["challenge ID"],
-                  name: element["challenge Name"],
-                  privacy: element["challenge privacy"],
-                  visibility: element["challenge visibility"],
-                  challenge_type: element["challenge type"],
-                  admin: element?.admin,
-                  start_date: element?.start_date,
-                  // status: element?.status,
-                  image: img ? BASE_URL_Image + "/" + img : "",
-                  status: false,
-                };
-                responseList.push(obj);
+                if (user_id != element?.admin) {
+                  let obj = {
+                    id: element["challenge ID"],
+                    name: element["challenge Name"],
+                    privacy: element["challenge privacy"],
+                    visibility: element["challenge visibility"],
+                    challenge_type: element["challenge type"],
+                    admin: element?.admin,
+                    start_date: element?.start_date,
+                    // status: element?.status,
+                    image: img ? BASE_URL_Image + "/" + img : "",
+                    status: false,
+                  };
+                  responseList.push(obj);
+                }
               }
             }
 
@@ -510,7 +517,15 @@ const Challenges = ({
     setLoading(true);
     let requestedChallenges = await getRequestedChallengesList();
     let suggestedChallenges = await getSuggestedChallengesList1();
-    let challengesList = requestedChallenges.concat(suggestedChallenges);
+    //remove those challenges that are already requestedChallenges
+    let myArray = suggestedChallenges.filter(
+      (ar) => !requestedChallenges.find((rm) => rm.id === ar.id)
+    );
+
+    console.log("requestedChallenges   :::  ", requestedChallenges);
+
+    // let challengesList = requestedChallenges.concat(suggestedChallenges);
+    let challengesList = requestedChallenges.concat(myArray);
     setSuggestedChallenges(challengesList);
     setLoading(false);
 
@@ -619,9 +634,8 @@ const Challenges = ({
             setJoinedChallenge(list);
           } else {
             setJoinedChallenge([]);
-            console.log("else user join challenge   : :", result);
             Snackbar.show({
-              text: result[0]?.message,
+              text: "You have not joined any challange yet.",
               duration: Snackbar.LENGTH_SHORT,
             });
           }
@@ -912,7 +926,7 @@ const Challenges = ({
       };
       fetch(api.search_challenges, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
+        .then(async (result) => {
           if (result[0]?.error == false || result[0]?.error == "false") {
             let responseList = result[0]?.Challenges
               ? result[0]?.Challenges
@@ -920,6 +934,8 @@ const Challenges = ({
             // setSearchResults(groupsList);
             let list = [];
             if (responseList?.length > 0) {
+              let logged_in_user_id = await AsyncStorage.getItem("user_id");
+
               responseList.forEach((element) => {
                 let obj = {
                   id: element?.id,
@@ -929,7 +945,10 @@ const Challenges = ({
                     : "",
                   name: element?.name,
                   challenge_type: element?.challenge_type,
-                  status: false,
+                  status:
+                    logged_in_user_id == element?.created_by_user_id
+                      ? true
+                      : false,
                 };
                 list.push(obj);
               });
@@ -1119,8 +1138,9 @@ const Challenges = ({
                     onChangeText={(txt) => setSearchText(txt)}
                   />
                   <Image
-                    source={require("../../../assets/images/search-small.png")}
-                    style={{ height: 20, width: 20 }}
+                    source={require("../../../assets/images/search.png")}
+                    style={{ width: 23, height: 23 }}
+                    resizeMode="stretch"
                   />
                 </View>
                 <TouchableOpacity
@@ -1160,6 +1180,8 @@ const Challenges = ({
                 <TouchableOpacity onPress={() => setIsSearch(!isSearch)}>
                   <Image
                     source={require("../../../assets/images/search.png")}
+                    style={{ width: 23, height: 23 }}
+                    resizeMode="stretch"
                   />
                 </TouchableOpacity>
               </View>

@@ -631,6 +631,8 @@ const FriendRequest = ({ navigation, route }) => {
         noti_type_id: route?.params?.selected_noti_id,
         this_user_id: friend_id,
         friend_user_id: user_id,
+        date: new Date(),
+
         // this_user_id: user_id,
         // friend_user_id: friend_id,
       };
@@ -678,12 +680,13 @@ const FriendRequest = ({ navigation, route }) => {
 
       setLoading(true);
       let obj = {
+        friend_user_id: user_id,
+        this_user_id: friend_id,
+        noti_type_id: route?.params?.selected_noti_id,
+        date: new Date(),
+
         // friend_user_id: user_id,
         // this_user_id: friend_id,
-
-        friend_user_id: user_id,
-        noti_type_id: route?.params?.selected_noti_id,
-        this_user_id: friend_id,
       };
       var requestOptions = {
         method: "POST",

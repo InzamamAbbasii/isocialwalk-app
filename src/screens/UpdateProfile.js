@@ -85,25 +85,54 @@ const UpdateProfile = ({ navigation }) => {
           console.log("user cancel picking image...");
           return;
         }
+        // setProfileImage(res.assets[0].uri);
+        // setFileName(res.assets[0].fileName);
+        // setMimeType(res.assets[0].type);
+        // let obj = {
+        //   name: "profile_image",
+        //   filename: res.assets[0].uri?.split("/").pop(),
+        //   type: "image/jpeg",
+        //   data: RNFetchBlob.wrap(res.assets[0].uri),
+        // };
+        // setImage_to_upload(obj);
+        // setIsImageChange(true);
+        // //upload profile image
+        // // id, profileImage,fileName,mimeType
+        // updateProfile(
+        //   userId,
+        //   res.assets[0].uri,
+        //   res.assets[0].fileName,
+        //   res.assets[0].type
+        // );
+
+        // ____________________________________________________________
         setProfileImage(res.assets[0].uri);
         setFileName(res.assets[0].fileName);
         setMimeType(res.assets[0].type);
-        let obj = {
-          name: "profile_image",
-          filename: res.assets[0].uri?.split("/").pop(),
-          type: "image/jpeg",
-          data: RNFetchBlob.wrap(res.assets[0].uri),
-        };
-        setImage_to_upload(obj);
-        setIsImageChange(true);
-        //upload profile image
-        // id, profileImage,fileName,mimeType
-        updateProfile(
-          userId,
-          res.assets[0].uri,
-          res.assets[0].fileName,
-          res.assets[0].type
-        );
+        //  apiImagesList.push({
+        //     name: "listing-images",
+        //     filename: filename,
+        //     type: response.assets[0].type,
+        //     data: RNFetchBlob.wrap(response.assets[0].uri),
+        //   });
+
+        // let obj = {
+        //   name: "profile_image",
+        //   filename: res.assets[0].uri?.split("/").pop(),
+        //   type: "image/jpeg",
+        //   data: RNFetchBlob.wrap(res.assets[0].uri),
+        // };
+        // setImage_to_upload(obj);
+
+        // //upload profile image
+        // // id, profileImage,fileName,mimeType
+        // updateProfile(
+        //   userId,
+        //   res.assets[0].uri,
+        //   res.assets[0].fileName,
+        //   res.assets[0].type
+        // );
+        // ____________________________________________________________
       })
       .catch((error) => console.log(error));
   };
@@ -141,12 +170,13 @@ const UpdateProfile = ({ navigation }) => {
 
         //upload profile image
         // id, profileImage,fileName,mimeType
-        updateProfile(
-          userId,
-          res.assets[0].uri,
-          res.assets[0].fileName,
-          res.assets[0].type
-        );
+
+        // updateProfile(
+        //   userId,
+        //   res.assets[0].uri,
+        //   res.assets[0].fileName,
+        //   res.assets[0].type
+        // );
       })
       .catch((error) => console.log(error));
   };
@@ -211,10 +241,20 @@ const UpdateProfile = ({ navigation }) => {
     setLoading(false);
   }, []);
 
-  const updateProfile = async (id, profileImage, fileName, mimeType) => {
+  const updateProfile = async (id, profileImage1, fileName1, mimeType1) => {
+    // updateProfileImage(id, profileImage1, fileName1, mimeType1);
+    // return;
+
     if (profileImage) {
       console.log("user id passed ::: ", id);
-      console.log("profile image ::: ", profileImage);
+      console.log("profile image ::: ", profileImage1);
+
+      console.log({ id, profileImage1, fileName1, mimeType1 });
+
+      console.log(
+        "RNFetchBlob.wrap(profileImage1) :::: ",
+        RNFetchBlob.wrap(profileImage1)
+      );
       setLoading(true);
 
       //______________________________________________________________________________
@@ -230,13 +270,15 @@ const UpdateProfile = ({ navigation }) => {
           { name: "id", data: id },
           {
             name: "profile_image",
-            filename: fileName,
-            type: mimeType,
-            data: RNFetchBlob.wrap(profileImage),
+            filename: fileName1,
+            type: mimeType1,
+            data: RNFetchBlob.wrap(profileImage1),
           },
         ]
       )
         .then((response) => {
+          console.log("response before : ", response?.data);
+
           let myresponse = JSON.parse(response.data);
           console.log("updaing profile response _____", myresponse);
           Snackbar.show({
@@ -247,7 +289,7 @@ const UpdateProfile = ({ navigation }) => {
         .catch((error) => {
           console.log("error in updating profile image ::: ", error);
           Snackbar.show({
-            text: "Something went wrong, please try again",
+            text: "Something went wrong.Profile Image not updated.Please Try Again",
             duration: Snackbar.LENGTH_SHORT,
           });
         })
@@ -300,6 +342,45 @@ const UpdateProfile = ({ navigation }) => {
     //   .finally(() => setLoading(false));
   };
 
+  const updateProfileImage = async (id, profileImage, fileName, mimeType) => {
+    var formdata = new FormData();
+    setLoading(true);
+    formdata.append("id", "26");
+    let obj = {
+      uri: profileImage,
+      name: fileName,
+      type: mimeType,
+    };
+    console.log("image object  :: ", obj);
+    formdata.append("profile_image", obj, fileName);
+    console.log("formdata ::: ", formdata);
+    var requestOptions = {
+      method: "POST",
+      body: formdata,
+      redirect: "follow",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "multipart/form-data",
+      },
+    };
+    console.log("api.profileimage  ::: ", api.profileimage);
+    fetch(api.profileimage, {
+      method: "POST",
+      headers: {
+        Accept: "*/*",
+        "Content-Type": "multipart/form-data",
+        // Authorization: `Token ${Token}`
+      },
+      body: formdata,
+    })
+      .then((response) => response.json())
+      .then((result) => console.log("result of upload profile", result))
+      .catch((error) =>
+        console.log("error in uploading profile image :::: ", error)
+      )
+      .finally(() => setLoading(false));
+  };
+
   const handleUpdateProfile = async () => {
     setInvalidFirstName(false);
     setInvalidLastName(false);
@@ -340,7 +421,8 @@ const UpdateProfile = ({ navigation }) => {
                 text: "Profile Updated Successfully",
                 duration: Snackbar.LENGTH_SHORT,
               });
-              // updateProfile(user_id);
+              // id, profileImage, fileName, mimeType
+              updateProfile(user_id, profileImage, fileName, mimeType);
               updateDeviceToken(user_id);
               navigation.goBack();
             } else {
@@ -577,17 +659,35 @@ const UpdateProfile = ({ navigation }) => {
                   flexDirection: "row",
                 }}
               >
-                <Text
+                <View
                   style={{
-                    color: "#717171",
-                    // fontFamily: fontFamily.BioSans_Regular,
-                    fontSize: 16,
-                    marginLeft: 10,
-                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    marginLeft: 15,
                   }}
                 >
-                  Upload From Camera
-                </Text>
+                  <Image
+                    source={require("../../assets/images/camera2.png")}
+                    style={{
+                      height: 25,
+                      width: 25,
+                      tintColor: "#000",
+                      resizeMode: "contain",
+                    }}
+                  />
+                  <Text
+                    style={{
+                      color: "#717171",
+                      // fontFamily: fontFamily.BioSans_Regular,
+                      fontSize: 16,
+                      marginLeft: 10,
+                      width: "100%",
+                    }}
+                  >
+                    Upload From Camera
+                  </Text>
+                </View>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -604,17 +704,35 @@ const UpdateProfile = ({ navigation }) => {
                   flexDirection: "row",
                 }}
               >
-                <Text
+                <View
                   style={{
-                    color: "#717171",
-                    // fontFamily: fontFamily.BioSans_Regular,
-                    fontSize: 16,
-                    marginLeft: 10,
-                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    marginLeft: 15,
                   }}
                 >
-                  Upload From Gallery
-                </Text>
+                  <Image
+                    source={require("../../assets/images/uploadgallery.png")}
+                    style={{
+                      height: 25,
+                      width: 25,
+                      tintColor: "#717171",
+                      resizeMode: "contain",
+                    }}
+                  />
+                  <Text
+                    style={{
+                      color: "#717171",
+                      // fontFamily: fontFamily.BioSans_Regular,
+                      fontSize: 16,
+                      marginLeft: 10,
+                      width: "100%",
+                    }}
+                  >
+                    Upload From Gallery
+                  </Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
