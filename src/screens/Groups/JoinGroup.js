@@ -106,7 +106,7 @@ const JoinGroup = ({ navigation, route }) => {
   ]);
   useEffect(() => {
     if (route?.params) {
-      // console.log("route?.params :::: ", route?.params);
+      // console.log("route?.params :::: ", route?.params?.item?.status);
 
       // setGroupId(route?.params?.item?.id);
       // setGroupName(route?.params?.item?.group_name);
@@ -348,20 +348,36 @@ const JoinGroup = ({ navigation, route }) => {
             {groupName}
           </Text>
 
-          <TouchableOpacity
-            style={styles.btn}
-            onPress={() => handleJoinGroup()}
-          >
-            <Text
-              style={{
-                color: "#FFF",
-                fontSize: 16,
-                fontFamily: "Rubik-Regular",
-              }}
+          {route?.params?.item?.status == true ? (
+            <TouchableOpacity
+              style={{ ...styles.btn, backgroundColor: "#ccc" }}
             >
-              Join Group
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={{
+                  color: "#FFF",
+                  fontSize: 16,
+                  fontFamily: "Rubik-Regular",
+                }}
+              >
+                Requested
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => handleJoinGroup()}
+            >
+              <Text
+                style={{
+                  color: "#FFF",
+                  fontSize: 16,
+                  fontFamily: "Rubik-Regular",
+                }}
+              >
+                Join Group
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View style={{ marginVertical: 10, paddingHorizontal: 20 }}>
           <Text

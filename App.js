@@ -13,6 +13,8 @@ import TabNavigation from "./src/screens/Navigation/TabNavigation";
 
 import ChangePassword1 from "./src/screens/Verification/ChangePassword1";
 
+import ChangePassword2 from "./src/screens/ChangePassword2";
+
 //challenges
 import CreateChallenges from "./src/screens/Challenges/CreateChallenges";
 import ChallengesDetail from "./src/screens/Challenges/ChallengesDetail";
@@ -43,7 +45,9 @@ import PrivacyPolicy from "./src/screens/PrivacyPolicy";
 import ConnectDevices from "./src/screens/ConnectDevices";
 import UpdateGoals from "./src/screens/UpdateGoals";
 
+//profile
 import UpdateProfile from "./src/screens/UpdateProfile";
+import MyProfile from "./src/screens/MyProfile";
 
 // chat
 import Chat from "./src/screens/Chat/Chat";
@@ -69,14 +73,27 @@ import { firebase } from "@react-native-firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+// // Your web app's Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyAztMILFUlgXAKQZqgbRSjGl30PxPCoYq4",
+//   authDomain: "phonic-impact-308908.firebaseapp.com",
+//   projectId: "phonic-impact-308908",
+//   storageBucket: "phonic-impact-308908.appspot.com",
+//   messagingSenderId: "42615399421",
+//   appId: "1:42615399421:web:5938518a31f56e83d4ef94",
+// };
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAztMILFUlgXAKQZqgbRSjGl30PxPCoYq4",
-  authDomain: "phonic-impact-308908.firebaseapp.com",
-  projectId: "phonic-impact-308908",
-  storageBucket: "phonic-impact-308908.appspot.com",
-  messagingSenderId: "42615399421",
-  appId: "1:42615399421:web:5938518a31f56e83d4ef94",
+  apiKey: "AIzaSyBZ7tzg8Zgjch9let2gsZR1orfDf-6npsk",
+  authDomain: "isocialwalk-a6d51.firebaseapp.com",
+  projectId: "isocialwalk-a6d51",
+  storageBucket: "isocialwalk-a6d51.appspot.com",
+  messagingSenderId: "520078194496",
+  appId: "1:520078194496:web:87a93e30715677047baca5",
 };
 
 // Initialize Firebase
@@ -258,6 +275,16 @@ function App() {
           <Stack.Screen
             name="EditGroup"
             component={EditGroup}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="MyProfile"
+            component={MyProfile}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ChangePassword2"
+            component={ChangePassword2}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

@@ -205,12 +205,12 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
       getUser();
       greeting();
       // getRanking();
+      let todayDate = moment(new Date()).format("YYYY-MM-DD");
+      getHistoryOfSpecificDate(todayDate);
     }, [])
   );
 
   useEffect(() => {
-    let todayDate = moment(new Date()).format("YYYY-MM-DD");
-    getHistoryOfSpecificDate(todayDate);
     getHistoryOfWeek();
     getDailyRanking();
     getWeeklyRanking();
@@ -366,6 +366,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
           setChartData(list);
         } else {
           console.log("no hisotry found");
+
           Snackbar.show({
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,
@@ -1311,7 +1312,47 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                   >
                     <View style={{}}>
                       <CustomBarChart
-                        data={chartData}
+                        data={
+                          chartData?.length == 0
+                            ? [
+                                {
+                                  label: "MON",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                                {
+                                  label: "TUE",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                                {
+                                  label: "WED",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                                {
+                                  label: "THU",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                                {
+                                  label: "FRI",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                                {
+                                  label: "SAT",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                                {
+                                  label: "SUN",
+                                  percentage: "",
+                                  value: 0,
+                                },
+                              ]
+                            : chartData
+                        }
                         round={100}
                         unit="k"
                         width={SCREEN_WIDTH - 20}
@@ -1843,15 +1884,28 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                   backgroundColor="#eee"
                                 >
                                   {(fill) => (
-                                    <Image
-                                      // source={item.item.avater}
-                                      source={require("../../assets/images/friend-profile.png")}
-                                      style={{
-                                        marginVertical: 8,
-                                        width: 44,
-                                        height: 44,
-                                      }}
-                                    />
+                                    <>
+                                      {item?.item?.image ? (
+                                        <Image
+                                          source={{ uri: item?.item?.image }}
+                                          style={{
+                                            marginVertical: 8,
+                                            width: 44,
+                                            height: 44,
+                                            borderRadius: 44,
+                                          }}
+                                        />
+                                      ) : (
+                                        <Image
+                                          source={require("../../assets/images/friend-profile.png")}
+                                          style={{
+                                            marginVertical: 8,
+                                            width: 44,
+                                            height: 44,
+                                          }}
+                                        />
+                                      )}
+                                    </>
                                   )}
                                 </AnimatedCircularProgress>
                               </View>

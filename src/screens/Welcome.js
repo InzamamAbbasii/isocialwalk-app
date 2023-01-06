@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,55 +8,56 @@ import {
   ScrollView,
   Dimensions,
   FlatList,
-} from 'react-native';
-import SwiperFlatList, {Pagination} from 'react-native-swiper-flatlist';
+} from "react-native";
+import SwiperFlatList, { Pagination } from "react-native-swiper-flatlist";
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const Welcome = ({navigation}) => {
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const SCREEN_HEIGHT = Dimensions.get("window").height;
+const Welcome = ({ navigation }) => {
   const [data, setData] = useState([
     {
       id: 0,
-      image: require('../../assets/images/onboarding1.png'),
-      title: 'Track your steps',
+      image: require("../../assets/images/onboarding1.png"),
+      title: "Track your steps",
       description:
-        'Auto tracks your daily steps,burned  calories walking distance, duration,  pace and health data',
+        "Auto tracks your daily steps,burned  calories walking distance, duration,  pace and health data",
     },
     {
       id: 1,
-      image: require('../../assets/images/onboarding2.png'),
-      title: 'Compete with Friends and Participate in Challenges',
+      image: require("../../assets/images/onboarding2.png"),
+      title: "Compete with Friends and Participate in Challenges",
       description:
-        'Enter challenges and go up against family and friends and win rewards and achievements badges',
+        "Enter challenges and go up against family and friends and win rewards and achievements badges",
     },
     {
       id: 2,
-      image: require('../../assets/images/onboarding3.png'),
-      title: 'Join Groups and Chat',
+      image: require("../../assets/images/onboarding3.png"),
+      title: "Join Groups and Chat",
       description:
-        'Intract, create groups, make new friends, chat with existing ones and cheer your everyone on',
+        "Intract, create groups, make new friends, chat with existing ones and cheer your everyone on",
     },
   ]);
 
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <View
         style={{
           flex: 0.8,
           paddingVertical: 20,
-        }}>
+        }}
+      >
         <SwiperFlatList
-          autoplay
+          //  autoplay
           // autoplayLoop
-          autoplayInvertDirection
+          // autoplayInvertDirection
           // disableGesture
           // index={activeIndex}
           // onMomentumScrollEnd={item => setActiveIndex(0)}
           autoplayLoopKeepAnimation
           showPagination
           data={data}
-          paginationDefaultColor={'#7cb9e6'}
-          paginationActiveColor={'#38ACFF'}
+          paginationDefaultColor={"#7cb9e6"}
+          paginationActiveColor={"#38ACFF"}
           paginationStyleItemInactive={{
             marginHorizontal: 6,
           }}
@@ -79,23 +80,24 @@ const Welcome = ({navigation}) => {
           //     />
           //   );
           // }}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <View
               style={{
                 width: SCREEN_WIDTH,
-                alignItems: 'center',
-                alignSelf: 'flex-end',
+                alignItems: "center",
+                alignSelf: "flex-end",
                 marginBottom: 15,
-              }}>
+              }}
+            >
               <View>
                 <Image
                   source={item.image}
                   style={{
-                    alignSelf: 'center',
+                    alignSelf: "center",
                     width: SCREEN_WIDTH - 50,
                     marginBottom: 20,
                   }}
-                  resizeMode={'contain'}
+                  resizeMode={"contain"}
                 />
               </View>
               <Text style={styles.title}>{item.title}</Text>
@@ -104,11 +106,12 @@ const Welcome = ({navigation}) => {
           )}
         />
       </View>
-      <View style={{flex: 0.3, justifyContent: 'center'}}>
+      <View style={{ flex: 0.3, justifyContent: "center" }}>
         <TouchableOpacity
-          style={{...styles.btn}}
-          onPress={() => navigation.navigate('AuthScreen')}>
-          <Text style={{color: '#FFF', fontSize: 16}}>Get Started</Text>
+          style={{ ...styles.btn }}
+          onPress={() => navigation.navigate("AuthScreen")}
+        >
+          <Text style={{ color: "#FFF", fontSize: 16 }}>Get Started</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -120,39 +123,39 @@ export default Welcome;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
   },
   title: {
-    color: '#65BEFF',
+    color: "#65BEFF",
     fontSize: 18,
     width: 250,
     marginTop: 10,
-    textAlign: 'center',
-    fontFamily: 'Rubik-Bold',
+    textAlign: "center",
+    fontFamily: "Rubik-Bold",
   },
   description: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
-    color: '#838383',
+    color: "#838383",
     width: 250,
-    fontFamily: 'Rubik-Regular',
+    fontFamily: "Rubik-Regular",
   },
   paginationContainer: {
     top: 0,
   },
   pagination: {
     borderRadius: 2,
-    backgroundColor: 'red',
+    backgroundColor: "red",
   },
   btn: {
-    backgroundColor: '#38ACFF',
+    backgroundColor: "#38ACFF",
     marginBottom: 40,
     height: 50,
-    width: '88%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "88%",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 10,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
 });

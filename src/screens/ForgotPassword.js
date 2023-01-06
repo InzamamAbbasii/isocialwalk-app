@@ -28,7 +28,12 @@ const ForgotPassword = ({ navigation }) => {
     // });
 
     // return;
-    if (email?.length === 0) {
+
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(email) === false) {
+      setIsInvalidEmail(true);
+      setErrorMessage("The email doesn't look right");
+    } else if (email?.length === 0) {
       setIsInvalidEmail(true);
       setErrorMessage("The email doesn't look right");
     } else {

@@ -211,18 +211,21 @@ const CreateChallenges = ({ navigation, route }) => {
           let list = last_item ? last_item["array of participants"] : [];
           let responseList = [];
           for (const element of list) {
-            let user_info = await getUser_Info(element);
-            console.log("user info  :::: ", user_info);
-            if (user_info == false) {
-              console.log("user detail not found ....");
-            } else {
-              let obj = {
-                id: element, //userid
-                name: user_info?.first_name,
-                profile: user_info["profile image"],
-                status: false,
-              };
-              responseList.push(obj);
+            const found = responseList.some((el) => el.id === element);
+            if (!found) {
+              let user_info = await getUser_Info(element);
+              console.log("user info  :::: ", user_info);
+              if (user_info == false) {
+                console.log("user detail not found ....");
+              } else {
+                let obj = {
+                  id: element, //userid
+                  name: user_info?.first_name,
+                  profile: user_info["profile image"],
+                  status: false,
+                };
+                responseList.push(obj);
+              }
             }
           }
           setMembersList(responseList);
@@ -268,12 +271,12 @@ const CreateChallenges = ({ navigation, route }) => {
   };
 
   const onStartDateChange = (event, value) => {
-    setStartDate(value);
     setIsStartDatePickerShow(false);
+    setStartDate(value);
   };
   const onEndDateChange = (event, value) => {
-    setEndDate(value);
     setIsEndDatePickerShow(false);
+    setEndDate(value);
   };
   const pickImage = async () => {
     var options = {
@@ -446,8 +449,6 @@ const CreateChallenges = ({ navigation, route }) => {
         duration: Snackbar.LENGTH_SHORT,
       });
     } else {
-      console.log("handle create challenge...");
-
       let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
       let data = {
@@ -487,6 +488,7 @@ const CreateChallenges = ({ navigation, route }) => {
               text: "Challenge Created successfully!",
               duration: Snackbar.LENGTH_SHORT,
             });
+            navigation?.goBack();
           } else {
             Snackbar.show({
               text: result?.message,

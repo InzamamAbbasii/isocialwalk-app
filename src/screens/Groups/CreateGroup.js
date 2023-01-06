@@ -215,6 +215,7 @@ const CreateGroup = ({ navigation }) => {
               text: "Group Created Successfully!",
               duration: Snackbar.LENGTH_SHORT,
             });
+            navigation?.goBack();
           } else {
             Snackbar.show({
               text: result?.message,
