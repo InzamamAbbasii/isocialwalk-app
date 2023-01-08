@@ -316,7 +316,7 @@ const GroupDetail = ({ navigation, route }) => {
                 user_id: element, //userid
                 first_name: user_info?.first_name,
                 profile: user_info["profile image"]
-                  ? user_info["profile image"]
+                  ? BASE_URL_Image + "/" + user_info["profile image"]
                   : "",
                 status: false,
               };
@@ -545,6 +545,7 @@ const GroupDetail = ({ navigation, route }) => {
       console.log("memberList::::: ", memberList);
 
       setLoading(true);
+      bottomSheetAddMemberRef?.current?.close();
 
       let data = {
         group_id: groupId,
@@ -576,7 +577,6 @@ const GroupDetail = ({ navigation, route }) => {
               (item) => item.selected !== true
             );
             setAddMembersList(newData1);
-            bottomSheetAddMemberRef?.current?.close();
           } else {
             Snackbar.show({
               text: result[0]?.message,
@@ -992,6 +992,11 @@ const GroupDetail = ({ navigation, route }) => {
               return (
                 <TouchableOpacity
                   // onPress={() => navigation.navigate("GroupDetail")}
+                  onPress={() => {
+                    navigation.navigate("ChallengesDetail", {
+                      item: item?.item?.challenge_info,
+                    });
+                  }}
                   style={{
                     ...styles.cardView,
                     justifyContent: "center",
@@ -1043,17 +1048,19 @@ const GroupDetail = ({ navigation, route }) => {
             >
               Group Members ({groupMembersList.length})
             </Text>
-            <TouchableOpacity onPress={() => bottomSheetRef?.current?.open()}>
-              <Text
-                style={{
-                  color: "#6f92c9",
-                  fontSize: 16,
-                  fontFamily: "Rubik-Regular",
-                }}
-              >
-                Remove Member
-              </Text>
-            </TouchableOpacity>
+            {logged_in_user_id == adminId && (
+              <TouchableOpacity onPress={() => bottomSheetRef?.current?.open()}>
+                <Text
+                  style={{
+                    color: "#6f92c9",
+                    fontSize: 16,
+                    fontFamily: "Rubik-Regular",
+                  }}
+                >
+                  Remove Member
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View
             style={{

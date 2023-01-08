@@ -89,22 +89,22 @@ const Notification = ({ navigation }) => {
     // let str = '05-12-22';
     // const [month, day, year] = str.split('-');
     // console.log({month, day, year});
-    // let date = new Date('05-12-22 09:13:02');
-    // console.log('date :: ', date);
-    // let d = moment(date).fromNow();
-    // console.log('d :::: ', d);
+    let date = new Date("2023-01-05 09:13:02");
+    // console.log("date :: ", date);
+    let d = moment("2023-01-06 10:40:19").fromNow();
+    console.log("date formate ::::: :::: ", d);
   }, []);
 
-  useEffect(() => {
-    let date = "2023-01-05 01:09:01";
-    let format = moment("05-01-23").format("YYYY-MM-DD");
-    console.log("fomate :: :", format);
+  // useEffect(() => {
+  //   let date = "2023-01-05 01:09:01";
+  //   let format = moment("05-01-23").format("YYYY-MM-DD");
+  //   console.log("fomate :: :", format);
 
-    let d = new Date(date);
-    console.log("d ::: ", d);
-    let d1 = moment(format).fromNow();
-    console.log("d1  :::: ", d1);
-  }, []);
+  //   let d = new Date(date);
+  //   console.log("d ::: ", d);
+  //   let d1 = moment(format).fromNow();
+  //   console.log("d1  :::: ", d1);
+  // }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -287,12 +287,13 @@ const Notification = ({ navigation }) => {
     setLoading(true);
     let obj = {
       noti_type_id: selected_noti_id,
-      this_user_id: friend_id,
-      friend_user_id: user_id,
-      // this_user_id: user_id,
-      // friend_user_id: friend_id,
+      // this_user_id: friend_id,
+      // friend_user_id: user_id,
+      this_user_id: user_id,
+      friend_user_id: friend_id,
+      date: new Date(),
     };
-    console.log("data pass to approve request ::: ", obj);
+
     var requestOptions = {
       method: "POST",
       body: JSON.stringify(obj),
@@ -338,10 +339,10 @@ const Notification = ({ navigation }) => {
     let obj = {
       // friend_user_id: user_id,
       // this_user_id: friend_id,
-
       friend_user_id: user_id,
       noti_type_id: noti_id,
       this_user_id: friend_id,
+      date: new Date(),
     };
     console.log("daTA PASS :: ", obj);
 
@@ -389,6 +390,95 @@ const Notification = ({ navigation }) => {
       .then((response) => response.json())
       .then((result) => {
         console.log("add memebrs response :::: ", result);
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //handle approve group request
+  const hanldeApprove_GroupRequest = (noti_id, group_id) => {
+    console.log("notification id :::: ", noti_id);
+    console.log("group id :::: ", group_id);
+    // alert("handle approve group request");
+    groupRequest_RBSheetRef?.current?.close();
+    setLoading(true);
+    let data = {
+      noti_type_id: noti_id,
+      status: "approved",
+      date: new Date(),
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.update_group_request, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("update group request response   :::: ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Request approved Successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          getAllNotification();
+        } else {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //handle unapprove group request
+
+  const handleUnApprove_GroupRequest = (noti_id, group_id) => {
+    console.log({ noti_id, group_id });
+
+    groupRequest_RBSheetRef?.current?.close();
+
+    setLoading(true);
+    let data = {
+      noti_type_id: noti_id,
+      status: "rejected",
+      date: new Date(),
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(data),
+      redirect: "follow",
+    };
+
+    fetch(api.update_group_request, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("update group request response   :::: ", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          Snackbar.show({
+            text: "Request Rejected Successfully",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+          getAllNotification();
+        } else {
+          Snackbar.show({
+            text: "Something went wrong",
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
       })
       .catch((error) => {
         Snackbar.show({
@@ -478,93 +568,6 @@ const Notification = ({ navigation }) => {
           duration: Snackbar.LENGTH_SHORT,
         });
         console.log("error in unapproveing request :: ", error);
-      })
-      .finally(() => setLoading(false));
-  };
-
-  //handle approve group request
-  const hanldeApprove_GroupRequest = (noti_id, group_id) => {
-    console.log("notification id :::: ", noti_id);
-    console.log("group id :::: ", group_id);
-    // alert("handle approve group request");
-    groupRequest_RBSheetRef?.current?.close();
-    setLoading(true);
-    let data = {
-      noti_type_id: noti_id,
-      status: "approved",
-    };
-    var requestOptions = {
-      method: "POST",
-      body: JSON.stringify(data),
-      redirect: "follow",
-    };
-
-    fetch(api.update_group_request, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("update group request response   :::: ", result);
-        if (result[0]?.error == false || result[0]?.error == "false") {
-          Snackbar.show({
-            text: "Request approved Successfully",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-          getAllNotification();
-        } else {
-          Snackbar.show({
-            text: "Something went wrong",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-        }
-      })
-      .catch((error) => {
-        Snackbar.show({
-          text: "Something went wrong",
-          duration: Snackbar.LENGTH_SHORT,
-        });
-      })
-      .finally(() => setLoading(false));
-  };
-
-  //handle unapprove group request
-
-  const handleUnApprove_GroupRequest = (noti_id, group_id) => {
-    console.log({ noti_id, group_id });
-
-    groupRequest_RBSheetRef?.current?.close();
-
-    setLoading(true);
-    let data = {
-      noti_type_id: noti_id,
-      status: "rejected",
-    };
-    var requestOptions = {
-      method: "POST",
-      body: JSON.stringify(data),
-      redirect: "follow",
-    };
-
-    fetch(api.update_group_request, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("update group request response   :::: ", result);
-        if (result[0]?.error == false || result[0]?.error == "false") {
-          Snackbar.show({
-            text: "Request Rejected Successfully",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-          getAllNotification();
-        } else {
-          Snackbar.show({
-            text: "Something went wrong",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-        }
-      })
-      .catch((error) => {
-        Snackbar.show({
-          text: "Something went wrong",
-          duration: Snackbar.LENGTH_SHORT,
-        });
       })
       .finally(() => setLoading(false));
   };
@@ -756,7 +759,8 @@ const Notification = ({ navigation }) => {
       bottomSheetRef?.current?.open();
     } else if (
       item?.noti_type == "user to group" ||
-      item?.noti_type == "Admin to User For group"
+      item?.noti_type == "Admin to User For group" ||
+      item?.noti_type == "group admin to user"
     ) {
       // getSpecificUserDetail(item?.from_id, "group");
 
@@ -979,7 +983,9 @@ const Notification = ({ navigation }) => {
                         {item?.item?.noti_type == "friends to friends"
                           ? "Friend Request"
                           : item?.item?.noti_type == "user to group" ||
-                            item?.item?.noti_type == "Admin to User For group"
+                            item?.item?.noti_type ==
+                              "Admin to User For group" ||
+                            item?.item?.noti_type == "group admin to user"
                           ? "Group Request"
                           : item?.item?.noti_type ==
                               "user to indiviual challenge" ||
@@ -994,8 +1000,9 @@ const Notification = ({ navigation }) => {
                           fontFamily: "Rubik-Regular",
                         }}
                       >
-                        {item?.item?.date &&
-                          moment(item.item.date).format("DD-MM-YY")}
+                        {/* {item?.item?.date &&
+                          moment(item?.item?.date).format("DD-MM-YY")} */}
+                        {item?.item?.date && moment(item?.item?.date).fromNow()}
                       </Text>
                     </View>
                     <Text
@@ -1012,12 +1019,17 @@ const Notification = ({ navigation }) => {
                       {/* notification description */}
                       {/* {item?.item?.noti_type} */}
 
-                      {item?.item?.noti_type == "friends to friends"
+                      {item?.item?.noti_type == "friends to friends" &&
+                      item?.item?.notification_detail?.staus == "approved"
+                        ? `${item?.item?.user_info?.first_name} approved your friend request`
+                        : item?.item?.noti_type == "friends to friends"
                         ? `${item?.item?.user_info?.first_name} wants to be your friend`
                         : item?.item?.noti_type == "user to group"
                         ? `${item?.item?.user_info?.first_name} wants to join your group`
                         : item?.item?.noti_type == "Admin to User For group"
                         ? `${item?.item?.user_info?.first_name} added you in group`
+                        : item?.item?.noti_type == "group admin to user"
+                        ? `${item?.item?.user_info?.first_name} ${item?.item?.notification_detail?.status} your group request`
                         : item?.item?.noti_type ==
                             "user to indiviual challenge" ||
                           item?.item?.noti_type ==
@@ -1130,7 +1142,9 @@ const Notification = ({ navigation }) => {
               You rejected this request
             </Text>
           </View>
-        ) : isFriendRequestApproved || selected_request_status == "friends" ? (
+        ) : isFriendRequestApproved ||
+          selected_request_status == "friends" ||
+          selected_request_status == "approved" ? (
           <View
             style={{
               flex: 1,
@@ -1259,7 +1273,6 @@ const Notification = ({ navigation }) => {
             fontFamily: "Rubik-Medium",
           }}
         >
-          {/* Boris Findlay */}
           {selected_friend_name}
         </Text>
 

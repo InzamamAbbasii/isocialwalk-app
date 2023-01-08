@@ -177,6 +177,7 @@ const Groups = ({
     let data = {
       user_id: user_id,
       group_id: id,
+      date: new Date(),
     };
 
     var requestOptions = {
@@ -294,8 +295,14 @@ const Groups = ({
       getLogged_in_user_groups();
       getMembersList();
       getJoinedGroups();
+      getLoggedIn_user();
     }, [])
   );
+
+  const getLoggedIn_user = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    console.log("logged in user id  ::: ", user_id);
+  };
 
   const getRequestedGroupsList = async () => {
     return new Promise(async (resolve, reject) => {
@@ -315,24 +322,35 @@ const Groups = ({
               resolve([]);
             } else {
               let responseList = result ? result : [];
+
               let list = [];
               for (const element of responseList) {
-                let groupInfo = await getGroup_Info(element["Group id"]);
+                // let groupInfo = await getGroup_Info(element["Group id"]);
+                let groupInfo = await getGroup_Info(element?.group_id);
                 if (groupInfo) {
-                  let obj = {
-                    id: element["Group id"],
-                    group_name: groupInfo.name,
-                    adminId: groupInfo["Admin id"],
-                    // status: element?.status,
-                    image:
-                      groupInfo !== false && groupInfo?.image_link
-                        ? BASE_URL_Image + "/" + groupInfo?.image_link
-                        : "",
-                    status: true,
-                  };
-                  list.push(obj);
+                  if (user_id != groupInfo["Admin id"]) {
+                    //not storing logged user own group list
+                    let obj = {
+                      // id: element["Group id"],
+                      id: element?.group_id,
+                      group_name: groupInfo.name,
+                      adminId: groupInfo["Admin id"],
+                      // status: element?.status,
+                      image:
+                        groupInfo !== false && groupInfo?.image_link
+                          ? BASE_URL_Image + "/" + groupInfo?.image_link
+                          : "",
+                      status: true,
+                    };
+                    list.push(obj);
+                  } else {
+                    console.log("logged user own group");
+                  }
                 } else {
-                  console.log("group info not found :::: ");
+                  console.log(
+                    "group info not found :::: ",
+                    element["Group id"]
+                  );
                 }
               }
               resolve(list);
@@ -370,18 +388,21 @@ const Groups = ({
 
               for (const element of result) {
                 let groupInfo = await getGroup_Info(element["Group ID"]);
-                let obj = {
-                  id: element["Group ID"],
-                  group_name: element["Group Name"],
-                  adminId: element?.admin,
-                  // status: element?.status,
-                  image:
-                    groupInfo !== false && groupInfo?.image_link
-                      ? BASE_URL_Image + "/" + groupInfo?.image_link
-                      : "",
-                  status: false,
-                };
-                responseList.push(obj);
+                if (user_id != element?.admin) {
+                  //not storing logged in user created groups in suggested groups list
+                  let obj = {
+                    id: element["Group ID"],
+                    group_name: element["Group Name"],
+                    adminId: element?.admin,
+                    // status: element?.status,
+                    image:
+                      groupInfo !== false && groupInfo?.image_link
+                        ? BASE_URL_Image + "/" + groupInfo?.image_link
+                        : "",
+                    status: false,
+                  };
+                  responseList.push(obj);
+                }
               }
             }
             // setSuggestedGroups(responseList);
@@ -399,6 +420,7 @@ const Groups = ({
   const getSuggestedGroupsList = async () => {
     setLoading(true);
     let requestedGroupsList = await getRequestedGroupsList();
+
     let suggestedGroupsList = await getSuggestedGroupsList1();
     let groupsList = requestedGroupsList.concat(suggestedGroupsList);
     setSuggestedGroups(groupsList);
@@ -451,7 +473,7 @@ const Groups = ({
   // };
   const getLogged_in_user_groups = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-    setGroupList([]);
+
     let data = {
       created_by_user_id: user_id,
     };
@@ -491,6 +513,7 @@ const Groups = ({
         }
       })
       .catch((error) => {
+        setGroupList([]);
         Snackbar.show({
           text: "Something went wrong.Unable to get groups.",
           duration: Snackbar.LENGTH_SHORT,
@@ -548,7 +571,6 @@ const Groups = ({
               }
             }
           }
-          console.log("listOfGroups :::: ", listOfGroups);
           setJoinedGroupsList(listOfGroups);
         } else {
           setJoinedGroupsList([]);
@@ -672,24 +694,28 @@ const Groups = ({
       };
       fetch(api.search_group, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
+        .then(async (result) => {
+          let logged_in_user_id = await AsyncStorage.getItem("user_id");
+
           if (result[0]?.error == false || result[0]?.error == "false") {
             let groupsList = result[0]?.groups ? result[0]?.groups : [];
             // setSearchResults(groupsList);
             let list = [];
             if (groupsList?.length > 0) {
               groupsList.forEach((element) => {
-                let obj = {
-                  id: element?.id,
-                  created_by_user_id: element?.created_by_user_id,
-                  adminId: element?.created_by_user_id,
-                  image: element?.image
-                    ? BASE_URL_Image + "/" + element?.image
-                    : "",
-                  name: element?.name,
-                  status: false,
-                };
-                list.push(obj);
+                if (logged_in_user_id != element?.created_by_user_id) {
+                  let obj = {
+                    id: element?.id,
+                    created_by_user_id: element?.created_by_user_id,
+                    adminId: element?.created_by_user_id,
+                    image: element?.image
+                      ? BASE_URL_Image + "/" + element?.image
+                      : "",
+                    name: element?.name,
+                    status: false,
+                  };
+                  list.push(obj);
+                }
               });
             }
             setSearchResults(list);
@@ -784,7 +810,8 @@ const Groups = ({
                   />
                   <Image
                     source={require("../../../assets/images/search.png")}
-                    style={{ height: 20, width: 20 }}
+                    style={{ width: 23, height: 23 }}
+                    resizeMode="stretch"
                   />
                 </View>
                 <TouchableOpacity
@@ -829,6 +856,8 @@ const Groups = ({
                 <TouchableOpacity onPress={() => setIsSearch(!isSearch)}>
                   <Image
                     source={require("../../../assets/images/search.png")}
+                    style={{ width: 23, height: 23 }}
+                    resizeMode="stretch"
                   />
                 </TouchableOpacity>
               </View>
@@ -1254,7 +1283,7 @@ const Groups = ({
                           />
                         )}
 
-                        <Text style={styles.cardText}>
+                        <Text style={styles.cardText} numberOfLines={2}>
                           {item?.item?.group_info?.name}
                         </Text>
                       </TouchableOpacity>

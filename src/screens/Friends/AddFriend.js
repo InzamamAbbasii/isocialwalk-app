@@ -76,6 +76,9 @@ const AddFriend = ({ navigation, route }) => {
       setUserId(route?.params?.user?.id);
       getUserDailyGoal(route?.params?.user?.id);
 
+      let request_status = route?.params?.user?.status == true ? true : false;
+      setIsRequested(request_status);
+
       let todayDay = moment(new Date()).format("ddd");
       getMyWeeklyRanking(todayDay);
       getFriendWeeklyRanking(route?.params?.user?.id, todayDay);
@@ -618,6 +621,7 @@ const AddFriend = ({ navigation, route }) => {
       let data = {
         user_id: user_id,
         to_id: id,
+        date: new Date(),
       };
       var requestOptions = {
         method: "POST",
@@ -1006,7 +1010,6 @@ const AddFriend = ({ navigation, route }) => {
                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 style: {
                   borderRadius: 16,
-                  backgroundColor: "red",
                   padding: 10,
                 },
               }}
@@ -1242,7 +1245,7 @@ const styles = StyleSheet.create({
   },
   performanceCard: {
     zIndex: -1,
-    height: 255,
+    height: 290,
     flex: 1,
     backgroundColor: "#ffffff",
     borderRadius: 10,

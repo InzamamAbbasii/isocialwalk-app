@@ -620,7 +620,12 @@ const AuthScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.socialBtn}
               // onPress={() => navigation.navigate('TabNavigation')}>
-              onPress={() => navigation.navigate("DrawerTest")}
+              onPress={() => {
+                Snackbar.show({
+                  text: "Working in progress....Sorry for inconvenience",
+                  duration: Snackbar.LENGTH_SHORT,
+                });
+              }}
             >
               <Image
                 source={require("../../assets/images/apple.png")}
@@ -784,7 +789,13 @@ const AuthScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.socialBtn}
               // onPress={() => navigation.navigate('TabNavigation')}
-              onPress={() => navigation.navigate("DrawerTest")}
+              // onPress={() => navigation.navigate("DrawerTest")}
+              onPress={() => {
+                Snackbar.show({
+                  text: "Working in progress....Sorry for inconvenience",
+                  duration: Snackbar.LENGTH_SHORT,
+                });
+              }}
             >
               <Image
                 source={require("../../assets/images/apple.png")}
