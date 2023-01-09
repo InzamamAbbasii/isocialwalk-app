@@ -632,7 +632,6 @@ const FriendRequest = ({ navigation, route }) => {
         this_user_id: friend_id,
         friend_user_id: user_id,
         date: new Date(),
-
         // this_user_id: user_id,
         // friend_user_id: friend_id,
       };

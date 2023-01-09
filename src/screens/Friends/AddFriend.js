@@ -179,7 +179,10 @@ const AddFriend = ({ navigation, route }) => {
             setFullName(fullName);
             setFirstName(result[0]?.first_name);
             setLastName(result[0]?.last_name);
-            setProfileImage(result[0]["profile image"]);
+            let img = result[0]["profile image"]
+              ? BASE_URL_Image + "/" + result[0]["profile image"]
+              : "";
+            setProfileImage(img);
           } else {
             //user not found
             Snackbar.show({

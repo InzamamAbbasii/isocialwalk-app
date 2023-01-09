@@ -99,6 +99,7 @@ const CreateGroup = ({ navigation }) => {
     let data = {
       group_id: groupId,
       adminid: adminid,
+      date: new Date(),
       user_id: memberList,
     };
     var requestOptions = {

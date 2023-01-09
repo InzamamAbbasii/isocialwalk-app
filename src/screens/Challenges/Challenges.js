@@ -180,6 +180,7 @@ const Challenges = ({
 
   const getLogged_in_user_groups = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
+    console.log("user_id :::", user_id);
     setGroupsList([]);
     let data = {
       created_by_user_id: user_id,
@@ -195,6 +196,7 @@ const Challenges = ({
         if (result?.error == false || result?.error == "false") {
           let list = result?.Groups ? result?.Groups : [];
           let joinedGroupsList = await getJoinedGroups(list);
+          console.log("joinedGroupsList", joinedGroupsList);
 
           // setGroupList(list);
           let list1 = [];
@@ -255,7 +257,11 @@ const Challenges = ({
               let joinedGroup_List = [];
               let listOfGroups = [];
               if (list?.length > 0) {
-                let filter = list?.filter((item) => item?.status == "membered");
+                let filter = list?.filter(
+                  (item) =>
+                    item?.status == "membered" || item?.status == "approved"
+                );
+
                 for (const element of filter) {
                   let groupInfo = await getGroup_Info(element?.group_id);
                   if (groupInfo != false) {
@@ -579,7 +585,7 @@ const Challenges = ({
   const getUserJoinedChallenges = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-      console.log("user_id :::: ", user_id);
+
       // setSuggestedFriends([]);
 
       let data = {
@@ -602,34 +608,41 @@ const Challenges = ({
             );
             let list = [];
             for (const element of filter) {
+              //not store user own created challenges in joined challenges list
+              // if (element?.user_id !== user_id) {
               let challengeInfo = await getChallengeDetail(
                 element?.challenge_id
               );
               if (challengeInfo != false) {
-                let obj = {
-                  id: element?.id,
-                  challenge_id: element?.challenge_id,
-                  user_id: element?.user_id,
-                  status: element?.status,
-                  challengeInfo: {
-                    id: challengeInfo?.id,
-                    created_by_user_id: challengeInfo?.created_by_user_id,
-                    image: challengeInfo?.image
-                      ? BASE_URL_Image + "/" + challengeInfo?.image
-                      : "",
-                    name: challengeInfo?.name,
-                    challenge_type: challengeInfo?.challenge_type,
-                    challenge_visibility: challengeInfo?.challenge_visibility,
-                    challenge_privacy: challengeInfo?.challenge_privacy,
-                    start_date: challengeInfo?.start_date,
-                    end_date: challengeInfo?.end_date,
-                    challenge_metric_no: challengeInfo?.challenge_metric_no,
-                    challenge_metric_step_type:
-                      challengeInfo?.challenge_metric_step_type,
-                  },
-                };
-                list.push(obj);
+                if (challengeInfo?.created_by_user_id == user_id) {
+                  //not added his own created challenges in joined challenges list
+                } else {
+                  let obj = {
+                    id: element?.id,
+                    challenge_id: element?.challenge_id,
+                    user_id: element?.user_id,
+                    status: element?.status,
+                    challengeInfo: {
+                      id: challengeInfo?.id,
+                      created_by_user_id: challengeInfo?.created_by_user_id,
+                      image: challengeInfo?.image
+                        ? BASE_URL_Image + "/" + challengeInfo?.image
+                        : "",
+                      name: challengeInfo?.name,
+                      challenge_type: challengeInfo?.challenge_type,
+                      challenge_visibility: challengeInfo?.challenge_visibility,
+                      challenge_privacy: challengeInfo?.challenge_privacy,
+                      start_date: challengeInfo?.start_date,
+                      end_date: challengeInfo?.end_date,
+                      challenge_metric_no: challengeInfo?.challenge_metric_no,
+                      challenge_metric_step_type:
+                        challengeInfo?.challenge_metric_step_type,
+                    },
+                  };
+                  list.push(obj);
+                }
               }
+              // }
             }
             setJoinedChallenge(list);
           } else {
@@ -818,6 +831,7 @@ const Challenges = ({
       let data = {
         challenge_id: id,
         user_id: user_id,
+        date: new Date(),
       };
       var requestOptions = {
         method: "POST",
@@ -868,7 +882,6 @@ const Challenges = ({
   };
 
   //sending push notification to admin of challenge --> when new user join challenge
-
   const sendPushNotification = async (id, challange_name) => {
     let user_info = await AsyncStorage.getItem("user");
     let name = "";
@@ -1020,7 +1033,11 @@ const Challenges = ({
   };
 
   const handleSelectGroup = async (item) => {
-    console.log("handleSelectGroup :::: ", item);
+    console.log("item ::  to join group challenge :  : ", item);
+    console.log("group id  : : ", item?.id);
+
+    // _______________________________________________________________
+    // console.log("handleSelectGroup :::: ", item);
     let admin = item?.created_by_user_id;
     console.log("admin  :::: ", admin);
     console.log("selectedChallengeId  :::: ", selectedChallengeId);
@@ -1030,7 +1047,9 @@ const Challenges = ({
     setLoading(true);
     let data = {
       challenge_id: selectedChallengeId,
+      group_id: item?.id, //selected group id
       user_id: user_id,
+      date: new Date(),
     };
     console.log("data passs to join challange ::: ", data);
     var requestOptions = {
@@ -1038,10 +1057,10 @@ const Challenges = ({
       body: JSON.stringify(data),
       redirect: "follow",
     };
-    fetch(api.join_individual_challenge, requestOptions)
+    fetch(api.send_request_to_group_admin_to_join_challenge, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("result  :: ", result);
+        console.log("result of joining group challenge    :: ", result);
         if (
           result?.error == false ||
           result[0]?.error == false ||
@@ -1055,9 +1074,8 @@ const Challenges = ({
           // sendPushNotification(admin, item?.name);
           //user id to send push notification, name1,challenge name2
           sendPushNotification_TO_Group_Admin(admin, "", selectedChallenge);
-
           Snackbar.show({
-            text: "Challenge Joined successfully!",
+            text: "Request to join challenge successfully sended to admin!",
             duration: Snackbar.LENGTH_SHORT,
           });
         } else {
@@ -1069,6 +1087,58 @@ const Challenges = ({
       })
       .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
+
+    // _______________________________________________________________
+
+    // console.log("handleSelectGroup :::: ", item);
+    // let admin = item?.created_by_user_id;
+    // console.log("admin  :::: ", admin);
+    // console.log("selectedChallengeId  :::: ", selectedChallengeId);
+
+    // RBSheet_GroupRef?.current?.close();
+    // let user_id = await AsyncStorage.getItem("user_id");
+    // setLoading(true);
+    // let data = {
+    //   challenge_id: selectedChallengeId,
+    //   user_id: user_id,
+    // };
+    // console.log("data passs to join challange ::: ", data);
+    // var requestOptions = {
+    //   method: "POST",
+    //   body: JSON.stringify(data),
+    //   redirect: "follow",
+    // };
+    // fetch(api.join_individual_challenge, requestOptions)
+    //   .then((response) => response.json())
+    //   .then((result) => {
+    //     console.log("result  :: ", result);
+    //     if (
+    //       result?.error == false ||
+    //       result[0]?.error == false ||
+    //       result[0]?.error == "false"
+    //     ) {
+    //       if (selectedType == "search") {
+    //         updateSearchListStatus(selectedChallengeId);
+    //       } else {
+    //         updateSuggestedChallengStatus(selectedChallengeId);
+    //       }
+    //       // sendPushNotification(admin, item?.name);
+    //       //user id to send push notification, name1,challenge name2
+    //       sendPushNotification_TO_Group_Admin(admin, "", selectedChallenge);
+
+    //       Snackbar.show({
+    //         text: "Challenge Joined successfully!",
+    //         duration: Snackbar.LENGTH_SHORT,
+    //       });
+    //     } else {
+    //       Snackbar.show({
+    //         text: result?.message,
+    //         duration: Snackbar.LENGTH_SHORT,
+    //       });
+    //     }
+    //   })
+    //   .catch((error) => console.log("error", error))
+    //   .finally(() => setLoading(false));
   };
   const sendPushNotification_TO_Group_Admin = async (id, name1, challenge) => {
     let user_info = await AsyncStorage.getItem("user");
