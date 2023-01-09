@@ -329,7 +329,6 @@ const ChallengesDetail = ({ navigation, route }) => {
   };
 
   //get groups in a challenge
-
   const getGroupsInChallenge = async (challangeId) => {
     setLoading(true);
     let data = {
@@ -349,7 +348,11 @@ const ChallengesDetail = ({ navigation, route }) => {
           let list = [];
           for (const element of responseList) {
             let groupInfo = await getGroup_Info(element?.group_id);
-            if (groupInfo !== false) {
+            //to check group already exists in this list or not bcz we don't want to show one group more than once
+            const found = list.some(
+              (item) => item?.group_info?.id == groupInfo?.id
+            );
+            if (groupInfo !== false && found === false) {
               let obj = {
                 id: element?.id,
                 noti_type_id: element?.noti_type_id,

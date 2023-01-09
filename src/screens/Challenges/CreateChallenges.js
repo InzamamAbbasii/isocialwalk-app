@@ -341,11 +341,11 @@ const CreateChallenges = ({ navigation, route }) => {
 
         //adding group to challenge one by one
         setLoading(true);
-
         let data = {
           challenge_id: challengeId,
           group_id: element, //selected group id
           user_id: adminid,
+          date: new Date(),
         };
         console.log("data pass  to add members in challgee api  : ", data);
         var requestOptions = {
@@ -393,6 +393,7 @@ const CreateChallenges = ({ navigation, route }) => {
         user_id: selectedMembersList,
         challenge_id: challengeId,
         created_by_user_id: adminid,
+        date: new Date(),
       };
       console.log("data pass  to add members in challgee api  : ", data);
       var requestOptions = {

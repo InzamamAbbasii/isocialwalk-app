@@ -357,30 +357,38 @@ const GroupDetail = ({ navigation, route }) => {
           let list = [];
           for (const element of responseList) {
             let challenge_info = await getChallengeInfo(element?.challenge_id);
-            let obj = {
-              id: element?.id,
-              noti_type_id: element?.noti_type_id,
-              challenge_id: element?.challenge_id,
-              group_id: element?.group_id,
-              status: element?.status,
-              challenge_info: {
-                id: challenge_info?.id,
-                created_by_user_id: challenge_info?.id,
-                image: challenge_info?.image
-                  ? BASE_URL_Image + "/" + challenge_info?.image
-                  : "",
-                name: challenge_info?.name,
-                challenge_type: challenge_info?.challenge_type,
-                challenge_visibility: challenge_info?.challenge_visibility,
-                challenge_privacy: challenge_info?.challenge_privacy,
-                start_date: challenge_info?.start_date,
-                end_date: challenge_info?.end_date,
-                challenge_metric_no: challenge_info?.challenge_metric_no,
-                challenge_metric_step_type:
-                  challenge_info?.challenge_metric_step_type,
-              },
-            };
-            list.push(obj);
+            let found = list.some(
+              (e) => e?.challenge_info?.id == challenge_info?.id
+            );
+
+            if (found) {
+              //not storing same challenge twice
+            } else {
+              let obj = {
+                id: element?.id,
+                noti_type_id: element?.noti_type_id,
+                challenge_id: element?.challenge_id,
+                group_id: element?.group_id,
+                status: element?.status,
+                challenge_info: {
+                  id: challenge_info?.id,
+                  created_by_user_id: challenge_info?.id,
+                  image: challenge_info?.image
+                    ? BASE_URL_Image + "/" + challenge_info?.image
+                    : "",
+                  name: challenge_info?.name,
+                  challenge_type: challenge_info?.challenge_type,
+                  challenge_visibility: challenge_info?.challenge_visibility,
+                  challenge_privacy: challenge_info?.challenge_privacy,
+                  start_date: challenge_info?.start_date,
+                  end_date: challenge_info?.end_date,
+                  challenge_metric_no: challenge_info?.challenge_metric_no,
+                  challenge_metric_step_type:
+                    challenge_info?.challenge_metric_step_type,
+                },
+              };
+              list.push(obj);
+            }
           }
           setActiveChallegesList(list);
         } else {

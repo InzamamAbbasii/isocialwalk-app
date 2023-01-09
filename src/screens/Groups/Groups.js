@@ -549,25 +549,29 @@ const Groups = ({
             for (const element of filter) {
               let groupInfo = await getGroup_Info(element?.group_id);
               if (groupInfo != false) {
-                let obj = {
-                  id: element?.id,
-                  group_id: element?.group_id,
-                  user_id: element?.user_id,
-                  status: element?.status,
-                  created_at: element?.created_at,
-                  group_info: {
-                    id: groupInfo?.id,
-                    image: groupInfo?.image_link
-                      ? BASE_URL_Image + "/" + groupInfo?.image_link
-                      : "",
-                    name: groupInfo?.name,
-                    adminId: groupInfo?.["Admin id"],
-                    group_privacy: groupInfo?.group_privacy,
-                    group_visibility: groupInfo?.group_visibility,
-                    created_at: groupInfo?.created_at,
-                  },
-                };
-                listOfGroups.push(obj);
+                if (groupInfo?.["Admin id"] == user_id) {
+                  //not added is own created groups in joined group list
+                } else {
+                  let obj = {
+                    id: element?.id,
+                    group_id: element?.group_id,
+                    user_id: element?.user_id,
+                    status: element?.status,
+                    created_at: element?.created_at,
+                    group_info: {
+                      id: groupInfo?.id,
+                      image: groupInfo?.image_link
+                        ? BASE_URL_Image + "/" + groupInfo?.image_link
+                        : "",
+                      name: groupInfo?.name,
+                      adminId: groupInfo?.["Admin id"],
+                      group_privacy: groupInfo?.group_privacy,
+                      group_visibility: groupInfo?.group_visibility,
+                      created_at: groupInfo?.created_at,
+                    },
+                  };
+                  listOfGroups.push(obj);
+                }
               }
             }
           }

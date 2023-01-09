@@ -41,13 +41,16 @@ const Notification = ({ navigation }) => {
   const [selected_challenge_name, setSelected_challenge_name] = useState("");
   const [selected_challenge_status, setSelected_challenge_status] =
     useState("");
+  const [selected_challenge_type, setSelected_challenge_type] = useState(""); //group or individual
 
   //group request
   const [selected_group_id, setSelected_group_id] = useState("");
   const [selected_group_name, setSelected_group_name] = useState("");
   const [selected_group_status, setSelected_group_status] = useState("");
 
+  //notification
   const [selected_noti_id, setSelected_noti_id] = useState("");
+  const [selected_noti_type, setSelected_noti_type] = useState("");
 
   const [isFriendRequestApproved, setIsFriendRequestApproved] = useState(false);
   const [profileImage, setProfileImage] = useState(
@@ -85,26 +88,7 @@ const Notification = ({ navigation }) => {
   ]);
   useEffect(() => {
     setLoading(true);
-
-    // let str = '05-12-22';
-    // const [month, day, year] = str.split('-');
-    // console.log({month, day, year});
-    let date = new Date("2023-01-05 09:13:02");
-    // console.log("date :: ", date);
-    let d = moment("2023-01-06 10:40:19").fromNow();
-    console.log("date formate ::::: :::: ", d);
   }, []);
-
-  // useEffect(() => {
-  //   let date = "2023-01-05 01:09:01";
-  //   let format = moment("05-01-23").format("YYYY-MM-DD");
-  //   console.log("fomate :: :", format);
-
-  //   let d = new Date(date);
-  //   console.log("d ::: ", d);
-  //   let d1 = moment(format).fromNow();
-  //   console.log("d1  :::: ", d1);
-  // }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -133,11 +117,9 @@ const Notification = ({ navigation }) => {
               }
             })
             .catch((error) => {
-              console.log("error in getting user detail ::", error);
               resolve(false);
             });
         } catch (error) {
-          console.log("error occur in getting user profile detail ::", error);
           resolve(false);
         }
       } else {
@@ -187,8 +169,13 @@ const Notification = ({ navigation }) => {
               list?.push(obj);
             }
           }
+          // sort list to show latest notifications first
+          list = list.sort((a, b) => {
+            return b.id - a.id;
+          });
 
-          setNotificationsList(list?.reverse());
+          setNotificationsList(list);
+          // setNotificationsList(list?.reverse());
         } else {
           setNotificationsList([]);
           Snackbar.show({
@@ -253,7 +240,6 @@ const Notification = ({ navigation }) => {
       .then((response) => response.json())
       .then((result) => {
         if (result?.length > 0) {
-          // console.log('result :: ', result);
           setSelected_friend_id(id);
           setSelected_friend_name(result[0]?.first_name);
           setSelected_friend_profile(result[0]["profile image"]);
@@ -281,9 +267,9 @@ const Notification = ({ navigation }) => {
   };
   const handleApproveFriend = async (friend_id) => {
     bottomSheetRef?.current?.close();
-    console.log("friend id to approve -->", friend_id);
+
     let user_id = await AsyncStorage.getItem("user_id");
-    console.log("logged in user id ::", user_id);
+
     setLoading(true);
     let obj = {
       noti_type_id: selected_noti_id,
@@ -302,7 +288,6 @@ const Notification = ({ navigation }) => {
     fetch(api.approveRequest, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("approve friend request response :::: ", result);
         if (result[0]?.error == "false" || result[0]?.error == false) {
           // console.log('result :: ', result);
 
@@ -330,9 +315,6 @@ const Notification = ({ navigation }) => {
   };
 
   const handleUnApprove_FriendRequest = async (friend_id, noti_id) => {
-    console.log({ friend_id, noti_id });
-
-    console.log("handle unapprove friend request ::: ", friend_id);
     let user_id = await AsyncStorage.getItem("user_id");
     bottomSheetRef?.current?.close();
     setLoading(true);
@@ -354,8 +336,6 @@ const Notification = ({ navigation }) => {
     fetch(api.unApproveRequest, requestOptions)
       .then((response) => response.text())
       .then((result) => {
-        console.log("result ::: ", result);
-
         Snackbar.show({
           text: "Request Canceled successfully",
           duration: Snackbar.LENGTH_SHORT,
@@ -363,7 +343,6 @@ const Notification = ({ navigation }) => {
         getAllNotification();
       })
       .catch((error) => {
-        console.log("error in unapproveing request :: ", error);
         Snackbar.show({
           text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
@@ -402,8 +381,6 @@ const Notification = ({ navigation }) => {
 
   //handle approve group request
   const hanldeApprove_GroupRequest = (noti_id, group_id) => {
-    console.log("notification id :::: ", noti_id);
-    console.log("group id :::: ", group_id);
     // alert("handle approve group request");
     groupRequest_RBSheetRef?.current?.close();
     setLoading(true);
@@ -421,19 +398,18 @@ const Notification = ({ navigation }) => {
     fetch(api.update_group_request, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("update group request response   :::: ", result);
-        if (result[0]?.error == false || result[0]?.error == "false") {
-          Snackbar.show({
-            text: "Request approved Successfully",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-          getAllNotification();
-        } else {
-          Snackbar.show({
-            text: "Something went wrong",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-        }
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        Snackbar.show({
+          text: "Request approved Successfully",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        getAllNotification();
+        // } else {
+        //   Snackbar.show({
+        //     text: "Something went wrong",
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
       })
       .catch((error) => {
         Snackbar.show({
@@ -447,8 +423,6 @@ const Notification = ({ navigation }) => {
   //handle unapprove group request
 
   const handleUnApprove_GroupRequest = (noti_id, group_id) => {
-    console.log({ noti_id, group_id });
-
     groupRequest_RBSheetRef?.current?.close();
 
     setLoading(true);
@@ -466,19 +440,18 @@ const Notification = ({ navigation }) => {
     fetch(api.update_group_request, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("update group request response   :::: ", result);
-        if (result[0]?.error == false || result[0]?.error == "false") {
-          Snackbar.show({
-            text: "Request Rejected Successfully",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-          getAllNotification();
-        } else {
-          Snackbar.show({
-            text: "Something went wrong",
-            duration: Snackbar.LENGTH_SHORT,
-          });
-        }
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        Snackbar.show({
+          text: "Request Rejected Successfully",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        getAllNotification();
+        // } else {
+        //   Snackbar.show({
+        //     text: "Something went wrong",
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
       })
       .catch((error) => {
         Snackbar.show({
@@ -491,12 +464,12 @@ const Notification = ({ navigation }) => {
 
   //approve challenge join request
   const handleApprove_ChallengeRequest = (notificationId) => {
-    console.log("notificationId :::: ", notificationId);
     challengeRequest_RBSheetRef?.current?.close();
     setLoading(true);
     let obj = {
       status: "membered",
       noti_type_id: notificationId,
+      date: new Date(),
     };
     var requestOptions = {
       method: "POST",
@@ -506,7 +479,6 @@ const Notification = ({ navigation }) => {
     fetch(api.approve_individual_challenge, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("challenge request approve response :::: ", result);
         if (result[0]?.error == false || result[0]?.error == "false") {
           Snackbar.show({
             text: "Request approved successfully",
@@ -521,12 +493,10 @@ const Notification = ({ navigation }) => {
         }
       })
       .catch((error) => {
-        console.log("error in unapproveing request :: ", error);
         Snackbar.show({
           text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
         });
-        console.log("error in unapproveing request :: ", error);
       })
       .finally(() => setLoading(false));
   };
@@ -538,6 +508,7 @@ const Notification = ({ navigation }) => {
     let obj = {
       status: "rejected",
       noti_type_id: notificationId,
+      date: new Date(),
     };
     var requestOptions = {
       method: "POST",
@@ -547,7 +518,6 @@ const Notification = ({ navigation }) => {
     fetch(api.approve_individual_challenge, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("challenge request approve response :::: ", result);
         if (result[0]?.error == false || result[0]?.error == "false") {
           Snackbar.show({
             text: "Request rejected successfully",
@@ -562,12 +532,118 @@ const Notification = ({ navigation }) => {
         }
       })
       .catch((error) => {
-        console.log("error in unapproveing request :: ", error);
         Snackbar.show({
           text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
         });
-        console.log("error in unapproveing request :: ", error);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //handle join  group (from group admin) challenge request
+  const handle_Join_Challenge_Request = (notificationId) => {
+    challengeRequest_RBSheetRef?.current?.close();
+
+    setLoading(true);
+    let obj = {
+      noti_type_id: notificationId,
+      date: new Date(),
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.group_admin_send_request_to_challenge_owner, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        // if (result[0]?.error == false || result[0]?.error == "false") {
+        Snackbar.show({
+          text: "Request Send to challenge admin successfully",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        getAllNotification();
+        // } else {
+        //   Snackbar.show({
+        //     text: "Something went wrong",
+        //     duration: Snackbar.LENGTH_SHORT,
+        //   });
+        // }
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //ignore join challenge request
+  const handle_Ignore_Join_Challenge_Request = (notificationId) => {
+    challengeRequest_RBSheetRef?.current?.close();
+  };
+
+  //handle approve group challenge request
+  const handleApprove_GroupChallenge_Request = (notificationId) => {
+    challengeRequest_RBSheetRef?.current?.close();
+    setLoading(true);
+    let obj = {
+      status: "membered",
+      noti_type_id: notificationId,
+      date: new Date(),
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.approve_or_reject_groupChallenge_request, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        Snackbar.show({
+          text: "Request Approved successfully",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        getAllNotification();
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  //handle reject group challenge request
+  const handleReject_GroupChallenge_Request = (notificationId) => {
+    challengeRequest_RBSheetRef?.current?.close();
+    setLoading(true);
+    let obj = {
+      status: "unapproved",
+      noti_type_id: notificationId,
+      date: new Date(),
+    };
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.approve_or_reject_groupChallenge_request, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        Snackbar.show({
+          text: "Request Rejected successfully",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+        getAllNotification();
+      })
+      .catch((error) => {
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
       })
       .finally(() => setLoading(false));
   };
@@ -602,6 +678,7 @@ const Notification = ({ navigation }) => {
         });
     });
   };
+
   //get specific group info
   const getGroup_Info = (id) => {
     return new Promise((resolve, reject) => {
@@ -623,17 +700,15 @@ const Notification = ({ navigation }) => {
             }
           })
           .catch((error) => {
-            console.log("error in getting user detail ::", error);
             resolve(false);
           });
       } catch (error) {
-        console.log("error occur in getting user profile detail ::", error);
         resolve(false);
       }
     });
   };
 
-  //mark specifc notification as read
+  //mark specific notification as read
   const markAsRead = (id) => {
     var requestOptions = {
       method: "POST",
@@ -672,7 +747,7 @@ const Notification = ({ navigation }) => {
   const handleMarkAllAsRead = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-      console.log("user_id", user_id);
+
       setLoading(true);
       var requestOptions = {
         method: "POST",
@@ -684,7 +759,6 @@ const Notification = ({ navigation }) => {
       fetch(api.mark_all_notifications_as_read, requestOptions)
         .then((response) => response.json())
         .then(async (result) => {
-          console.log("mark all as read", result);
           if (result?.error == false || result?.error == "false") {
             const newData = notificationsList?.map((item) => {
               return {
@@ -705,7 +779,6 @@ const Notification = ({ navigation }) => {
           }
         })
         .catch((error) => {
-          console.log("error while marking notification as read", error);
           Snackbar.show({
             text: "Something went wrong.Please try again",
             duration: Snackbar.LENGTH_SHORT,
@@ -713,7 +786,6 @@ const Notification = ({ navigation }) => {
         })
         .finally(() => setLoading(false));
     } catch (error) {
-      console.log("error catch ::", error);
       setLoading(false);
       Snackbar.show({
         text: "Something went wrong.Please try again",
@@ -723,7 +795,6 @@ const Notification = ({ navigation }) => {
   };
 
   const handleNotificationPress = async (item) => {
-    console.log("notification press ::: ", item);
     let user_id = item.from_id;
 
     let first_name = item?.user_info?.first_name;
@@ -740,6 +811,7 @@ const Notification = ({ navigation }) => {
     setSelected_friend_profile(img);
 
     setSelected_noti_id(item?.id);
+    setSelected_noti_type(item?.noti_type);
 
     //change notification status
     markAsRead(item?.id);
@@ -747,14 +819,6 @@ const Notification = ({ navigation }) => {
     if (item?.noti_type == "friends to friends") {
       // getSpecificUserDetail(item?.from_id);
 
-      console.log(
-        "item?.notification_detail?.status ::: ",
-        item?.notification_detail?.status
-      );
-      console.log(
-        "item?.notification_detail?.staus ::: ",
-        item?.notification_detail?.staus
-      );
       setSelected_request_status(item?.notification_detail?.staus);
       bottomSheetRef?.current?.open();
     } else if (
@@ -763,43 +827,46 @@ const Notification = ({ navigation }) => {
       item?.noti_type == "group admin to user"
     ) {
       // getSpecificUserDetail(item?.from_id, "group");
-
       let group_id = item?.notification_detail?.group_id;
       setLoading(true);
       let group_info = await getGroup_Info(group_id);
       setLoading(false);
       if (group_info) {
-        console.log("group_info:::::: ", group_info);
         let id = group_info?.id;
         let name = group_info?.name;
         setSelected_group_id(id);
         setSelected_group_name(name);
         setSelected_group_status(item?.notification_detail?.status);
         groupRequest_RBSheetRef?.current?.open();
-      } else {
-        alert("Something went wrong");
       }
-    } else if (item?.noti_type == "user to indiviual challenge") {
+    } else if (
+      item?.noti_type == "user to indiviual challenge" ||
+      item?.noti_type == "user to join indiviual challenge" ||
+      item?.noti_type == "admin to indiviual challenge acception" ||
+      item?.noti_type == "user to group admin for challenge joining" ||
+      item?.noti_type == "group admin to challenge owner" ||
+      item?.noti_type == "group challenge response"
+    ) {
       let challenge_id = item?.notification_detail?.challenge_id;
       setLoading(true);
       let challenge_info = await getChallengeInfo(challenge_id);
       setLoading(false);
       if (challenge_info) {
-        console.log("challenge_info", challenge_info);
         let id = challenge_info?.id;
         let name = challenge_info?.name;
         setSelected_challenge_id(id);
         setSelected_challenge_name(name);
+        setSelected_challenge_type(challenge_info?.challenge_type);
+
         setSelected_challenge_status(item?.notification_detail?.status);
         challengeRequest_RBSheetRef?.current?.open();
-      } else {
-        alert("Something went wrong");
       }
     }
   };
+
   return (
     <View style={styles.container}>
-      {/* <Header title={"Notifications"} navigation={navigation} /> */}
+      {/* <Header title={"Notifications"} navigation={navigation} onButtonPress /> */}
       <View
         style={{
           flexDirection: "row",
@@ -933,7 +1000,15 @@ const Notification = ({ navigation }) => {
                       }}
                     />
                   ) : item?.item?.noti_type == "user to indiviual challenge" ||
-                    item?.item?.noti_type == "admin to user for challenges" ? (
+                    item?.item?.noti_type ==
+                      "user to join indiviual challenge" ||
+                    item?.item?.noti_type ==
+                      "admin to indiviual challenge acception" ||
+                    item?.item?.noti_type == "admin to user for challenges" ||
+                    item?.item?.noti_type == "group admin to challenge owner" ||
+                    item?.item?.noti_type == "group challenge response" ||
+                    item?.item?.noti_type ==
+                      "user to group admin for challenge joining" ? (
                     //challenge notification
                     <Image
                       source={require("../../../assets/images/Challenge.png")}
@@ -990,7 +1065,16 @@ const Notification = ({ navigation }) => {
                           : item?.item?.noti_type ==
                               "user to indiviual challenge" ||
                             item?.item?.noti_type ==
-                              "admin to user for challenges"
+                              "user to join indiviual challenge" ||
+                            item?.item?.noti_type ==
+                              "admin to indiviual challenge acception" ||
+                            item?.item?.noti_type ==
+                              "admin to user for challenges" ||
+                            item?.item?.noti_type ==
+                              "user to group admin for challenge joining" ||
+                            item?.item?.noti_type ==
+                              "group admin to challenge owner" ||
+                            item?.item?.noti_type == "group challenge response"
                           ? "Challenge Request"
                           : "other"}
                       </Text>
@@ -1033,8 +1117,30 @@ const Notification = ({ navigation }) => {
                         : item?.item?.noti_type ==
                             "user to indiviual challenge" ||
                           item?.item?.noti_type ==
-                            "admin to user for challenges"
+                            "user to join indiviual challenge" ||
+                          item?.item?.noti_type ==
+                            "admin to user for challenges" ||
+                          item?.item?.noti_type ==
+                            "group admin to challenge owner"
                         ? `${item?.item?.user_info?.first_name} wants to join challenge`
+                        : item?.item?.noti_type ==
+                          "admin to indiviual challenge acception"
+                        ? `${item?.item?.user_info?.first_name} ${
+                            item?.item?.notification_detail?.status ==
+                            "membered"
+                              ? "Accepted"
+                              : "Rejected"
+                          } your challenge join request`
+                        : item?.item?.noti_type ==
+                          "user to group admin for challenge joining"
+                        ? `Your group member ${item?.item?.user_info?.first_name} wants to join challenge`
+                        : item?.item?.noti_type == "group challenge response"
+                        ? `${item?.item?.user_info?.first_name} ${
+                            item?.item?.notification_detail?.status ==
+                            "membered"
+                              ? "approved"
+                              : "reject"
+                          } your challenge join request`
                         : "other"}
                     </Text>
                   </TouchableOpacity>
@@ -1472,22 +1578,52 @@ const Notification = ({ navigation }) => {
 
         {selected_challenge_status == "requested" ? (
           <View style={{ width: "100%", alignItems: "center" }}>
-            <TouchableOpacity
-              style={styles.btnBottomSheet}
-              onPress={() => {
-                // handleApproveFriend(selected_friend_id)
-                handleApprove_ChallengeRequest(selected_noti_id);
-              }}
-            >
-              <Text style={styles.btnText}>Approve Request</Text>
-            </TouchableOpacity>
+            {selected_noti_type ==
+            "user to group admin for challenge joining" ? (
+              <TouchableOpacity
+                style={styles.btnBottomSheet}
+                onPress={() => {
+                  handle_Join_Challenge_Request(selected_noti_id);
+                }}
+              >
+                <Text style={styles.btnText}>Join Challenge</Text>
+              </TouchableOpacity>
+            ) : selected_noti_type == "group admin to challenge owner" ? (
+              <TouchableOpacity
+                style={styles.btnBottomSheet}
+                onPress={() => {
+                  handleApprove_GroupChallenge_Request(selected_noti_id);
+                }}
+              >
+                <Text style={styles.btnText}>
+                  Approve Group Challenge Request
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.btnBottomSheet}
+                onPress={() => {
+                  handleApprove_ChallengeRequest(selected_noti_id);
+                }}
+              >
+                <Text style={styles.btnText}>Approve Request</Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
               style={{
                 ...styles.btnBottomSheet,
                 backgroundColor: "transparent",
                 borderWidth: 1,
               }}
-              onPress={() => handleIgnore_ChallengeRequest(selected_noti_id)}
+              onPress={() => {
+                selected_noti_type ==
+                "user to group admin for challenge joining"
+                  ? handle_Ignore_Join_Challenge_Request(selected_noti_id)
+                  : selected_noti_type == "group admin to challenge owner"
+                  ? handleReject_GroupChallenge_Request(selected_noti_id)
+                  : handleIgnore_ChallengeRequest(selected_noti_id);
+              }}
             >
               <Text style={{ ...styles.btnText, color: "#38ACFF" }}>
                 Ignore Request

@@ -199,7 +199,6 @@ const Friends = ({
     fetch(api.addfriends, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("resulty  :: ", result);
         if (result?.error == false) {
           const newData = suggestedFriends.map((item) => {
             if (id == item.id) {
@@ -473,7 +472,7 @@ const Friends = ({
                 }
               }
             }
-            console.log("response List  :::: ", responseList);
+
             // setSuggestedFriends(responseList);
             resolve(responseList);
           })
@@ -630,37 +629,8 @@ const Friends = ({
       };
       fetch(api.search_friend, requestOptions)
         .then((response) => response.json())
-        .then((result) => {
-          console.log("search result: ", result);
-
-          if (result[0]?.error == false || result[0]?.error == "false") {
-            let responseList = result[0]?.friends ? result[0]?.friends : [];
-            // setSearchResults(responseList);
-
-            let list = [];
-            if (responseList?.length > 0) {
-              for (const element of responseList) {
-                let obj = {
-                  id: element?.id,
-                  first_name: element?.first_name,
-                  last_name: element?.last_name,
-                  image: element?.profile_image
-                    ? BASE_URL_Image + "/" + element?.profile_image
-                    : "",
-                  active_watch: element?.active_watch,
-                  phoneno: element?.phoneno,
-                  createdat: element?.createdat,
-                };
-                list.push(obj);
-              }
-            } else {
-              Snackbar.show({
-                text: "No Search Result Found.",
-                duration: Snackbar.LENGTH_SHORT,
-              });
-            }
-            setSearchResults(list);
-          } else {
+        .then(async (result) => {
+          if (result[0]?.error == true || result[0]?.error == "true") {
             setSearchResults([]);
             Snackbar.show({
               text: "No Search Result Found.",
@@ -669,11 +639,25 @@ const Friends = ({
               //   : result[0]?.message,
               duration: Snackbar.LENGTH_SHORT,
             });
+          } else {
+            let list = [];
+            for (const element of result) {
+              let obj = {
+                id: element?.f_id,
+                first_name: element?.first_name,
+                last_name: element?.last_name,
+                image: element?.profile_image
+                  ? BASE_URL_Image + "/" + element?.profile_image
+                  : "",
+              };
+              list.push(obj);
+            }
+            setSearchResults(list);
           }
         })
         .catch((error) => {
           Snackbar.show({
-            text: "Something went wrong",
+            text: "Something went wrong.Please try again.",
             duration: Snackbar.LENGTH_SHORT,
           });
         })

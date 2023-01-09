@@ -122,4 +122,14 @@ export const api = {
 
   //privacy policy
   get_privacy_policy: BASE_URL + "/privacy/get.php",
+
+  //groupchallengenotification
+
+  send_request_to_group_admin_to_join_challenge:
+    BASE_URL +
+    "/groupchallengenotification/requestoadminforgroupchallengejoining.php",
+  group_admin_send_request_to_challenge_owner:
+    BASE_URL + "/groupchallengenotification/groupadminreqtochallengeowner.php",
+  approve_or_reject_groupChallenge_request:
+    BASE_URL + "/groupchallengenotification/response.php",
 };
