@@ -78,6 +78,9 @@ const UpdateProfile = ({ navigation }) => {
         skipBackup: true,
         path: "images",
       },
+      maxWidth: 500,
+      maxHeight: 500,
+      quality: 0.5,
     };
     await launchCamera(options)
       .then((res) => {
@@ -126,12 +129,12 @@ const UpdateProfile = ({ navigation }) => {
 
         // //upload profile image
         // // id, profileImage,fileName,mimeType
-        // updateProfile(
-        //   userId,
-        //   res.assets[0].uri,
-        //   res.assets[0].fileName,
-        //   res.assets[0].type
-        // );
+        updateProfile(
+          userId,
+          res.assets[0].uri,
+          res.assets[0].fileName,
+          res.assets[0].type
+        );
         // ____________________________________________________________
       })
       .catch((error) => console.log(error));
@@ -142,6 +145,9 @@ const UpdateProfile = ({ navigation }) => {
         skipBackup: true,
         path: "images",
       },
+      maxWidth: 500,
+      maxHeight: 500,
+      quality: 0.5,
     };
     await launchImageLibrary(options)
       .then((res) => {
@@ -171,12 +177,12 @@ const UpdateProfile = ({ navigation }) => {
         //upload profile image
         // id, profileImage,fileName,mimeType
 
-        // updateProfile(
-        //   userId,
-        //   res.assets[0].uri,
-        //   res.assets[0].fileName,
-        //   res.assets[0].type
-        // );
+        updateProfile(
+          userId,
+          res.assets[0].uri,
+          res.assets[0].fileName,
+          res.assets[0].type
+        );
       })
       .catch((error) => console.log(error));
   };
@@ -242,19 +248,17 @@ const UpdateProfile = ({ navigation }) => {
   }, []);
 
   const updateProfile = async (id, profileImage1, fileName1, mimeType1) => {
+    // console.log(
+    //   "data passed to updateProfile",
+    //   id,
+    //   profileImage1,
+    //   fileName1,
+    //   mimeType1
+    // );
     // updateProfileImage(id, profileImage1, fileName1, mimeType1);
     // return;
 
-    if (profileImage) {
-      console.log("user id passed ::: ", id);
-      console.log("profile image ::: ", profileImage1);
-
-      console.log({ id, profileImage1, fileName1, mimeType1 });
-
-      console.log(
-        "RNFetchBlob.wrap(profileImage1) :::: ",
-        RNFetchBlob.wrap(profileImage1)
-      );
+    if (profileImage1) {
       setLoading(true);
 
       //______________________________________________________________________________
@@ -422,7 +426,7 @@ const UpdateProfile = ({ navigation }) => {
                 duration: Snackbar.LENGTH_SHORT,
               });
               // id, profileImage, fileName, mimeType
-              updateProfile(user_id, profileImage, fileName, mimeType);
+              //  updateProfile(user_id, profileImage, fileName, mimeType);
               updateDeviceToken(user_id);
               navigation.goBack();
             } else {

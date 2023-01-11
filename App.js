@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StatusBar } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import DrawerNavigations from "./src/screens/Navigation/DrawerNavigations";
@@ -61,6 +61,8 @@ import DrawerTest from "./src/screens/DrawerTest";
 
 import SplashScreen from "react-native-splash-screen";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { Store } from "./src/redux/store";
 
 import { navigationRef } from "./RootNavigation";
@@ -105,6 +107,28 @@ export const storageRef = storage.ref();
 function App() {
   const Stack = createNativeStackNavigator();
 
+  const [isLogin, setIsLogin] = useState(false);
+  // const getUser = async () => {
+  //   global.user = true;
+  //   let user = await AsyncStorage.getItem("user");
+  //   console.log("user ::::   ", user);
+  //   if (user === null) {
+  //     setIsLogin(false);
+  //     SplashScreen.hide();
+  //     // setLoading(false);
+  //     // navigation.replace("Welcome");
+  //   } else {
+  //     setIsLogin(true);
+  //     SplashScreen.hide();
+  //     global.user = true;
+  //     // setLoading(false);
+  //     // navigation.replace("DrawerTest");
+  //   }
+  // };
+  // useEffect(() => {
+  //   getUser();
+  // }, []);
+
   return (
     <Provider store={Store}>
       <NavigationContainer
@@ -112,7 +136,9 @@ function App() {
         ref={navigationRef}
       >
         <StatusBar backgroundColor={"#FFF"} barStyle={"dark-content"} />
-        <Stack.Navigator>
+        <Stack.Navigator
+        // initialRouteName={global?.user == true ? "AuthScreen" : "Welcome"}
+        >
           <Stack.Screen
             name="LoadingScreen"
             component={LoadingScreen}

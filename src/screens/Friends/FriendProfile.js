@@ -114,6 +114,7 @@ const FriendProfile = ({ navigation, route }) => {
       let img = userInfo["profile image"]
         ? BASE_URL_Image + "/" + userInfo["profile image"]
         : "";
+      console.log("user img :::   ", img);
       setMyImage(img);
     }
   };
@@ -234,6 +235,7 @@ const FriendProfile = ({ navigation, route }) => {
             let img = result[0]["profile image"]
               ? BASE_URL_Image + "/" + result[0]["profile image"]
               : "";
+
             setProfileImage(img);
           } else {
             //user not found
@@ -583,6 +585,49 @@ const FriendProfile = ({ navigation, route }) => {
     });
   };
 
+  const handleUnfriendUserFromBothSide = async () => {
+    let user_id = await AsyncStorage.getItem("user_id");
+    setLoading(true);
+    let obj = {
+      this_user_id: userId,
+      friend_user_id: user_id,
+    };
+    console.log("data pass to unfriend ::", obj);
+
+    var requestOptions = {
+      method: "POST",
+      body: JSON.stringify(obj),
+      redirect: "follow",
+    };
+    fetch(api.unFriend, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("unfriend result ::", result);
+        if (result[0]?.error == false || result[0]?.error == "false") {
+          console.log("unfriend user 2 also");
+          // Snackbar.show({
+          //   text: "Unfriend Successfully",
+          //   duration: Snackbar.LENGTH_SHORT,
+          // });
+          // navigation?.goBack();
+        } else {
+          console.log("message in else  case :;", result[0]?.message);
+          Snackbar.show({
+            text: result[0]?.message,
+            duration: Snackbar.LENGTH_SHORT,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("error in unapproveing request :: ", error);
+        Snackbar.show({
+          text: "Something went wrong",
+          duration: Snackbar.LENGTH_SHORT,
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
   const handleUnfriend = async () => {
     console.log("selected user  id  ", userId);
     let user_id = await AsyncStorage.getItem("user_id");
@@ -609,6 +654,7 @@ const FriendProfile = ({ navigation, route }) => {
             text: "Unfriend Successfully",
             duration: Snackbar.LENGTH_SHORT,
           });
+          handleUnfriendUserFromBothSide();
           navigation?.goBack();
         } else {
           console.log("message in else  case :;", result[0]?.message);
@@ -886,7 +932,7 @@ const FriendProfile = ({ navigation, route }) => {
                 width: 110,
                 height: 110,
                 borderRadius: 110,
-                backgroundColor: "#000",
+                backgroundColor: "#ccc",
                 resizeMode: "contain",
               }}
             />
@@ -1243,7 +1289,11 @@ const FriendProfile = ({ navigation, route }) => {
               renderItem={(item, index) => {
                 return (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate("GroupDetail")}
+                    onPress={() =>
+                      navigation.navigate("GroupDetail", {
+                        item: item?.item,
+                      })
+                    }
                     style={{
                       ...styles.cardView,
                       justifyContent: "center",

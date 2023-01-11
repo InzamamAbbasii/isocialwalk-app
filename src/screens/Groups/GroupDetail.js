@@ -841,14 +841,19 @@ const GroupDetail = ({ navigation, route }) => {
         {loading && <Loader />}
         <View style={{ paddingHorizontal: 20 }}>
           {/* <Header title={"Carnage Coverage"} navigation={navigation} /> */}
-          <Header title={group_name} navigation={navigation} />
+          <Header
+            title={group_name}
+            titleStyle={{ flex: 0.9 }}
+            numberOfLines={1}
+            navigation={navigation}
+          />
           {logged_in_user_id == adminId && (
             <TouchableOpacity
               onPress={() => handleEditPress(groupId)}
               style={{
                 position: "absolute",
                 right: 20,
-                top: 12,
+                top: 15,
                 padding: 10,
               }}
             >

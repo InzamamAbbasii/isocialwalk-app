@@ -902,7 +902,10 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
           </Text>
           <View style={styles.tabView}>
             <TouchableOpacity
-              onPress={() => handleonTabChange()}
+              // onPress={() => handleonTabChange()}
+              onPress={() => {
+                setIndex(0);
+              }}
               style={{
                 ...styles.btn,
                 backgroundColor: index == 0 ? "#FFF" : "transparent",
@@ -912,7 +915,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
               <Text style={styles.btnText}>Today</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleonTabChange()}
+              // onPress={() => handleonTabChange()}
+              onPress={() => setIndex(1)}
               style={{
                 ...styles.btn,
                 backgroundColor: index == 1 ? "#FFF" : "transparent",
@@ -1685,7 +1689,13 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                       {myImage ? (
                         <Image
                           source={{ uri: myImage }}
-                          style={{ marginVertical: 8, width: 44, height: 44 }}
+                          style={{
+                            marginVertical: 8,
+                            width: 44,
+                            height: 44,
+                            borderRadius: 44,
+                            backgroundColor: "#ccc",
+                          }}
                         />
                       ) : (
                         <Image
@@ -1730,8 +1740,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           return (
                             <TouchableOpacity
                               onPress={() => {
-                                navigation.navigate("FriendProfile");
-                                bottomSheetRef?.current?.close();
+                                // navigation.navigate("FriendProfile");
+                                // bottomSheetRef?.current?.close();
                               }}
                               style={{
                                 ...styles.cardView,
@@ -1775,6 +1785,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                         marginVertical: 8,
                                         width: 44,
                                         height: 44,
+                                        borderRadius: 44,
+                                        backgroundColor: "#ccc",
                                       }}
                                     />
                                   )}
@@ -1854,8 +1866,8 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                           return (
                             <TouchableOpacity
                               onPress={() => {
-                                navigation.navigate("FriendProfile");
-                                bottomSheetRef?.current?.close();
+                                // navigation.navigate("FriendProfile");
+                                // bottomSheetRef?.current?.close();
                               }}
                               style={{
                                 ...styles.cardView,
@@ -1901,6 +1913,7 @@ const Home = ({ scale, showMenu, setShowMenu, moveToRight, setActiveTab }) => {
                                             width: 44,
                                             height: 44,
                                             borderRadius: 44,
+                                            backgroundColor: "#ccc",
                                           }}
                                         />
                                       ) : (

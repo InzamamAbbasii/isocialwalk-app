@@ -342,11 +342,16 @@ const CreateChallenges = ({ navigation, route }) => {
         //adding group to challenge one by one
         setLoading(true);
         let data = {
-          challenge_id: challengeId,
-          group_id: element, //selected group id
-          user_id: adminid,
+          // challenge_id: challengeId,
+          // group_id: element, //selected group id
+          // user_id: adminid,
+          // date: new Date(),
+
           date: new Date(),
+          group_id: element,
+          challenge_id: challengeId,
         };
+
         console.log("data pass  to add members in challgee api  : ", data);
         var requestOptions = {
           method: "POST",
@@ -358,14 +363,14 @@ const CreateChallenges = ({ navigation, route }) => {
           .then((response) => response.json())
           .then((result) => {
             console.log("add group response :::: ", result);
-            if (result[0]?.error == false || result[0]?.error == "false") {
-              console.log("group is added to challnge successfully");
-            } else {
-              Snackbar.show({
-                text: result[0]?.message,
-                duration: Snackbar.LENGTH_SHORT,
-              });
-            }
+            // if (result[0]?.error == false || result[0]?.error == "false") {
+            //   console.log("group is added to challnge successfully");
+            // } else {
+            //   Snackbar.show({
+            //     text: result[0]?.message,
+            //     duration: Snackbar.LENGTH_SHORT,
+            //   });
+            // }
           })
           .catch((error) => {
             console.log("error in add groups  ::::  ", error);
@@ -667,7 +672,9 @@ const CreateChallenges = ({ navigation, route }) => {
               }}
             />
           </View>
-          <View style={styles.textInputView}>
+          <View
+            style={{ ...styles.textInputView, marginTop: isTypeOpen ? 75 : 12 }}
+          >
             <Text style={styles.textInputHeading}>Challenge Visibility</Text>
             <DropDownPicker
               zIndex={isVisibilityOpen ? 999 : 0}
@@ -721,7 +728,12 @@ const CreateChallenges = ({ navigation, route }) => {
             />
           </View> */}
 
-          <View style={styles.textInputView}>
+          <View
+            style={{
+              ...styles.textInputView,
+              marginTop: isVisibilityOpen ? 80 : 12,
+            }}
+          >
             <Text style={styles.textInputHeading}>Challenge Entry</Text>
             <DropDownPicker
               zIndex={isEntryOpen ? 999 : 0}
@@ -771,7 +783,12 @@ const CreateChallenges = ({ navigation, route }) => {
               placeholder={'Enter Challenge Name'}
             />
           </View> */}
-          <View style={styles.textInputView}>
+          <View
+            style={{
+              ...styles.textInputView,
+              marginTop: isEntryOpen ? 75 : 12,
+            }}
+          >
             <Text style={styles.textInputHeading}>Start Date</Text>
             <View style={{ justifyContent: "center" }}>
               <TextInput

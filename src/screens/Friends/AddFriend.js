@@ -698,14 +698,18 @@ const AddFriend = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
       >
         {/* <Header title={"Eduardo"} navigation={navigation} /> */}
-        <Header title={firstName} navigation={navigation} />
+        <Header
+          title={firstName}
+          titleStyle={{ flex: 0.94 }}
+          navigation={navigation}
+        />
         {loading && <Loader />}
         <View
           style={{
             justifyContent: "center",
             alignItems: "center",
             marginVertical: 20,
-            paddingLeft: 30,
+            // paddingLeft: 30,
           }}
         >
           {profileImage ? (
