@@ -386,7 +386,8 @@ const Notification = ({ navigation }) => {
     setLoading(true);
     let data = {
       noti_type_id: noti_id,
-      status: "approved",
+      // status: "approved",
+      status: "membered",
       date: new Date(),
     };
     var requestOptions = {
@@ -398,6 +399,7 @@ const Notification = ({ navigation }) => {
     fetch(api.update_group_request, requestOptions)
       .then((response) => response.json())
       .then((result) => {
+        console.log("result of group request approve ::", result);
         // if (result[0]?.error == false || result[0]?.error == "false") {
         Snackbar.show({
           text: "Request approved Successfully",
@@ -601,6 +603,7 @@ const Notification = ({ navigation }) => {
     fetch(api.approve_or_reject_groupChallenge_request, requestOptions)
       .then((response) => response.json())
       .then((result) => {
+        console.log("group request approve response: ", result);
         Snackbar.show({
           text: "Request Approved successfully",
           duration: Snackbar.LENGTH_SHORT,
@@ -747,7 +750,6 @@ const Notification = ({ navigation }) => {
   const handleMarkAllAsRead = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-
       setLoading(true);
       var requestOptions = {
         method: "POST",
@@ -795,6 +797,8 @@ const Notification = ({ navigation }) => {
   };
 
   const handleNotificationPress = async (item) => {
+    // console.log("item ::::   ", item);
+
     let user_id = item.from_id;
 
     let first_name = item?.user_info?.first_name;
@@ -818,8 +822,11 @@ const Notification = ({ navigation }) => {
 
     if (item?.noti_type == "friends to friends") {
       // getSpecificUserDetail(item?.from_id);
-
-      setSelected_request_status(item?.notification_detail?.staus);
+      setSelected_request_status(
+        item?.notification_detail?.staus
+          ? item?.notification_detail?.staus
+          : "friends"
+      );
       bottomSheetRef?.current?.open();
     } else if (
       item?.noti_type == "user to group" ||
@@ -886,9 +893,11 @@ const Notification = ({ navigation }) => {
         <Text
           style={{
             color: "#000000",
-            textAlign: "right",
+            textAlign: "left",
             flex: 1,
+            // backgroundColor: "red",
             marginRight: 14,
+            marginLeft: 15,
             fontSize: 23,
             fontFamily: "Rubik-Medium",
           }}
@@ -1113,7 +1122,14 @@ const Notification = ({ navigation }) => {
                         : item?.item?.noti_type == "Admin to User For group"
                         ? `${item?.item?.user_info?.first_name} added you in group`
                         : item?.item?.noti_type == "group admin to user"
-                        ? `${item?.item?.user_info?.first_name} ${item?.item?.notification_detail?.status} your group request`
+                        ? `${item?.item?.user_info?.first_name} ${
+                            item?.item?.notification_detail?.status ==
+                              "membered" ||
+                            item?.item?.notification_detail?.status ==
+                              "approved"
+                              ? "approve"
+                              : "reject"
+                          } your group join request`
                         : item?.item?.noti_type ==
                             "user to indiviual challenge" ||
                           item?.item?.noti_type ==

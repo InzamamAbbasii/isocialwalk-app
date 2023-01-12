@@ -550,7 +550,6 @@ const Friends = ({
   const getFriendsList = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
-    setFriendsList([]);
     let data = {
       this_user_id: user_id,
     };
@@ -562,10 +561,8 @@ const Friends = ({
     fetch(api.getallfriends, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("friend list :::: ", result);
         let responseList = [];
         if (result[0]?.profile == "No Friends") {
-          console.log("no friend found");
           Snackbar.show({
             text: "No Friend Found",
             duration: Snackbar.LENGTH_SHORT,
@@ -595,6 +592,7 @@ const Friends = ({
         setFriendsList(responseList);
       })
       .catch((error) => {
+        setFriendsList([]);
         Snackbar.show({
           text: "Something went wrong.Unable to get friend list.",
           duration: Snackbar.LENGTH_SHORT,

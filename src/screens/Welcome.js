@@ -109,7 +109,7 @@ const Welcome = ({ navigation }) => {
       <View style={{ flex: 0.3, justifyContent: "center" }}>
         <TouchableOpacity
           style={{ ...styles.btn }}
-          onPress={() => navigation.navigate("AuthScreen")}
+          onPress={() => navigation.replace("AuthScreen")}
         >
           <Text style={{ color: "#FFF", fontSize: 16 }}>Get Started</Text>
         </TouchableOpacity>

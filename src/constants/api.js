@@ -74,8 +74,9 @@ export const api = {
   search_challenges: BASE_URL + "/challenges/search.php",
   upload_challenge_image: BASE_URL + "/challenges/image.php",
   add_participants_to_Challenge: BASE_URL + "/challenges/addparticipants.php",
-  add_group_to_Challenge:
-    BASE_URL + "/challenges/addgroupparticipantsnotify.php",
+  // add_group_to_Challenge:
+  //   BASE_URL + "/challenges/addgroupparticipantsnotify.php",
+  add_group_to_Challenge: BASE_URL + "/challenges/challengesgroups.php",
   get_admin_challenges: BASE_URL + "/challenges/searchbyspecificadmin.php",
   show_challenge_participants: BASE_URL + "/challenges/showparticipants.php",
   approve_individual_challenge:

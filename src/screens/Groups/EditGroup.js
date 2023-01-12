@@ -173,6 +173,8 @@ const EditGroup = ({ navigation, route }) => {
               text: "Group Updated Successfully!",
               duration: Snackbar.LENGTH_SHORT,
             });
+            // navigation?.goBack();
+            navigation?.navigate("Groups");
           } else {
             Snackbar.show({
               text: result?.message,

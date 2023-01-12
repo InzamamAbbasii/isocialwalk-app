@@ -299,6 +299,9 @@ const Groups = ({
     }, [])
   );
 
+
+
+  
   const getLoggedIn_user = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
     console.log("logged in user id  ::: ", user_id);

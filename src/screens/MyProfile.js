@@ -238,7 +238,10 @@ const MyProfile = ({ scale, showMenu, setShowMenu, moveToRight }) => {
               style={{
                 ...styles.btn,
                 marginTop: 0,
+                width: 180,
+                alignSelf: "center",
                 backgroundColor: "transparent",
+                // backgroundColor: "red",
               }}
               onPress={() => navigation.navigate("ChangePassword2")}
             >

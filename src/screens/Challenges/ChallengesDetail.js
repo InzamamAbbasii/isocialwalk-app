@@ -33,6 +33,7 @@ const ChallengesDetail = ({ navigation, route }) => {
   const bottomSheetRemoveGroupRef = useRef();
   // add group bottom sheet ref =
   const bottomSheetAddGroupRef = useRef();
+  const [groupsList, setGroupsList] = useState([]);
 
   const [participantList, setParticipantList] = useState([
     // {
@@ -225,6 +226,7 @@ const ChallengesDetail = ({ navigation, route }) => {
             if (detail?.challenge_type == "group") {
               //getting groups list that is added in this  challenge
               getGroupsInChallenge(id);
+              // getUserGroups();
             } else {
               //get add members list
               getAddMembersList(id);
@@ -281,7 +283,8 @@ const ChallengesDetail = ({ navigation, route }) => {
           let rankingList = result ? result : [];
           let list = [];
           for (const element of rankingList) {
-            let user_id = element["user id"];
+            // let user_id = element["user id"];
+            let user_id = element["user_id"];
             if (user_id) {
               let user_info = await getUser_Info(user_id);
               //getting false when user detail not found
@@ -315,6 +318,7 @@ const ChallengesDetail = ({ navigation, route }) => {
               return b?.steps - a?.steps;
             });
           }
+          console.log("list of ranking  :::::  ", list);
           setParticipantList(list);
         }
       })
@@ -331,6 +335,9 @@ const ChallengesDetail = ({ navigation, route }) => {
   //get groups in a challenge
   const getGroupsInChallenge = async (challangeId) => {
     setLoading(true);
+    let adminGroups = await getUserGroups();
+    setGroupsList(adminGroups);
+
     let data = {
       challenge_id: challangeId,
     };
@@ -342,10 +349,10 @@ const ChallengesDetail = ({ navigation, route }) => {
     fetch(api.get_groups_of_specific_challenge, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        // console.log("groups list :::: ", result);
         if (result?.error == false || result?.error == "false") {
           let responseList = result?.Challenges ? result?.Challenges : [];
           let list = [];
+          let groupsList1 = [];
           for (const element of responseList) {
             let groupInfo = await getGroup_Info(element?.group_id);
             //to check group already exists in this list or not bcz we don't want to show one group more than once
@@ -375,6 +382,12 @@ const ChallengesDetail = ({ navigation, route }) => {
               list?.push(obj);
             }
           }
+          let myArray = adminGroups.filter(
+            (ar) => !list.find((rm) => rm.id != ar.id)
+          );
+
+          setGroupsList(myArray);
+
           setChallenge_GroupsList(list);
         } else {
           Snackbar.show({
@@ -391,6 +404,63 @@ const ChallengesDetail = ({ navigation, route }) => {
         });
       })
       .finally(() => setLoading(false));
+  };
+
+  //getting challenge admin groups
+  const getUserGroups = async () => {
+    return new Promise(async (resolve, reject) => {
+      let user_id = await AsyncStorage.getItem("user_id");
+      let data = {
+        created_by_user_id: user_id,
+      };
+      var requestOptions = {
+        method: "POST",
+        body: JSON.stringify(data),
+        redirect: "follow",
+      };
+      fetch(api.search_group_by_specific_admin, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          if (result?.error == false || result?.error == "false") {
+            let responseList = result?.Groups ? result?.Groups : [];
+            let list = [];
+            if (responseList?.length > 0) {
+              responseList.forEach((element) => {
+                let obj = {
+                  id: element?.id,
+                  noti_type_id: "",
+                  challenge_id: "",
+                  group_id: element?.id,
+                  status: false,
+                  selected: false,
+                  group_info: {
+                    id: element?.id,
+                    image: element?.image
+                      ? BASE_URL_Image + "/" + element?.image
+                      : "",
+                    name: element?.name,
+                    adminId: element?.created_by_user_id,
+                    group_privacy: element?.group_privacy,
+                    group_visibility: element?.group_visibility,
+                    created_at: element?.created_at,
+                  },
+                };
+                list.push(obj);
+              });
+            } else {
+              Snackbar.show({
+                text: "No Group Found",
+                duration: Snackbar.LENGTH_SHORT,
+              });
+            }
+
+            resolve(list);
+          }
+        })
+        .catch((error) => {
+          resolve([]);
+        });
+    });
   };
 
   //getting user detail
@@ -823,7 +893,6 @@ const ChallengesDetail = ({ navigation, route }) => {
   };
 
   //handle leave challenge
-
   const handleLeaveChallenge = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
     if (challengeId) {
@@ -900,6 +969,7 @@ const ChallengesDetail = ({ navigation, route }) => {
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,
           });
+          navigation?.goBack();
           // }
         })
         .catch((error) => {
@@ -1013,6 +1083,89 @@ const ChallengesDetail = ({ navigation, route }) => {
     }
   };
 
+  //add group
+
+  //handle selecet groups to remove from challenge
+  const handleSelectGroup_ToAdd = (id) => {
+    console.log("group id  pass to add group   ::: ", id);
+    const newData = groupsList.map((item) => {
+      if (id === item?.id) {
+        return {
+          ...item,
+          selected: !item.selected,
+        };
+      } else {
+        return {
+          ...item,
+        };
+      }
+    });
+    setGroupsList(newData);
+  };
+
+  const handleAddGroup_In_Challenge = () => {
+    let selectedGroupList = groupsList
+      ?.filter((item) => item?.selected == true)
+      ?.map((element) => element?.id);
+
+    if (selectedGroupList?.length > 0) {
+      bottomSheetAddGroupRef?.current?.close();
+      let count = 0;
+      selectedGroupList.forEach((element) => {
+        count++;
+        //adding group to challenge one by one
+        setLoading(true);
+        let data = {
+          date: new Date(),
+          group_id: element,
+          challenge_id: challengeId,
+        };
+        console.log("data pass  to add members in challgee api  : ", data);
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+        fetch(api.add_group_to_Challenge, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("add group response :::: ", result);
+            //TODO: getting selected groups to add in challenge
+            const newData = groupsList.filter(
+              (item) => item?.selected === true
+            );
+            setChallenge_GroupsList(challenge_GroupsList.concat(newData));
+            //TODO: also remove selected groups from added groups list
+            const newData1 = groupsList.filter(
+              (item) => item.selected === false
+            );
+            setGroupsList(newData1);
+          })
+          .catch((error) => {
+            console.log("error in add groups  ::::  ", error);
+            Snackbar.show({
+              text: "Something went wrong.Group is not added to challenge.",
+              duration: Snackbar.LENGTH_SHORT,
+            });
+          })
+          .finally(() => {
+            if (count >= selectedGroupList?.length) {
+              Snackbar.show({
+                text: "Groups are successfully added.",
+                duration: Snackbar.LENGTH_SHORT,
+              });
+            }
+            setLoading(false);
+          });
+      });
+    } else {
+      Snackbar.show({
+        text: "Please select group to add in challenge.",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -1101,6 +1254,15 @@ const ChallengesDetail = ({ navigation, route }) => {
                 <Text style={{ color: "#FFF", fontSize: 16 }}>Add Members</Text>
               </TouchableOpacity>
             )}
+            {logged_in_user_id == adminId && challenge_type === "group" && (
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => bottomSheetAddGroupRef?.current?.open()}
+              >
+                <Text style={{ color: "#FFF", fontSize: 16 }}>Add Groups</Text>
+              </TouchableOpacity>
+            )}
+
             {route?.params?.type == "joined" ? (
               <TouchableOpacity
                 onPress={() => handleLeaveChallenge()}
@@ -1300,6 +1462,156 @@ const ChallengesDetail = ({ navigation, route }) => {
                 }}
               />
             </View>
+            {/* ------------------------------------------Add Group Bottom Sheet-------------------------------------------- */}
+            <RBSheet
+              ref={bottomSheetAddGroupRef}
+              openDuration={250}
+              closeOnDragDown={true}
+              closeOnPressMask={false}
+              dragFromTopOnly
+              animationType={"slide"}
+              customStyles={{
+                container: {
+                  padding: 5,
+                  height: 460,
+                  backgroundColor: "#ffffff",
+                  borderRadius: 30,
+                },
+                draggableIcon: {
+                  backgroundColor: "#003e6b",
+                },
+              }}
+            >
+              <View
+                style={{
+                  alignItems: "center",
+                  flex: 1,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#003e6b",
+                    fontSize: 18,
+                    textAlign: "center",
+                    fontFamily: "Rubik-Regular",
+                    marginTop: 5,
+                  }}
+                >
+                  Add Group
+                </Text>
+                <View
+                  style={{
+                    marginVertical: 15,
+                    paddingHorizontal: 20,
+                    flex: 1,
+                    width: "100%",
+                  }}
+                >
+                  <FlatList
+                    data={groupsList}
+                    numColumns={3}
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListEmptyComponent={() => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            height: SCREEN_HEIGHT * 0.4,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#000000",
+                              fontSize: 16,
+                            }}
+                          >
+                            No Result Found
+                          </Text>
+                        </View>
+                      );
+                    }}
+                    renderItem={(item) => {
+                      return (
+                        <TouchableOpacity
+                          onPress={() => handleSelectGroup_ToAdd(item.item?.id)}
+                          style={{
+                            ...styles.bootSheetCardView,
+                            width: "28.9%",
+                            marginVertical: 5,
+                            marginHorizontal: 7,
+                            borderWidth: item.item.selected ? 1 : 0,
+                            borderColor: item.item.selected
+                              ? "#38ACFF"
+                              : "transparent",
+                          }}
+                        >
+                          {item?.item?.group_info?.image != "" ? (
+                            <Image
+                              source={{ uri: item?.item?.group_info?.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/group-profile2.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                              }}
+                            />
+                          )}
+
+                          <Text
+                            numberOfLines={2}
+                            style={{
+                              color: "#040103",
+                              fontFamily: "Rubik-Regular",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item?.item?.group_info?.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleAddGroup_In_Challenge()}
+                  style={{
+                    backgroundColor: "#38ACFF",
+                    marginBottom: 10,
+                    height: 50,
+                    width: "92%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#FFF",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    Add
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </RBSheet>
+
+            {/* -------------------------------------------------------------- */}
+
             {/* ------------------------------------------Remove Group Bottom Sheet-------------------------------------------- */}
             <RBSheet
               ref={bottomSheetRemoveGroupRef}
@@ -1571,7 +1883,7 @@ const ChallengesDetail = ({ navigation, route }) => {
                             <>
                               {item?.item?.user_info?.image != "" ? (
                                 <Image
-                                  source={{ uri: item.item.image }}
+                                  source={{ uri: item.item?.user_info?.image }}
                                   style={{
                                     marginVertical: 8,
                                     width: 44,
@@ -1853,7 +2165,7 @@ const ChallengesDetail = ({ navigation, route }) => {
                         >
                           {item?.item?.user_info?.image != "" ? (
                             <Image
-                              source={{ uri: item.item.image }}
+                              source={{ uri: item.item?.user_info?.image }}
                               style={{
                                 marginVertical: 8,
                                 width: 44,

@@ -1,7 +1,13 @@
 import React from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 
-const Header = ({ navigation, title, titleStyle, onButtonPress }) => {
+const Header = ({
+  navigation,
+  title,
+  titleStyle,
+  onButtonPress,
+  numberOfLines,
+}) => {
   const left_arrow = require("../../assets/images/left-arrow.png");
   return (
     <View style={styles.headerView}>
@@ -11,7 +17,11 @@ const Header = ({ navigation, title, titleStyle, onButtonPress }) => {
       >
         <Image source={left_arrow} style={{ width: 14, height: 22 }} />
       </TouchableOpacity>
-      <Text style={{ ...styles.title, ...titleStyle }}>{title}</Text>
+      {numberOfLines ? (
+        <Text style={{ ...styles.title, ...titleStyle }}>{title}</Text>
+      ) : (
+        <Text style={{ ...styles.title, ...titleStyle }}>{title}</Text>
+      )}
     </View>
   );
 };

@@ -417,6 +417,7 @@ const AuthScreen = ({ navigation }) => {
       // console.log('facebook credientails  :: ', facebookCredential);
       // Sign-in the user with the credential
       let userinfo = await auth().signInWithCredential(facebookCredential);
+      console.log(userinfo);
       if (userinfo) {
         // params : firstName, lastName, email, password
         handleLogin(userinfo?.user?.email, facebookCredential.token);
@@ -437,7 +438,12 @@ const AuthScreen = ({ navigation }) => {
       {/* {loading && <Loader />} */}
       <View style={styles.tabView}>
         <TouchableOpacity
-          onPress={() => handleonTabChange()}
+          // onPress={() => handleonTabChange()}
+          onPress={() => {
+            setIndex(1);
+            setInvalidEmail(false);
+            setInvalidPassword(false);
+          }}
           style={{
             ...styles.btn,
             backgroundColor: index == 1 ? "#FFF" : "transparent",
@@ -447,7 +453,12 @@ const AuthScreen = ({ navigation }) => {
           <Text style={styles.btnText}>Sign in</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => handleonTabChange()}
+          // onPress={() => handleonTabChange()}
+          onPress={() => {
+            setIndex(0);
+            setInvalidEmail(false);
+            setInvalidPassword(false);
+          }}
           style={{
             ...styles.btn,
             backgroundColor: index == 0 ? "#FFF" : "transparent",
