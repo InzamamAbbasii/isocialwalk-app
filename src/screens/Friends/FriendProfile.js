@@ -38,6 +38,8 @@ import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 const FriendProfile = ({ navigation, route }) => {
   const dispatch = useDispatch();
 
+  const scrollViewRef = useRef();
+
   const [userId, setUserId] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -343,6 +345,11 @@ const FriendProfile = ({ navigation, route }) => {
         setLabels(dayNameList);
         setMyTotalSteps(total_steps);
         setMyHistory(dayStepsList);
+        //scrolling line chart scrollview to start
+        scrollViewRef?.current?.scrollTo({
+          y: 0,
+          animated: false,
+        });
 
         setLoading(false);
         // } else {
@@ -353,7 +360,6 @@ const FriendProfile = ({ navigation, route }) => {
         // }
       })
       .catch((error) => {
-        console.log("error : ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -403,7 +409,6 @@ const FriendProfile = ({ navigation, route }) => {
         setFriendTotalSteps(total_steps);
       })
       .catch((error) => {
-        console.log("error : ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -431,7 +436,6 @@ const FriendProfile = ({ navigation, route }) => {
     fetch(api.get_history_btw_two_dates, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        console.log("result :: ", result);
         // if (result[0]?.error == false || result[0]?.error == "false") {
         let responseList = result[0]?.History ? result[0]?.History : [];
         let list = [];
@@ -466,7 +470,6 @@ const FriendProfile = ({ navigation, route }) => {
         // }
       })
       .catch((error) => {
-        console.log("error in getting history of specific date", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -480,11 +483,8 @@ const FriendProfile = ({ navigation, route }) => {
     let todayDate = moment(new Date()).format("YYYY-MM-DD");
 
     let thisMonthDaysList = await daysInThisMonth();
-    console.log("days in this month :: ", thisMonthDaysList);
     let monthStartDate = thisMonthDaysList[0]?.date;
     let monthEndDate = thisMonthDaysList[thisMonthDaysList?.length - 1]?.date;
-    console.log("month start date   ::: ", monthStartDate);
-    console.log("month start date   ::: ", monthEndDate);
     setLoading(true);
     let data = {
       user_id: user_id,
@@ -499,7 +499,6 @@ const FriendProfile = ({ navigation, route }) => {
     fetch(api.get_history_btw_two_dates, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        console.log("result :: ", result);
         // if (result[0]?.error == false || result[0]?.error == "false") {
         let responseList = result[0]?.History ? result[0]?.History : [];
         // let list = [];
@@ -534,7 +533,6 @@ const FriendProfile = ({ navigation, route }) => {
         // }
       })
       .catch((error) => {
-        console.log("error in getting history of specific date", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -592,7 +590,6 @@ const FriendProfile = ({ navigation, route }) => {
       this_user_id: userId,
       friend_user_id: user_id,
     };
-    console.log("data pass to unfriend ::", obj);
 
     var requestOptions = {
       method: "POST",
@@ -602,9 +599,7 @@ const FriendProfile = ({ navigation, route }) => {
     fetch(api.unFriend, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("unfriend result ::", result);
         if (result[0]?.error == false || result[0]?.error == "false") {
-          console.log("unfriend user 2 also");
           // Snackbar.show({
           //   text: "Unfriend Successfully",
           //   duration: Snackbar.LENGTH_SHORT,
@@ -619,7 +614,6 @@ const FriendProfile = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
-        console.log("error in unapproveing request :: ", error);
         Snackbar.show({
           text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
@@ -629,7 +623,6 @@ const FriendProfile = ({ navigation, route }) => {
   };
 
   const handleUnfriend = async () => {
-    console.log("selected user  id  ", userId);
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);
     let obj = {
@@ -638,7 +631,6 @@ const FriendProfile = ({ navigation, route }) => {
       this_user_id: user_id, ///logged in user id
       friend_user_id: userId, //selected friend id
     };
-    console.log("data pass to unfriend ::", obj);
 
     var requestOptions = {
       method: "POST",
@@ -648,7 +640,6 @@ const FriendProfile = ({ navigation, route }) => {
     fetch(api.unFriend, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("unfriend result ::", result);
         if (result[0]?.error == false || result[0]?.error == "false") {
           Snackbar.show({
             text: "Unfriend Successfully",
@@ -657,7 +648,6 @@ const FriendProfile = ({ navigation, route }) => {
           handleUnfriendUserFromBothSide();
           navigation?.goBack();
         } else {
-          console.log("message in else  case :;", result[0]?.message);
           Snackbar.show({
             text: result[0]?.message,
             duration: Snackbar.LENGTH_SHORT,
@@ -670,7 +660,6 @@ const FriendProfile = ({ navigation, route }) => {
         // navigation?.goBack();
       })
       .catch((error) => {
-        console.log("error in unapproveing request :: ", error);
         Snackbar.show({
           text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
@@ -1191,8 +1180,9 @@ const FriendProfile = ({ navigation, route }) => {
           {/* ------------------------------------graph------------------------------------------- */}
 
           <ScrollView
+            ref={scrollViewRef}
             horizontal={true}
-            contentOffset={{ x: 10000, y: 0 }} // i needed the scrolling to start from the end not the start
+            // contentOffset={{ x: 10000, y: 0 }} // i needed the scrolling to start from the end not the start
             style={{}}
           >
             <LineChart
@@ -1202,15 +1192,13 @@ const FriendProfile = ({ navigation, route }) => {
                 labels: labels,
                 datasets: [
                   {
-                    // data: [10, 20, 5, 15, 45, 30, 20, 9],
-                    // data: weeklyHistory, //logged in user history
+                    // data: [10, 20, 5, 0, 0, 0, 20, 9],
                     data: myHistory, //logged in user history
                     color: (opacity = 1) => `#38ACFF`, // optional
                     strokeWidth: 2,
                   },
                   {
                     // data: [15, 10, 20, 8, 30, 3, 50, 25],
-                    // data: weeklyFriendHistory, //friend history
                     data: friendHistory, //friend history
                     color: (opacity = 1) => `#003E6B`, // optional
                     strokeWidth: 2,

@@ -611,6 +611,7 @@ const Notification = ({ navigation }) => {
         getAllNotification();
       })
       .catch((error) => {
+        console.log("error in approving group challenge request: ", error);
         Snackbar.show({
           text: "Something went wrong",
           duration: Snackbar.LENGTH_SHORT,
@@ -852,7 +853,8 @@ const Notification = ({ navigation }) => {
       item?.noti_type == "admin to indiviual challenge acception" ||
       item?.noti_type == "user to group admin for challenge joining" ||
       item?.noti_type == "group admin to challenge owner" ||
-      item?.noti_type == "group challenge response"
+      item?.noti_type == "group challenge response" ||
+      item?.noti_type == "challenge admin to user"
     ) {
       let challenge_id = item?.notification_detail?.challenge_id;
       setLoading(true);
@@ -864,7 +866,6 @@ const Notification = ({ navigation }) => {
         setSelected_challenge_id(id);
         setSelected_challenge_name(name);
         setSelected_challenge_type(challenge_info?.challenge_type);
-
         setSelected_challenge_status(item?.notification_detail?.status);
         challengeRequest_RBSheetRef?.current?.open();
       }
@@ -1017,7 +1018,8 @@ const Notification = ({ navigation }) => {
                     item?.item?.noti_type == "group admin to challenge owner" ||
                     item?.item?.noti_type == "group challenge response" ||
                     item?.item?.noti_type ==
-                      "user to group admin for challenge joining" ? (
+                      "user to group admin for challenge joining" ||
+                    item?.item?.noti_type == "challenge admin to user" ? (
                     //challenge notification
                     <Image
                       source={require("../../../assets/images/Challenge.png")}
@@ -1083,7 +1085,9 @@ const Notification = ({ navigation }) => {
                               "user to group admin for challenge joining" ||
                             item?.item?.noti_type ==
                               "group admin to challenge owner" ||
-                            item?.item?.noti_type == "group challenge response"
+                            item?.item?.noti_type ==
+                              "group challenge response" ||
+                            item?.item?.noti_type == "challenge admin to user"
                           ? "Challenge Request"
                           : "other"}
                       </Text>
@@ -1157,6 +1161,8 @@ const Notification = ({ navigation }) => {
                               ? "approved"
                               : "reject"
                           } your challenge join request`
+                        : item?.item?.noti_type == "challenge admin to user"
+                        ? `${item?.item?.user_info?.first_name} added you in group challenge`
                         : "other"}
                     </Text>
                   </TouchableOpacity>
@@ -1625,7 +1631,6 @@ const Notification = ({ navigation }) => {
                 <Text style={styles.btnText}>Approve Request</Text>
               </TouchableOpacity>
             )}
-
             <TouchableOpacity
               style={{
                 ...styles.btnBottomSheet,
@@ -1662,7 +1667,13 @@ const Notification = ({ navigation }) => {
                 color: "#38ACFF",
               }}
             >
-              {selected_challenge_status == "rejected"
+              {selected_noti_type == "challenge admin to user"
+                ? selected_challenge_status == "membered"
+                  ? "Added"
+                  : selected_challenge_status == "rejected"
+                  ? "Request Rejected"
+                  : "Request Accepted"
+                : selected_challenge_status == "rejected"
                 ? "Request Rejected"
                 : "Request Accepted"}
             </Text>

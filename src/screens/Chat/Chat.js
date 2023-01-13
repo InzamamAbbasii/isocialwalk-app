@@ -250,8 +250,9 @@ const Chat = ({
     // },
   ]);
 
-  const [groupsList, setGroupsList] = useState([]);
+  const [chatListCopy, setChatListCopy] = useState("");
 
+  const [groupsList, setGroupsList] = useState([]);
   // useEffect(() => {
   //   //gettig group chat list
   //   getGroupsList();
@@ -260,9 +261,15 @@ const Chat = ({
   //----------------------------------------------------------------------
   useEffect(() => {
     setLoading(true);
-    getSuggestedFriendsList();
-    getFriendsList();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getSuggestedFriendsList();
+      getFriendsList();
+    }, [])
+  );
+
   const getUser_ID = async () => {
     const user_id = await AsyncStorage.getItem("user_id");
     setUserId(user_id);
@@ -287,12 +294,16 @@ const Chat = ({
 
         //merge friend chat and group chat list
         let arr = [...data, ...groupsChat];
+        // b.isPinned - a.isPinned &&
         arr.sort(function (a, b) {
-          return b.isPinned - a.isPinned;
+          return (
+            b.isPinned - a.isPinned ||
+            new Date(b.createdAt) - new Date(a.createdAt)
+          );
         });
 
         setChatList(arr);
-
+        setChatListCopy(arr);
         setLoading(false);
       };
       loadData();
@@ -687,7 +698,7 @@ const Chat = ({
     try {
       let user_id = await AsyncStorage.getItem("user_id");
       setLoading(true);
-      setSuggestedFriends([]);
+
       let data = {
         this_user_id: user_id,
       };
@@ -721,10 +732,12 @@ const Chat = ({
 
           setSuggestedFriends(responseList);
         })
-        .catch((error) => console.log("error", error))
+        .catch((error) => {
+          setSuggestedFriends([]);
+        })
         .finally(() => setLoading(false));
     } catch (error) {
-      console.log("error :", error);
+      setSuggestedFriends([]);
       setLoading(false);
     }
   };
@@ -1112,7 +1125,6 @@ const Chat = ({
 
   //delete group from firebase
   const handleDeleteGroup = async (groupId, item) => {
-    console.log("groupId  to remove ::: ", groupId);
     let user_id = await AsyncStorage.getItem("user_id");
     if (user_id == item?.admin) {
       // alert("handle remvoe");
@@ -1190,7 +1202,12 @@ const Chat = ({
                 {data?.item?.profile ? (
                   <Image
                     source={{ uri: data?.item?.profile }}
-                    style={{ width: 45, height: 45, borderRadius: 45 }}
+                    style={{
+                      width: 45,
+                      height: 45,
+                      borderRadius: 45,
+                      backgroundColor: "#ccc",
+                    }}
                   />
                 ) : (
                   <Image
@@ -1337,134 +1354,21 @@ const Chat = ({
     );
   };
 
-  const Group_ChatListComponent = () => {
-    return (
-      <SwipeListView
-        data={groupsList}
-        renderItem={(data, rowMap) => (
-          <Pressable
-            onPress={() =>
-              // navigation.navigate('Conversations', {
-              //   user: data.item,
-              // })
-              // handlePress(data?.item)
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch(searchText);
+    }, 500);
 
-              handleGroupChatItemPress(data?.item)
-            }
-            style={styles.chatCardView}
-          >
-            <Image
-              source={require("../../../assets/images/friend-profile.png")}
-              style={{ width: 45, height: 45 }}
-            />
-            <View style={{ marginLeft: 15, flex: 1 }}>
-              <Text style={styles.userName}>{data.item.name}</Text>
-              {/* <Text style={styles.userName}>{data?.item?.unReadCount}</Text> */}
-              {data?.item?.unReadCount > 0 ? (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    source={require("../../../assets/images/friend-profile.png")}
-                    style={{
-                      width: 15,
-                      height: 15,
-                      resizeMode: "contain",
-                      marginRight: 4,
-                    }}
-                  />
-                  <Text
-                    numberOfLines={1}
-                    style={{ ...styles.messageText, color: "#003E6B" }}
-                  >
-                    {typeof data?.item?.image == "undefined" &&
-                    typeof data.item.message == "undefined"
-                      ? ""
-                      : data?.item?.image != ""
-                      ? "photo"
-                      : data.item.message}
-                  </Text>
-                </View>
-              ) : (
-                <Text numberOfLines={1} style={styles.messageText}>
-                  {typeof data?.item?.image == "undefined" &&
-                  typeof data.item.message == "undefined"
-                    ? ""
-                    : data?.item?.image != ""
-                    ? "photo"
-                    : data.item.message}
-                </Text>
-              )}
-            </View>
-            <View style={{ marginLeft: 15, alignItems: "flex-end" }}>
-              <Text
-                style={{
-                  color: "#838383",
-                  fontSize: 12,
-                }}
-              >
-                {/* {data.item.createdAt} */}
-                {data?.item?.createdAt &&
-                  moment(data?.item?.createdAt).fromNow()}
-              </Text>
-              {/* {data?.item?.unReadCount > 0 && (
-                <View
-                  style={{
-                    height: 15,
-                    width: 15,
-                    borderRadius: 15,
-                    backgroundColor: "red",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "#fff",
-                      fontSize: 10,
-                    }}
-                  >
-              
-                    {data?.item?.unReadCount}
-                  </Text>
-                </View>
-              )} */}
-            </View>
-          </Pressable>
-        )}
-        // disableLeftSwipe={true}
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchText]);
 
-        disableRightSwipe={true}
-        renderHiddenItem={(data, rowMap) => (
-          <View style={styles.rowBack}>
-            <TouchableOpacity
-              //onPress={() => deleteItem(data.item.id, data?.item)}
-              style={[styles.backRightBtn, styles.backRightBtnRight]}
-            >
-              <Image
-                source={require("../../../assets/images/delete.png")}
-                style={{ height: 40, width: 40 }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              // onPress={() => pinItem(data.item.id)}
-              onPress={() => handlePinGroupChat(data.item.id)}
-              style={[styles.backRightBtn, { right: 50 }]}
-            >
-              <Image
-                source={require("../../../assets/images/pin.png")}
-                style={{ height: 40, width: 40 }}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-        // leftOpenValue={175}
-        rightOpenValue={-115}
-      />
+  const handleSearch = (searchText) => {
+    setLoading(true);
+    const filter = chatList?.filter((item) =>
+      item?.name?.toLowerCase()?.includes(searchText?.toLowerCase())
     );
+    setSearchResults(filter);
+    setLoading(false);
   };
 
   return (
@@ -1508,11 +1412,6 @@ const Chat = ({
                 setShowMenu(!showMenu);
               }}
             >
-              {/* <Image source={require('../../../assets/images/Line1.png')} />
-              <Image
-                source={require('../../../assets/images/Line2.png')}
-                style={{marginTop: 5}}
-              /> */}
               <Image
                 source={require("../../../assets/images/menu1.png")}
                 style={{ width: 34, height: 17 }}
@@ -1547,34 +1446,228 @@ const Chat = ({
                   color: "#000000",
                   fontSize: 16,
                   fontFamily: "Rubik-Regular",
+                  marginBottom: 10,
                 }}
               >
                 Search Results
               </Text>
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Image
-                  source={require("../../../assets/images/search3.png")}
-                  style={{ height: 99, width: 99 }}
-                />
-                <Text
+              {searchResults?.length == 0 ? (
+                <View
                   style={{
-                    color: "#000000",
-                    marginTop: 15,
-                    width: 175,
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontFamily: "Rubik-Regular",
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  No conversation match your search
-                </Text>
-              </View>
+                  <Image
+                    source={require("../../../assets/images/search3.png")}
+                    style={{ height: 99, width: 99 }}
+                  />
+                  <Text
+                    style={{
+                      color: "#000000",
+                      marginTop: 15,
+                      width: 175,
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontFamily: "Rubik-Regular",
+                    }}
+                  >
+                    No conversation match your search
+                  </Text>
+                </View>
+              ) : (
+                <SwipeListView
+                  data={searchResults}
+                  renderItem={(data, rowMap) => (
+                    <Pressable
+                      onPress={() => {
+                        data?.item?.type == "group"
+                          ? handleGroupChatItemPress(data?.item)
+                          : handlePress(data?.item);
+
+                        setSearchText("");
+                      }}
+                      style={{ ...styles.chatCardView, paddingHorizontal: 0 }}
+                    >
+                      {data?.item?.type == "group" ? (
+                        <>
+                          {data?.item?.profile ? (
+                            <Image
+                              source={{ uri: data?.item?.profile }}
+                              style={{
+                                width: 45,
+                                height: 45,
+                                borderRadius: 45,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/group-profile2.png")}
+                              style={{ width: 45, height: 45 }}
+                            />
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {data?.item?.profile ? (
+                            <Image
+                              source={{ uri: data?.item?.profile }}
+                              style={{
+                                width: 45,
+                                height: 45,
+                                borderRadius: 45,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{ width: 45, height: 45 }}
+                            />
+                          )}
+                        </>
+                      )}
+
+                      <View style={{ marginLeft: 15, flex: 1 }}>
+                        <Text style={styles.userName}>{data?.item?.name}</Text>
+                        {/* <Text style={styles.userName}>{data?.item?.unReadCount}</Text> */}
+                        {data?.item?.unReadCount > 0 ? (
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            {data?.item?.profile ? (
+                              <Image
+                                source={{ uri: data?.item?.profile }}
+                                style={{
+                                  width: 15,
+                                  height: 15,
+                                  borderRadius: 15,
+                                  backgroundColor: "#ccc",
+                                  resizeMode: "contain",
+                                  marginRight: 4,
+                                }}
+                              />
+                            ) : (
+                              <Image
+                                source={require("../../../assets/images/friend-profile.png")}
+                                style={{
+                                  width: 15,
+                                  height: 15,
+                                  resizeMode: "contain",
+                                  marginRight: 4,
+                                }}
+                              />
+                            )}
+
+                            <Text
+                              numberOfLines={1}
+                              style={{
+                                ...styles.messageText,
+                                color: "#003E6B",
+                              }}
+                            >
+                              {typeof data?.item?.image == "undefined" &&
+                              typeof data.item.message == "undefined"
+                                ? ""
+                                : data?.item?.image != ""
+                                ? "photo"
+                                : data.item.message}
+                            </Text>
+                          </View>
+                        ) : (
+                          <Text numberOfLines={1} style={styles.messageText}>
+                            {typeof data?.item?.image == "undefined" &&
+                            typeof data.item.message == "undefined"
+                              ? ""
+                              : data?.item?.image != ""
+                              ? "photo"
+                              : data.item.message}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={{ marginLeft: 15, alignItems: "flex-end" }}>
+                        <Text
+                          style={{
+                            color: "#838383",
+                            fontSize: 12,
+                          }}
+                        >
+                          {/* {data.item.createdAt} */}
+                          {data?.item?.createdAt &&
+                            moment(data?.item?.createdAt).fromNow()}
+                        </Text>
+
+                        {data?.item?.type !== "group" &&
+                          data?.item?.unReadCount > 0 && (
+                            <View
+                              style={{
+                                height: 15,
+                                width: 15,
+                                borderRadius: 15,
+                                backgroundColor: "red",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: 3,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: "#fff",
+                                  fontSize: 10,
+                                }}
+                              >
+                                {/* {data.item.count} */}
+                                {data?.item?.unReadCount}
+                              </Text>
+                            </View>
+                          )}
+                      </View>
+                    </Pressable>
+                  )}
+                  // disableLeftSwipe={true}
+
+                  disableRightSwipe={true}
+                  renderHiddenItem={(data, rowMap) => (
+                    <View style={styles.rowBack}>
+                      <TouchableOpacity
+                        // onPress={() => deleteItem(data.item.id, data?.item)}
+                        onPress={() => {
+                          data?.item?.type === "group"
+                            ? handleDeleteGroup(data?.item?.id, data?.item)
+                            : deleteItem(data.item.id, data?.item);
+                        }}
+                        style={[styles.backRightBtn, styles.backRightBtnRight]}
+                      >
+                        <Image
+                          source={require("../../../assets/images/delete.png")}
+                          style={{ height: 40, width: 40 }}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        // onPress={() => pinItem(data.item.id)}
+                        onPress={() => {
+                          data?.item?.type == "group"
+                            ? handlePinGroupChat(data?.item?.id)
+                            : pinItem(data.item.id);
+                        }}
+                        style={[styles.backRightBtn, { right: 50 }]}
+                      >
+                        <Image
+                          source={require("../../../assets/images/pin.png")}
+                          style={{ height: 40, width: 40 }}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  // leftOpenValue={175}
+                  rightOpenValue={-115}
+                />
+              )}
             </View>
           ) : (
             <View style={{ flex: 1 }}>
@@ -1703,24 +1796,6 @@ const Chat = ({
                   <ChatListComponent />
                 )}
               </View>
-              {/* __________________________________________groups list  ___________________________________________________ */}
-
-              {/* <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    color: "#000000",
-                    fontSize: 16,
-                    paddingHorizontal: 20,
-                    marginBottom: 20,
-                    fontFamily: "Rubik-Regular",
-                  }}
-                >
-                  Group Chats
-                </Text>
-
-                <Group_ChatListComponent />
-              </View> */}
-              {/* __________________________________________groups list  ___________________________________________________ */}
             </View>
           )}
 

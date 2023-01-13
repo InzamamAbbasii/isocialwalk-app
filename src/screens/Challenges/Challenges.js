@@ -196,7 +196,6 @@ const Challenges = ({
         if (result?.error == false || result?.error == "false") {
           let list = result?.Groups ? result?.Groups : [];
           let joinedGroupsList = await getJoinedGroups(list);
-          console.log("joinedGroupsList", joinedGroupsList);
 
           // setGroupList(list);
           let list1 = [];
@@ -613,6 +612,7 @@ const Challenges = ({
               let challengeInfo = await getChallengeDetail(
                 element?.challenge_id
               );
+
               if (challengeInfo != false) {
                 if (challengeInfo?.created_by_user_id == user_id) {
                   //not added his own created challenges in joined challenges list
@@ -1033,15 +1033,9 @@ const Challenges = ({
   };
 
   const handleSelectGroup = async (item) => {
-    console.log("item ::  to join group challenge :  : ", item);
-    console.log("group id  : : ", item?.id);
-
     // _______________________________________________________________
     // console.log("handleSelectGroup :::: ", item);
     let admin = item?.created_by_user_id;
-    console.log("admin  :::: ", admin);
-    console.log("selectedChallengeId  :::: ", selectedChallengeId);
-
     RBSheet_GroupRef?.current?.close();
     let user_id = await AsyncStorage.getItem("user_id");
     setLoading(true);

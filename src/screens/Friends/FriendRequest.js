@@ -26,6 +26,9 @@ import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const FriendRequest = ({ navigation, route }) => {
   const bottomSheetRef = useRef();
+
+  const scrollViewRef = useRef();
+
   const [isFriendRequestApproved, setIsFriendRequestApproved] = useState(false);
   // const [profileImage, setProfileImage] = useState(
   //   require("../../../assets/images/friend-profile.png")
@@ -128,11 +131,9 @@ const FriendRequest = ({ navigation, route }) => {
             }
           })
           .catch((error) => {
-            console.log("error in getting user detail ::", error);
             resolve(false);
           });
       } catch (error) {
-        console.log("error occur in getting user profile detail ::", error);
         resolve(false);
       }
     });
@@ -234,7 +235,6 @@ const FriendRequest = ({ navigation, route }) => {
           }
         })
         .catch((error) => {
-          console.log("error in getting user detail ::", error);
           Snackbar.show({
             text: "Something went wrong",
             duration: Snackbar.LENGTH_SHORT,
@@ -242,7 +242,6 @@ const FriendRequest = ({ navigation, route }) => {
         })
         .finally(() => setLoading(false));
     } catch (error) {
-      console.log("error occur in getting user profile detail ::", error);
       Snackbar.show({
         text: "Something went wrong",
         duration: Snackbar.LENGTH_SHORT,
@@ -271,19 +270,15 @@ const FriendRequest = ({ navigation, route }) => {
               ? result[0]["Daily Goal Steps"]
               : "0";
             setDailySteps(steps);
-          } else {
-            console.log("result  :: ", result);
           }
         })
         .catch((error) => {
-          console.log("error in getting user daily goal ::", error);
           Snackbar.show({
             text: "Something went wrong",
             duration: Snackbar.LENGTH_SHORT,
           });
         });
     } catch (error) {
-      console.log("error in getting user daily goals : ", error);
       Snackbar.show({
         text: "Something went wrong",
         duration: Snackbar.LENGTH_SHORT,
@@ -332,6 +327,11 @@ const FriendRequest = ({ navigation, route }) => {
         setMyTotalSteps(total_steps);
         setMyHistory(dayStepsList);
 
+        scrollViewRef?.current?.scrollTo({
+          y: 0,
+          animated: false,
+        });
+
         setLoading(false);
         // } else {
         //   Snackbar.show({
@@ -341,7 +341,6 @@ const FriendRequest = ({ navigation, route }) => {
         // }
       })
       .catch((error) => {
-        console.log("error : ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -391,7 +390,6 @@ const FriendRequest = ({ navigation, route }) => {
         setFriendTotalSteps(total_steps);
       })
       .catch((error) => {
-        console.log("error : ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -419,7 +417,6 @@ const FriendRequest = ({ navigation, route }) => {
     fetch(api.get_history_btw_two_dates, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        console.log("result :: ", result);
         // if (result[0]?.error == false || result[0]?.error == "false") {
         let responseList = result[0]?.History ? result[0]?.History : [];
         let list = [];
@@ -454,7 +451,6 @@ const FriendRequest = ({ navigation, route }) => {
         // }
       })
       .catch((error) => {
-        console.log("error in getting history of specific date", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -468,11 +464,8 @@ const FriendRequest = ({ navigation, route }) => {
     let todayDate = moment(new Date()).format("YYYY-MM-DD");
 
     let thisMonthDaysList = await daysInThisMonth();
-    console.log("days in this month :: ", thisMonthDaysList);
     let monthStartDate = thisMonthDaysList[0]?.date;
     let monthEndDate = thisMonthDaysList[thisMonthDaysList?.length - 1]?.date;
-    console.log("month start date   ::: ", monthStartDate);
-    console.log("month start date   ::: ", monthEndDate);
     setLoading(true);
     let data = {
       user_id: user_id,
@@ -487,7 +480,6 @@ const FriendRequest = ({ navigation, route }) => {
     fetch(api.get_history_btw_two_dates, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        console.log("result :: ", result);
         // if (result[0]?.error == false || result[0]?.error == "false") {
         let responseList = result[0]?.History ? result[0]?.History : [];
         // let list = [];
@@ -522,7 +514,6 @@ const FriendRequest = ({ navigation, route }) => {
         // }
       })
       .catch((error) => {
-        console.log("error in getting history of specific date", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -615,7 +606,7 @@ const FriendRequest = ({ navigation, route }) => {
   //       .finally(() => setLoading(false));
   //   } catch (error) {
   //     setLoading(false);
-  //     console.log("error occur in getting user profile detail ::", error);
+  //
   //     Snackbar.show({
   //       text: "Something went wrong.Unable to get user detail.",
   //       duration: Snackbar.LENGTH_SHORT,
@@ -643,7 +634,6 @@ const FriendRequest = ({ navigation, route }) => {
       fetch(api.approveRequest, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log("approve friend request response :::: ", result);
           if (result[0]?.error == "false" || result[0]?.error == false) {
             Snackbar.show({
               text: result[0]?.message,
@@ -702,7 +692,6 @@ const FriendRequest = ({ navigation, route }) => {
           navigation?.goBack();
         })
         .catch((error) => {
-          console.log("error in unapproveing request :: ", error);
           Snackbar.show({
             text: "Something went wrong",
             duration: Snackbar.LENGTH_SHORT,
@@ -1069,6 +1058,7 @@ const FriendRequest = ({ navigation, route }) => {
           {/* ------------------------------------graph------------------------------------------- */}
 
           <ScrollView
+            ref={scrollViewRef}
             horizontal={true}
             contentOffset={{ x: 10000, y: 0 }} // i needed the scrolling to start from the end not the start
             style={{}}
