@@ -26,6 +26,8 @@ import firebaseNotificationApi from "../../constants/firebaseNotificationApi";
 import { BASE_URL_Image } from "../../constants/Base_URL_Image";
 
 const AddFriend = ({ navigation, route }) => {
+  const scrollViewRef = useRef();
+
   const [commonGroupsList, setCommonGroupsList] = useState([
     // {
     //   id: 0,
@@ -76,7 +78,11 @@ const AddFriend = ({ navigation, route }) => {
       setUserId(route?.params?.user?.id);
       getUserDailyGoal(route?.params?.user?.id);
 
-      let request_status = route?.params?.user?.status == true ? true : false;
+      let request_status =
+        route?.params?.user?.status == true ||
+        route?.params?.user?.status == "requested"
+          ? true
+          : false;
       setIsRequested(request_status);
 
       let todayDay = moment(new Date()).format("ddd");
@@ -290,6 +296,11 @@ const AddFriend = ({ navigation, route }) => {
         setMyTotalSteps(total_steps);
         setMyHistory(dayStepsList);
 
+        scrollViewRef?.current?.scrollTo({
+          y: 0,
+          animated: false,
+        });
+
         setLoading(false);
         // } else {
         //   Snackbar.show({
@@ -472,11 +483,8 @@ const AddFriend = ({ navigation, route }) => {
     let todayDate = moment(new Date()).format("YYYY-MM-DD");
 
     let thisMonthDaysList = await daysInThisMonth();
-    console.log("days in this month :: ", thisMonthDaysList);
     let monthStartDate = thisMonthDaysList[0]?.date;
     let monthEndDate = thisMonthDaysList[thisMonthDaysList?.length - 1]?.date;
-    console.log("month start date   ::: ", monthStartDate);
-    console.log("month start date   ::: ", monthEndDate);
     setLoading(true);
     let data = {
       user_id: user_id,
@@ -634,7 +642,6 @@ const AddFriend = ({ navigation, route }) => {
       fetch(api.addfriends, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log("resulty  :: ", result);
           if (result?.error == false) {
             sendPushNotification(id);
             Snackbar.show({
@@ -971,6 +978,7 @@ const AddFriend = ({ navigation, route }) => {
           {/* ------------------------------------graph------------------------------------------- */}
 
           <ScrollView
+            ref={scrollViewRef}
             horizontal={true}
             contentOffset={{ x: 10000, y: 0 }} // i needed the scrolling to start from the end not the start
             style={{}}

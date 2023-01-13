@@ -168,8 +168,7 @@ const Friends = ({
     // },
   ]);
 
-  const handleonAdd = async (id) => {
-    console.log("id ::: ", id);
+  const handleonAdd = async (id, type) => {
     // const newData = suggestedFriends.map(item => {
     //   if (id == item.id) {
     //     return {
@@ -200,19 +199,25 @@ const Friends = ({
       .then((response) => response.json())
       .then((result) => {
         if (result?.error == false) {
-          const newData = suggestedFriends.map((item) => {
-            if (id == item.id) {
-              return {
-                ...item,
-                status: !item.status,
-              };
-            } else {
-              return {
-                ...item,
-              };
-            }
-          });
-          setSuggestedFriends(newData);
+          if (type == "search") {
+            //update search result list
+            handleAddSearchedFriend(id);
+          } else {
+            const newData = suggestedFriends.map((item) => {
+              if (id == item.id) {
+                return {
+                  ...item,
+                  status: !item.status,
+                };
+              } else {
+                return {
+                  ...item,
+                };
+              }
+            });
+            setSuggestedFriends(newData);
+          }
+
           //send push notification
           sendPushNotification(id);
           Snackbar.show({
@@ -236,14 +241,28 @@ const Friends = ({
       .finally(() => setLoading(false));
   };
 
+  const handleAddSearchedFriend = (id) => {
+    const newData = searchResults.map((element) => {
+      if (id == element?.id) {
+        return {
+          ...element,
+          status: "requested",
+        };
+      } else {
+        return {
+          ...element,
+        };
+      }
+    });
+    setSearchResults(newData);
+  };
+
   //send push notification to user
   const sendPushNotification = async (id) => {
-    console.log("id passed to sendPushNotification", id);
     let user = await firebaseNotificationApi.getFirebaseUser(id);
     if (!user) {
       user = await firebaseNotificationApi.getFirebaseUser(id);
     }
-    console.log("user find____", user);
 
     if (user) {
       //getting logged in user profile
@@ -603,7 +622,8 @@ const Friends = ({
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      handleSearch(searchText);
+      let searchText1 = searchText?.trimEnd() ? searchText?.trimEnd() : "";
+      handleSearch(searchText1);
     }, 1500);
 
     return () => clearTimeout(delayDebounceFn);
@@ -612,7 +632,6 @@ const Friends = ({
   const handleSearch = async (searchText) => {
     let user_id = await AsyncStorage.getItem("user_id");
 
-    console.log("logged in user id  to searchj   ::  ", user_id);
     if (searchText) {
       setLoading(true);
       let data = {
@@ -647,6 +666,8 @@ const Friends = ({
                 image: element?.profile_image
                   ? BASE_URL_Image + "/" + element?.profile_image
                   : "",
+                status: element?.status,
+                selected: false,
               };
               list.push(obj);
             }
@@ -663,6 +684,26 @@ const Friends = ({
     }
   };
 
+  const handleSearchCardPress = (item) => {
+    if (item?.status == "Not Friends") {
+      navigation.navigate("AddFriend", {
+        id: item?.id,
+        user: item,
+      });
+      setSearchText("");
+    } else if (item?.status == "friends") {
+      navigation.navigate("FriendProfile", {
+        user: item,
+      });
+      setSearchText("");
+    } else {
+      navigation.navigate("AddFriend", {
+        id: item?.id,
+        user: item,
+      });
+      setSearchText("");
+    }
+  };
   return (
     <Animated.View
       style={{
@@ -782,63 +823,107 @@ const Friends = ({
                   }}
                   renderItem={(item) => {
                     return (
-                      <TouchableOpacity
-                        onPress={() =>
-                          navigation.navigate("FriendProfile", {
-                            user: item?.item,
-                          })
-                        }
+                      <View
                         style={{
                           ...styles.cardView,
-                          height: 105,
+                          height: 128,
                           width: "28.9%",
                         }}
                       >
-                        {item?.item?.image ? (
-                          <Image
-                            source={{ uri: item?.item?.image }}
+                        <TouchableOpacity
+                          style={{
+                            flex: 1,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 10,
+                            paddingTop: 20,
+                          }}
+                          onPress={() => handleSearchCardPress(item?.item)}
+                        >
+                          {item?.item?.image ? (
+                            <Image
+                              source={{ uri: item?.item?.image }}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                                borderRadius: 44,
+                                backgroundColor: "#ccc",
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              source={require("../../../assets/images/friend-profile.png")}
+                              style={{
+                                marginVertical: 8,
+                                width: 44,
+                                height: 44,
+                              }}
+                            />
+                          )}
+                          <Text
                             style={{
-                              marginVertical: 8,
-                              width: 44,
-                              height: 44,
-                              borderRadius: 44,
-                              backgroundColor: "#ccc",
+                              ...styles.friend_name,
+                              // width: "20%",
+                              width: SCREEN_WIDTH / 4.4,
                             }}
-                          />
-                        ) : (
-                          <Image
-                            source={require("../../../assets/images/friend-profile.png")}
-                            style={{ marginVertical: 8, width: 44, height: 44 }}
-                          />
-                        )}
-
-                        <Text style={styles.friend_name}>
-                          {item?.item?.first_name}
-                        </Text>
-                        {/* <View
+                            numberOfLines={1}
+                          >
+                            {item?.item?.first_name}
+                          </Text>
+                        </TouchableOpacity>
+                        <View
                           style={{
                             justifyContent: "flex-end",
                             flex: 1,
                           }}
                         >
-                          <TouchableOpacity
-                            onPress={() =>
-                              handleonSearchItemPress(item.item.id)
-                            }
-                            style={{
-                              ...styles.cardButton,
-                              backgroundColor: item.item.selected
-                                ? "#ccc"
-                                : "#38acff",
-                              width: item.item.selected ? 70 : 60,
-                            }}
-                          >
-                            <Text style={{ color: "#ffffff", fontSize: 11 }}>
-                              {item.item.selected ? "Requested" : "Add"}
-                            </Text>
-                          </TouchableOpacity>
-                        </View> */}
-                      </TouchableOpacity>
+                          {item.item.status == "Not Friends" ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                handleonAdd(item?.item?.id, "search")
+                              }
+                              style={{
+                                ...styles.cardButton,
+                                backgroundColor: item.item.selected
+                                  ? "#ccc"
+                                  : "#38acff",
+                                width: item.item.selected ? 70 : 60,
+                              }}
+                            >
+                              <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                                Add
+                              </Text>
+                            </TouchableOpacity>
+                          ) : item?.item?.status == "friends" ? (
+                            <TouchableOpacity
+                              disabled={true}
+                              style={{
+                                ...styles.cardButton,
+                                backgroundColor: "#ccc",
+                                width: 70,
+                              }}
+                            >
+                              <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                                Added
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <TouchableOpacity
+                              disabled
+                              style={{
+                                ...styles.cardButton,
+                                backgroundColor: "#ccc",
+                                width: 70,
+                              }}
+                            >
+                              <Text style={{ color: "#ffffff", fontSize: 11 }}>
+                                Requested
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      </View>
                     );
                   }}
                 />

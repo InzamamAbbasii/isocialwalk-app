@@ -89,7 +89,11 @@ const ForgotPassword = ({ navigation }) => {
       >
         <View style={styles.headerView}>
           <TouchableOpacity
-            style={{ padding: 10, paddingLeft: 0 }}
+            style={{
+              padding: 10,
+              paddingLeft: 0,
+              width: 30,
+            }}
             onPress={() => navigation?.goBack()}
           >
             <Image source={left_arrow} style={{ width: 14, height: 24 }} />

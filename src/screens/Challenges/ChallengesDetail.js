@@ -229,7 +229,8 @@ const ChallengesDetail = ({ navigation, route }) => {
               // getUserGroups();
             } else {
               //get add members list
-              getAddMembersList(id);
+
+              // getAddMembersList(id);
 
               //getting challenge participants ranking
               getIndividualChallengeRanking(
@@ -250,7 +251,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
-        console.log("error in getting challenge detail  :: ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -260,8 +260,11 @@ const ChallengesDetail = ({ navigation, route }) => {
   };
 
   //get individual challenge ranlking
-  const getIndividualChallengeRanking = (id, metric_no) => {
-    console.log("challenge _ id ::: ", id);
+  const getIndividualChallengeRanking = async (id, metric_no) => {
+    //getting logged in user friend list
+    const myFriendList = await getFriendsList();
+    setAddMembersList(myFriendList);
+
     setLoading(true);
     let data = {
       challenge_id: id,
@@ -288,7 +291,6 @@ const ChallengesDetail = ({ navigation, route }) => {
             if (user_id) {
               let user_info = await getUser_Info(user_id);
               //getting false when user detail not found
-
               if (user_info !== false) {
                 let percentage = element?.steps
                   ? (element?.steps / metric_no) * 100
@@ -318,12 +320,21 @@ const ChallengesDetail = ({ navigation, route }) => {
               return b?.steps - a?.steps;
             });
           }
-          console.log("list of ranking  :::::  ", list);
+
+          let notAddedParticipantsList = [];
+          for (const element of myFriendList) {
+            const found = list?.some(
+              (el) => el?.user_info?.id === element?.user_info?.id
+            );
+            if (!found) {
+              notAddedParticipantsList.push(element);
+            }
+          }
+          setAddMembersList(notAddedParticipantsList);
           setParticipantList(list);
         }
       })
       .catch((error) => {
-        console.log("error in getting ranking:: ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -382,11 +393,22 @@ const ChallengesDetail = ({ navigation, route }) => {
               list?.push(obj);
             }
           }
-          let myArray = adminGroups.filter(
-            (ar) => !list.find((rm) => rm.id != ar.id)
-          );
+          // let myArray = adminGroups.filter(
+          //   (ar) => !list.find((rm) => rm?.group_info?.id != ar?.group_info?.id)
+          // );
+          let notAddedGroupsList = [];
+          for (const element of adminGroups) {
+            const found = list?.some(
+              (el) => el?.group_info?.id === element?.group_info?.id
+            );
+            if (!found) {
+              notAddedGroupsList.push(element);
+            }
+          }
 
-          setGroupsList(myArray);
+          setGroupsList(notAddedGroupsList);
+
+          // setGroupsList(myArray);
 
           setChallenge_GroupsList(list);
         } else {
@@ -397,7 +419,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
-        console.log("error :: ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -513,12 +534,69 @@ const ChallengesDetail = ({ navigation, route }) => {
             }
           })
           .catch((error) => {
-            console.log("error in getting user detail ::", error);
             resolve(false);
           });
       } catch (error) {
-        console.log("error occur in getting user profile detail ::", error);
         resolve(false);
+      }
+    });
+  };
+
+  //getting logged in user friends list
+  const getFriendsList = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let user_id = await AsyncStorage.getItem("user_id");
+        let data = {
+          this_user_id: user_id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+        fetch(api.getallfriends, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            let responseList = [];
+            if (result[0]?.profile == "No Friends") {
+              resolve([]);
+            } else if (result[0]?.profile?.length > 0) {
+              let list = result[0]?.profile ? result[0]?.profile : [];
+              for (const element of list) {
+                const found = responseList.some((el) => el.id === element?.id);
+                if (!found) {
+                  let obj = {
+                    // id: 0,
+                    steps: 0,
+                    percentage: 0,
+                    id: element?.id, //userid
+                    name: element?.first_name,
+                    profile: element?.profile_image
+                      ? BASE_URL_Image + "/" + element?.profile_image
+                      : "",
+                    status: false,
+                    user_info: {
+                      id: element?.id,
+                      first_name: element?.first_name,
+                      last_name: element?.last_name,
+                      image: element?.profile_image
+                        ? BASE_URL_Image + "/" + element?.profile_image
+                        : "",
+                    },
+                  };
+                  responseList.push(obj);
+                }
+              }
+            }
+            // setFriendsList(responseList);
+            resolve(responseList);
+          })
+          .catch((error) => {
+            resolve([]);
+          });
+      } catch (error) {
+        resolve([]);
       }
     });
   };
@@ -531,7 +609,6 @@ const ChallengesDetail = ({ navigation, route }) => {
       this_user_id: user_id,
       challenge_id: challengeId,
     };
-    console.log("add memmber data :: ", data);
     var requestOptions = {
       method: "POST",
       body: JSON.stringify(data),
@@ -541,17 +618,8 @@ const ChallengesDetail = ({ navigation, route }) => {
     fetch(api.show_challenge_participants, requestOptions)
       .then((response) => response.json())
       .then(async (result) => {
-        // if (result[0]?.error == false || result[0]?.error == false) {
-
-        // console.log("add member list response  ::: ", result);
-        // console.log("cjhallgennge paticipatns list :: ", result);
-        // let list = result[0]["array of Members"]
-        //   ? result[0]["array of Members"]
-        //   : [];
-
         let response = result ? result : [];
         let last_item = response?.pop();
-        console.log("last item  ::", last_item);
         let list = last_item["array of participants"]
           ? last_item["array of participants"]
           : [];
@@ -559,17 +627,8 @@ const ChallengesDetail = ({ navigation, route }) => {
         for (const element of list) {
           let user_info = await getUser_Info(element);
           if (user_info == false) {
-            console.log("user detail not found ....");
+            //user detail not found ....
           } else {
-            // let obj = {
-            //   id: element, //userid
-            //   name: user_info?.first_name,
-            //   profile: user_info["profile image"]
-            //     ? BASE_URL_Image + "/" + user_info["profile image"]
-            //     : "",
-            //   status: false,
-            // };
-
             let obj = {
               // id: 0,
               steps: 0,
@@ -594,12 +653,6 @@ const ChallengesDetail = ({ navigation, route }) => {
           }
         }
         setAddMembersList(responseList);
-        // } else {
-        //   Snackbar.show({
-        //     text: result[0]?.message,
-        //     duration: Snackbar.LENGTH_SHORT,
-        //   });
-        // }
       })
       .catch((error) => console.log("error", error))
       .finally(() => setLoading(false));
@@ -613,7 +666,6 @@ const ChallengesDetail = ({ navigation, route }) => {
   //     this_user_id: user_id,
   //     challenge_id: challengeId,
   //   };
-  //   console.log("add memmber data :: ", data);
   //   var requestOptions = {
   //     method: "POST",
   //     body: JSON.stringify(data),
@@ -625,7 +677,7 @@ const ChallengesDetail = ({ navigation, route }) => {
   //     .then(async (result) => {
   //       let response = result ? result : [];
   //       let last_item = response?.pop();
-  //       console.log("last item  ::", last_item);
+  //
   //       let list = last_item["array of participants"]
   //         ? last_item["array of participants"]
   //         : [];
@@ -633,7 +685,7 @@ const ChallengesDetail = ({ navigation, route }) => {
   //       for (const element of list) {
   //         let user_info = await getUser_Info(element);
   //         if (user_info == false) {
-  //           console.log("user detail not found ....");
+  //
   //         } else {
   //           let obj = {
   //             // id: 0,
@@ -669,7 +721,7 @@ const ChallengesDetail = ({ navigation, route }) => {
     let memberList = addMembersList
       ?.filter((item) => item?.status == true)
       ?.map((element) => element?.user_info?.id);
-    console.log("selected members list  ::: ", memberList);
+
     if (memberList?.length > 0) {
       bottomSheetAddMemberRef?.current?.close();
       setLoading(true);
@@ -679,7 +731,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         challenge_id: challengeId,
         created_by_user_id: adminId,
       };
-      console.log("data pass  to add members in challgee api  : ", data);
       var requestOptions = {
         method: "POST",
         body: JSON.stringify(data),
@@ -690,7 +741,8 @@ const ChallengesDetail = ({ navigation, route }) => {
         .then((response) => response.json())
         .then((result) => {
           Snackbar.show({
-            text: result[0]?.message,
+            // text: result[0]?.message,
+            text: "Participants Added to Challenge Successfully",
             duration: Snackbar.LENGTH_SHORT,
           });
 
@@ -706,7 +758,6 @@ const ChallengesDetail = ({ navigation, route }) => {
           setAddMembersList(newData1);
         })
         .catch((error) => {
-          console.log("error in add members  ::::  ", error);
           Snackbar.show({
             text: "Something went wrong.Members are not added to challenge.",
             duration: Snackbar.LENGTH_SHORT,
@@ -714,7 +765,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         })
         .finally(() => setLoading(false));
     } else {
-      console.log("please select memes to add");
       Snackbar.show({
         text: "Please Select Members to add.",
         duration: Snackbar.LENGTH_SHORT,
@@ -724,9 +774,7 @@ const ChallengesDetail = ({ navigation, route }) => {
 
   //hanale select member to add
   const handleAddMemberSelect = (id) => {
-    console.log("user id select :: ", id);
     const newData = addMembersList.map((item) => {
-      console.log("item :: ", item);
       if (id === item?.user_info?.id) {
         return {
           ...item,
@@ -762,10 +810,7 @@ const ChallengesDetail = ({ navigation, route }) => {
     let memberList = participantList
       ?.filter((item) => item?.status == true)
       ?.map((element) => element?.user_info?.id);
-    console.log(
-      "selected members list to remove from challenge ::: ",
-      memberList
-    );
+
     let count = 0;
     if (memberList?.length > 0) {
       bottomSheetRemoveMemberRef?.current?.close();
@@ -776,7 +821,6 @@ const ChallengesDetail = ({ navigation, route }) => {
           user_id: element,
           challenge_id: challengeId,
         };
-        console.log("data pass  to add members in challgee api  : ", data);
         var requestOptions = {
           method: "POST",
           body: JSON.stringify(data),
@@ -786,7 +830,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         fetch(api.remove_participant_from_challenge, requestOptions)
           .then((response) => response.json())
           .then((result) => {
-            console.log("result  :: ", result);
             if (result?.error == false || result?.error == "false") {
               const filter = participantList?.filter(
                 (item) => item?.user_info?.id != element
@@ -799,7 +842,6 @@ const ChallengesDetail = ({ navigation, route }) => {
             // });
           })
           .catch((error) => {
-            console.log("error in remove members  ::::  ", error);
             Snackbar.show({
               text: "Something went wrong.Members are not removed to challenge.",
               duration: Snackbar.LENGTH_SHORT,
@@ -839,7 +881,6 @@ const ChallengesDetail = ({ navigation, route }) => {
     };
     await launchImageLibrary(options)
       .then((res) => {
-        console.log("images selected :: ", res.assets[0]?.fileName);
         setFileName(res.assets[0]?.fileName);
         setFileType(res.assets[0]?.type);
         setchallengeImage(res.assets[0].uri);
@@ -863,7 +904,7 @@ const ChallengesDetail = ({ navigation, route }) => {
         type: fileType,
         name: fileName,
       };
-      console.log("image obj  : ", obj);
+
       formData.append("image", obj);
 
       // body.append('Content-Type', 'image/png');
@@ -910,7 +951,6 @@ const ChallengesDetail = ({ navigation, route }) => {
       fetch(api.leave_challenges, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log("result  :: ", result);
           if (result[0]?.error == false || result[0]?.error == "false") {
             Snackbar.show({
               text: "You Leave Challenge Successfully.",
@@ -957,7 +997,6 @@ const ChallengesDetail = ({ navigation, route }) => {
       fetch(api.delete_challenge, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          // console.log("result  :: ", result);
           // if (result[0]?.error == false || result[0]?.error == "false") {
           //   Snackbar.show({
           //     text: "You Leave Challenge Successfully.",
@@ -973,8 +1012,6 @@ const ChallengesDetail = ({ navigation, route }) => {
           // }
         })
         .catch((error) => {
-          console.log("error :: ", error);
-
           Snackbar.show({
             text: "Something went wrong.",
             duration: Snackbar.LENGTH_SHORT,
@@ -993,7 +1030,6 @@ const ChallengesDetail = ({ navigation, route }) => {
 
   //handle selecet groups to remove from challenge
   const handleSelectGroup_ToRemove = (id) => {
-    console.log("group id  pass to remove group   ::: ", id);
     const newData = challenge_GroupsList.map((item) => {
       if (id === item?.group_info?.id) {
         return {
@@ -1017,8 +1053,6 @@ const ChallengesDetail = ({ navigation, route }) => {
       ?.filter((item) => item?.selected == true)
       ?.map((element) => element?.group_info?.id);
 
-    console.log("selectedGroupsList  :::: ", selectedGroupsList);
-
     let count = 0;
     if (!challengeId) {
       Snackbar.show({
@@ -1035,7 +1069,6 @@ const ChallengesDetail = ({ navigation, route }) => {
           group_id: element,
           challenge_id: challengeId,
         };
-        console.log("data pass  to add members in challgee api  : ", data);
         var requestOptions = {
           method: "POST",
           body: JSON.stringify(data),
@@ -1045,7 +1078,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         fetch(api.remove_group_from_challenge, requestOptions)
           .then((response) => response.json())
           .then((result) => {
-            console.log("remove group from challenge response   :: ", result);
             if (result?.error == false || result?.error == "false") {
               const filter = challenge_GroupsList?.filter(
                 (item) => item?.group_info?.id != element
@@ -1058,7 +1090,6 @@ const ChallengesDetail = ({ navigation, route }) => {
             // });
           })
           .catch((error) => {
-            console.log("error in remove group  ::::  ", error);
             Snackbar.show({
               text: "Something went wrong.Members are not removed to challenge.",
               duration: Snackbar.LENGTH_SHORT,
@@ -1087,7 +1118,6 @@ const ChallengesDetail = ({ navigation, route }) => {
 
   //handle selecet groups to remove from challenge
   const handleSelectGroup_ToAdd = (id) => {
-    console.log("group id  pass to add group   ::: ", id);
     const newData = groupsList.map((item) => {
       if (id === item?.id) {
         return {
@@ -1120,7 +1150,7 @@ const ChallengesDetail = ({ navigation, route }) => {
           group_id: element,
           challenge_id: challengeId,
         };
-        console.log("data pass  to add members in challgee api  : ", data);
+
         var requestOptions = {
           method: "POST",
           body: JSON.stringify(data),
@@ -1129,7 +1159,6 @@ const ChallengesDetail = ({ navigation, route }) => {
         fetch(api.add_group_to_Challenge, requestOptions)
           .then((response) => response.json())
           .then((result) => {
-            console.log("add group response :::: ", result);
             //TODO: getting selected groups to add in challenge
             const newData = groupsList.filter(
               (item) => item?.selected === true
@@ -1142,7 +1171,6 @@ const ChallengesDetail = ({ navigation, route }) => {
             setGroupsList(newData1);
           })
           .catch((error) => {
-            console.log("error in add groups  ::::  ", error);
             Snackbar.show({
               text: "Something went wrong.Group is not added to challenge.",
               duration: Snackbar.LENGTH_SHORT,
