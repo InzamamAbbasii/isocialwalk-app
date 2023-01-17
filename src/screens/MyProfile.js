@@ -148,12 +148,13 @@ const MyProfile = ({ scale, showMenu, setShowMenu, moveToRight }) => {
           {/* <MenuHeader title={'Update Goals'} navigation={navigation} /> */}
           <MenuHeader
             title={"My Profile"}
+            titleStyle={{ position: "absolute", left: 0, right: 0 }}
             navigation={navigation}
             onPress={() => handleOpenCustomDrawer()}
           />
 
           <View style={{ marginVertical: 10, alignItems: "center" }}>
-            <View style={{ marginLeft: 25 }}>
+            <View style={{ position: "relative", left: 0, right: 0 }}>
               {profileImage == null || profileImage == "" ? (
                 <Image
                   source={require("../../assets/images/friend-profile.png")}

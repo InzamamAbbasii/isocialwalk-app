@@ -50,27 +50,33 @@ const DrawerTest = ({ navigation, route }) => {
     {
       title: "Home",
       icon: require("../../assets/images/home1.png"),
+      width: 90, //for clickable areas
     },
     {
       title: "History",
       icon: require("../../assets/images/history.png"),
+      width: 90,
     },
     {
       title: "Change Password",
       icon: require("../../assets/images/lock.png"),
+      width: 135,
     },
     {
       title: "ConnectDevices",
       icon: require("../../assets/images/connectedDevices.png"),
+      width: 135,
     },
     {
       title: "Privacy Policy",
       icon: require("../../assets/images/privacy.png"),
+      width: 135,
     },
 
     {
       title: "Updated Goals",
       icon: require("../../assets/images/goals.png"),
+      width: 135,
     },
   ]);
 
@@ -210,7 +216,7 @@ const DrawerTest = ({ navigation, route }) => {
             marginBottom: 15,
             marginTop: 120,
             // marginTop: ,
-            width: "45%",
+            width: "40%",
           }}
         >
           {profile != "" ? (
@@ -238,7 +244,10 @@ const DrawerTest = ({ navigation, route }) => {
             />
           )}
 
-          <Text style={{ color: "#002138", marginLeft: 10, fontSize: 16 }}>
+          <Text
+            numberOfLines={1}
+            style={{ color: "#002138", marginLeft: 10, fontSize: 16 }}
+          >
             {/* Jonathan */}
             {firstName}
           </Text>
@@ -265,7 +274,10 @@ const DrawerTest = ({ navigation, route }) => {
                     }).start();
                     setShowMenu(!showMenu);
                   }}
-                  style={styles.drawerItemView}
+                  style={{
+                    ...styles.drawerItemView,
+                    width: item?.item?.width,
+                  }}
                 >
                   {item.index == 0 ? (
                     <Image
@@ -313,7 +325,7 @@ const DrawerTest = ({ navigation, route }) => {
               return (
                 <TouchableOpacity
                   onPress={() => handleLogout()}
-                  style={styles.drawerItemView}
+                  style={{ ...styles.drawerItemView, width: 85 }}
                 >
                   <Image
                     source={require("../../assets/images/logout1.png")}
@@ -389,7 +401,7 @@ export default DrawerTest;
 
 const styles = StyleSheet.create({
   drawerItemView: {
-    width: 140,
+    // width: 140,
     padding: 10,
     marginLeft: 20,
     marginTop: 20,
@@ -407,40 +419,3 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 });
-
-// <Animated.View
-//         style={{
-//           flex: 1,
-//           backgroundColor: 'white',
-//           position: 'absolute',
-//           left: 0,
-//           right: 0,
-//           top: 0,
-//           bottom: 0,
-//           borderRadius: showMenu ? 15 : 0,
-//           transform: [{scale: scale}, {translateX: moveToRight}],
-//         }}>
-//         <View style={{flexDirection: 'row', marginTop: 50}}>
-//           <TouchableOpacity
-//             style={{marginLeft: 20}}
-//             onPress={() => {
-//               Animated.timing(scale, {
-//                 toValue: showMenu ? 1 : 0.8,
-//                 duration: 300,
-//                 useNativeDriver: true,
-//               }).start();
-//               Animated.timing(moveToRight, {
-//                 toValue: showMenu ? 0 : 230,
-//                 duration: 300,
-//                 useNativeDriver: true,
-//               }).start();
-//               setShowMenu(!showMenu);
-//             }}>
-//             <Image
-//               source={require('../../assets/images/menu.png')}
-//               style={{width: 30, height: 30, resizeMode: 'contain'}}
-//             />
-//           </TouchableOpacity>
-//         </View>
-//         <Home />
-//       </Animated.View>

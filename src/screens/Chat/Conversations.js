@@ -126,8 +126,12 @@ const Conversations = ({ navigation, route }) => {
     //getting user type i.e patient,doctor or hospital
     const loadData = async () => {
       const myChatroom = await fetchMessages();
+      let isFirstUser =
+        myChatroom?.firstUserId == userDetail?.id ? true : false;
+
       let messagesList =
         myChatroom?.messages?.length > 0 ? myChatroom.messages : [];
+
       if (messagesList.length > 0) {
         // console.log('message list :: ', messagesList);
 
@@ -159,8 +163,17 @@ const Conversations = ({ navigation, route }) => {
             }
           );
         }
-
         //----------------------------------------------------------
+        const logged_in_user_info = await findUser(userDetail?.id);
+        if (isFirstUser) {
+          messagesList = messagesList?.filter(
+            (item) => item?.deletedBy1 != userDetail?.id
+          );
+        } else {
+          messagesList = messagesList?.filter(
+            (item) => item?.deletedBy2 != userDetail?.id
+          );
+        }
         setMessages(messagesList.reverse());
       }
     };

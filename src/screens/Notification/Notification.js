@@ -296,7 +296,7 @@ const Notification = ({ navigation }) => {
             duration: Snackbar.LENGTH_SHORT,
           });
 
-          getAllNotification();
+          // getAllNotification();
         } else {
           Snackbar.show({
             text: result?.Message,
@@ -340,7 +340,7 @@ const Notification = ({ navigation }) => {
           text: "Request Canceled successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
-        getAllNotification();
+        // getAllNotification();
       })
       .catch((error) => {
         Snackbar.show({
@@ -405,7 +405,7 @@ const Notification = ({ navigation }) => {
           text: "Request approved Successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
-        getAllNotification();
+        // getAllNotification();
         // } else {
         //   Snackbar.show({
         //     text: "Something went wrong",
@@ -447,7 +447,7 @@ const Notification = ({ navigation }) => {
           text: "Request Rejected Successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
-        getAllNotification();
+        // getAllNotification();
         // } else {
         //   Snackbar.show({
         //     text: "Something went wrong",
@@ -486,7 +486,7 @@ const Notification = ({ navigation }) => {
             text: "Request approved successfully",
             duration: Snackbar.LENGTH_SHORT,
           });
-          getAllNotification();
+          // getAllNotification();
         } else {
           Snackbar.show({
             text: "Something went wrong",
@@ -525,7 +525,7 @@ const Notification = ({ navigation }) => {
             text: "Request rejected successfully",
             duration: Snackbar.LENGTH_SHORT,
           });
-          getAllNotification();
+          // getAllNotification();
         } else {
           Snackbar.show({
             text: "Something went wrong",
@@ -564,7 +564,7 @@ const Notification = ({ navigation }) => {
           text: "Request Send to challenge admin successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
-        getAllNotification();
+        // getAllNotification();
         // } else {
         //   Snackbar.show({
         //     text: "Something went wrong",
@@ -608,7 +608,7 @@ const Notification = ({ navigation }) => {
           text: "Request Approved successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
-        getAllNotification();
+        // getAllNotification();
       })
       .catch((error) => {
         console.log("error in approving group challenge request: ", error);
@@ -641,7 +641,7 @@ const Notification = ({ navigation }) => {
           text: "Request Rejected successfully",
           duration: Snackbar.LENGTH_SHORT,
         });
-        getAllNotification();
+        // getAllNotification();
       })
       .catch((error) => {
         Snackbar.show({
@@ -655,31 +655,36 @@ const Notification = ({ navigation }) => {
   //get specific challenge info
   const getChallengeInfo = (id) => {
     return new Promise((resolve, reject) => {
-      let data = {
-        challenge_id: id,
-      };
-      var requestOptions = {
-        method: "POST",
-        body: JSON.stringify(data),
-        redirect: "follow",
-      };
-      fetch(api.get_challenge_details, requestOptions)
-        .then((response) => response.json())
-        .then(async (result) => {
-          if (result?.error == false || result?.error == "false") {
-            let detail = result?.Challenge[0] ? result?.Challenge[0] : null;
-            if (detail == null) {
-              resolve(false);
+      try {
+        let data = {
+          challenge_id: id,
+        };
+        var requestOptions = {
+          method: "POST",
+          body: JSON.stringify(data),
+          redirect: "follow",
+        };
+        fetch(api.get_challenge_details, requestOptions)
+          .then((response) => response.json())
+          .then(async (result) => {
+            if (result?.error == false || result?.error == "false") {
+              let detail = result?.Challenge[0] ? result?.Challenge[0] : null;
+              if (detail == null) {
+                resolve(false);
+              } else {
+                resolve(detail);
+              }
             } else {
-              resolve(detail);
+              resolve(false);
             }
-          } else {
+          })
+          .catch((error) => {
+            console.log("errror in challenge details: ", error);
             resolve(false);
-          }
-        })
-        .catch((error) => {
-          resolve(false);
-        });
+          });
+      } catch (error) {
+        resolve(false);
+      }
     });
   };
 
@@ -798,16 +803,14 @@ const Notification = ({ navigation }) => {
   };
 
   const handleNotificationPress = async (item) => {
-    // console.log("item ::::   ", item);
+    console.log("notification press   ::::  ", item);
 
     let user_id = item.from_id;
 
     let first_name = item?.user_info?.first_name;
     let last_name = item?.user_info?.last_name;
     let full_name = first_name + " " + last_name;
-    // let img = item?.user_info["profile image"]
-    //   ? BASE_URL_Image + "/" + item?.user_info["profile image"]
-    //   : "";
+
     let img = item?.user_info["profile image"]
       ? item?.user_info["profile image"]
       : "";
@@ -821,13 +824,17 @@ const Notification = ({ navigation }) => {
     //change notification status
     markAsRead(item?.id);
 
+    console.log("here.......");
+    // setLoading(true);
+    let notification_info = await getNotification_Detail(item?.id);
+    console.log("notification_info find  .....   ", notification_info);
+
     if (item?.noti_type == "friends to friends") {
       // getSpecificUserDetail(item?.from_id);
       setSelected_request_status(
-        item?.notification_detail?.staus
-          ? item?.notification_detail?.staus
-          : "friends"
+        notification_info.staus ? notification_info.staus : "friends"
       );
+      setLoading(false);
       bottomSheetRef?.current?.open();
     } else if (
       item?.noti_type == "user to group" ||
@@ -844,7 +851,8 @@ const Notification = ({ navigation }) => {
         let name = group_info?.name;
         setSelected_group_id(id);
         setSelected_group_name(name);
-        setSelected_group_status(item?.notification_detail?.status);
+        // setSelected_group_status(item?.notification_detail?.status);
+        setSelected_group_status(notification_info?.status);
         groupRequest_RBSheetRef?.current?.open();
       }
     } else if (
@@ -854,7 +862,8 @@ const Notification = ({ navigation }) => {
       item?.noti_type == "user to group admin for challenge joining" ||
       item?.noti_type == "group admin to challenge owner" ||
       item?.noti_type == "group challenge response" ||
-      item?.noti_type == "challenge admin to user"
+      item?.noti_type == "challenge admin to user" ||
+      item?.noti_type == "admin to user for challenges"
     ) {
       let challenge_id = item?.notification_detail?.challenge_id;
       setLoading(true);
@@ -866,9 +875,13 @@ const Notification = ({ navigation }) => {
         setSelected_challenge_id(id);
         setSelected_challenge_name(name);
         setSelected_challenge_type(challenge_info?.challenge_type);
-        setSelected_challenge_status(item?.notification_detail?.status);
+        // setSelected_challenge_status(item?.notification_detail?.status);
+        setSelected_challenge_status(notification_info?.status);
         challengeRequest_RBSheetRef?.current?.open();
       }
+    } else {
+      console.log("notification not found  ::: ");
+      setLoading(false);
     }
   };
 
@@ -1142,7 +1155,7 @@ const Notification = ({ navigation }) => {
                             "admin to user for challenges" ||
                           item?.item?.noti_type ==
                             "group admin to challenge owner"
-                        ? `${item?.item?.user_info?.first_name} wants to join challenge`
+                        ? `${item?.item?.user_info?.first_name} added you in challenge`
                         : item?.item?.noti_type ==
                           "admin to indiviual challenge acception"
                         ? `${item?.item?.user_info?.first_name} ${

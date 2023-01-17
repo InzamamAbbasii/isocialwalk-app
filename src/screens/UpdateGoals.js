@@ -158,7 +158,7 @@ const UpdateGoals = ({
         {loading && <Loader />}
         {/* <MenuHeader title={'Update Goals'} navigation={navigation} /> */}
         <MenuHeader
-          title={"Updated Goals"}
+          title={"Update Goal"}
           navigation={navigation}
           onPress={() => handleOpenCustomDrawer()}
         />

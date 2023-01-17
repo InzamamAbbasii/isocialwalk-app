@@ -197,7 +197,6 @@ const GroupDetail = ({ navigation, route }) => {
         }
       })
       .catch((error) => {
-        console.log("error :: ", error);
         Snackbar.show({
           text: "Something went wrong.",
           duration: Snackbar.LENGTH_SHORT,
@@ -709,7 +708,7 @@ const GroupDetail = ({ navigation, route }) => {
   };
 
   // -------------------------------
-  // addding data to firebase for chatting
+  // adding data to firebase for chatting
   const createGroup = async (id, name, admin) => {
     return new Promise((resolve, reject) => {
       try {
@@ -721,7 +720,6 @@ const GroupDetail = ({ navigation, route }) => {
           messages: [],
           id: id,
         });
-        console.log("newChatroomRef :: ", newChatroomRef);
         const newChatroomId = newChatroomRef?.key;
 
         const newGroupObj = {
@@ -771,7 +769,7 @@ const GroupDetail = ({ navigation, route }) => {
           console.log("group detail after creating ::: ", group);
         }
 
-        //add group memeber to group if it does not exist
+        //add group member to group if it does not exist
         if (group) {
           //check member is added in this group or not
           let filter = group?.members?.filter(
@@ -786,8 +784,6 @@ const GroupDetail = ({ navigation, route }) => {
             setLoading(false);
           } else {
             //add this member to group
-            console.log("this user  does not exist in this group..");
-
             const groupMembers = group?.members || [];
             let clicked_user_Obj = {
               // id: user?.id,
@@ -800,6 +796,7 @@ const GroupDetail = ({ navigation, route }) => {
                   name: logged_in_user_detail?.first_name,
                   // chatroomId: newChatroomId,
                   isPinned: false,
+                  created_at: new Date(),
                 },
               ],
             };

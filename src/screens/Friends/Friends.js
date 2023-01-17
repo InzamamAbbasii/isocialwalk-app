@@ -517,53 +517,6 @@ const Friends = ({
     let friendsList = requestedFriendList.concat(suggestedFriendsList);
     setSuggestedFriends(friendsList);
     setLoading(false);
-
-    // try {
-    //   let user_id = await AsyncStorage.getItem("user_id");
-    //   let requestedFriendList = await getRequestFriendList();
-    //   setLoading(true);
-    //   setSuggestedFriends([]);
-    //   let data = {
-    //     this_user_id: user_id,
-    //   };
-    //   var requestOptions = {
-    //     method: "POST",
-    //     body: JSON.stringify(data),
-    //     redirect: "follow",
-    //   };
-
-    //   fetch(api.getfriendsuggestions, requestOptions)
-    //     .then((response) => response.json())
-    //     .then(async (result) => {
-    //       let responseList = [];
-    //       if (result?.length > 0) {
-    //         for (const element of result) {
-    //           // let isRequested = await getRequestStatus(element["Friend ID"]);
-    //           console.log("isRequested ::: ", isRequested);
-    //           let obj = {
-    //             id: element["Friend ID"],
-    //             firstName: element["First Name"],
-    //             lastname: element["lastname"],
-    //             full_name: element["First Name"] + " " + element["lastname"],
-    //             // status: element?.status,
-    //             status: false,
-    //             // status: isRequested,
-    //             image: element?.image
-    //               ? BASE_URL_Image + "/" + element?.image
-    //               : "",
-    //             active_watch: element["active watch"],
-    //           };
-    //           responseList.push(obj);
-    //         }
-    //       }
-    //       setSuggestedFriends(responseList);
-    //     })
-    //     .catch((error) => console.log("error", error))
-    //     .finally(() => setLoading(false));
-    // } catch (error) {
-    //   console.log("error :", error);
-    //   setLoading(false);
-    // }
   };
 
   const getFriendsList = async () => {

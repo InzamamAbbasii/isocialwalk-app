@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -6,40 +6,47 @@ import {
   Image,
   TouchableOpacity,
   Pressable,
-} from 'react-native';
-import {captureScreen} from 'react-native-view-shot';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import { captureScreen } from "react-native-view-shot";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const MenuHeader = ({navigation, title, onPress}) => {
-  const menu = require('../../assets/images/menu1.png');
+const MenuHeader = ({ navigation, title, titleStyle, onPress }) => {
+  const menu = require("../../assets/images/menu1.png");
 
-  const handleOpenDrawer = navigation => {
+  const handleOpenDrawer = (navigation) => {
     captureScreen({
-      format: 'jpg',
+      format: "jpg",
     })
-      .then(uri => {
-        AsyncStorage.setItem('Screen', uri.toString());
+      .then((uri) => {
+        AsyncStorage.setItem("Screen", uri.toString());
         navigation.openDrawer();
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   };
   return (
     <View style={styles.headerView}>
       <Pressable
-        style={{padding: 10, paddingLeft: 0}}
+        style={{
+          padding: 10,
+          paddingLeft: 0,
+          zIndex: 1,
+        }}
         // onPress={() => navigation.openDrawer()}>
         // onPress={() => handleOpenDrawer(navigation)}>
-        onPress={onPress}>
-        <Image source={menu} style={{width: 34, height: 17}} />
+        onPress={onPress}
+      >
+        <Image source={menu} style={{ width: 34, height: 17 }} />
       </Pressable>
       <Text
         style={{
-          color: '#000000',
-          textAlign: 'center',
+          color: "#000000",
+          textAlign: "center",
           flex: 1,
           fontSize: 25,
-          fontFamily: 'Rubik-Regular',
-        }}>
+          fontFamily: "Rubik-Regular",
+          ...titleStyle,
+        }}
+      >
         {title}
       </Text>
     </View>
@@ -50,11 +57,11 @@ export default MenuHeader;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   headerView: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 20,
   },
 });

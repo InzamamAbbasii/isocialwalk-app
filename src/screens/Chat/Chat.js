@@ -281,8 +281,13 @@ const Chat = ({
       let user_id = getUser_ID(); //logged in user id
       const database = getDatabase();
       myUserRef = ref(database, `users/${userId}`);
+
       const loadData = async () => {
+        const user_info_firebase = await findUser(userId);
         let data = await getChatingList(myUserRef);
+        //filter user that if user deleted all messages then no need to show it in chat list
+        // data = data?.filter(item=>item?.isDeleted==false)
+
         //TODO: short list base on pinned chat --> to show pinned chat on top of chat list
         data.sort(function (a, b) {
           return b.isPinned - a.isPinned;
@@ -318,43 +323,45 @@ const Chat = ({
       try {
         onValue(myUserRef, async (snapshot) => {
           const data = snapshot.val();
-
           let usersList = [];
           if (data) {
             let listofUsers = data?.friends ? data?.friends : [];
-
             for (const item of listofUsers) {
               let lastMessage_info = await getLatestMessage(item?.chatroomId);
-              let user_info = await getUser_Info(item?.id);
-
-              // let user_info = await getUserInfo(item?.id);
-              // console.log('user_info________________________', user_info);
-              // let profile = '';
-              // if (user_info == false || typeof user_info?.pfp == 'undefined') {
-              //   profile = null;
-              // } else {
-              //   profile = Base_URL_Image + '/' + user_info?.pfp;
-              // }
-              let obj = {
-                id: item?.id,
-                name: item?.name,
-                isPinned: item?.isPinned,
-                createdAt:
-                  lastMessage_info != "" ? lastMessage_info?.createdAt : "",
-                unReadCount:
-                  lastMessage_info != "" ? lastMessage_info?.unReadCount : "",
-                read: lastMessage_info != "" ? lastMessage_info?.read : "",
-                chatroomId: item?.chatroomId,
-                message:
-                  lastMessage_info != "" ? lastMessage_info?.message : "",
-                image: lastMessage_info != "" ? lastMessage_info?.image : "",
-                // message: "message",
-                profile:
-                  user_info != false && user_info["profile image"]
-                    ? BASE_URL_Image + "/" + user_info["profile image"]
-                    : "",
-              };
-              usersList.push(obj);
+              let isDeleted = false;
+              if (lastMessage_info?.isFirstUser) {
+                if (lastMessage_info?.deletedBy1 == userId) {
+                  isDeleted = true;
+                }
+              } else {
+                if (lastMessage_info?.deletedBy2 == userId) {
+                  isDeleted = true;
+                }
+              }
+              if (!isDeleted) {
+                let user_info = await getUser_Info(item?.id);
+                let obj = {
+                  id: item?.id,
+                  name: item?.name,
+                  isPinned: item?.isPinned,
+                  createdAt:
+                    lastMessage_info != "" ? lastMessage_info?.createdAt : "",
+                  unReadCount:
+                    lastMessage_info != "" ? lastMessage_info?.unReadCount : "",
+                  read: lastMessage_info != "" ? lastMessage_info?.read : "",
+                  chatroomId: item?.chatroomId,
+                  message:
+                    lastMessage_info != "" ? lastMessage_info?.message : "",
+                  image: lastMessage_info != "" ? lastMessage_info?.image : "",
+                  // message: "message",
+                  profile:
+                    user_info != false && user_info["profile image"]
+                      ? BASE_URL_Image + "/" + user_info["profile image"]
+                      : "",
+                  isDeleted: isDeleted,
+                };
+                usersList.push(obj);
+              }
             }
           }
           dispatch(setLoginUserDetail(data));
@@ -369,30 +376,28 @@ const Chat = ({
     return new Promise((resolve, reject) => {
       try {
         if (chatroomId) {
-          console.log("getting latest messages list ::::::: ");
           const database = getDatabase();
           const chatroomRef = ref(database, `chatrooms/${chatroomId}`);
           onValue(chatroomRef, (snapshot) => {
             const data = snapshot.val();
             let messagesList = data?.messages ? data.messages : [];
 
+            let isFirstUser = data?.firstUserId == userId ? true : false;
+
             const unreadMessages = messagesList?.filter(
               (item) => item?.read == false && item?.user?._id != userId
             );
             let lastitem = messagesList?.pop();
-
             let lastMessage = lastitem?.text;
-            //  lastitem
-            //   ? lastitem?.type == "image"
-            //     ? "photo"
-            //     : lastitem?.text
-            //   : "";
             let obj = {
               createdAt: lastitem?.createdAt,
               message: lastitem?.text,
               image: lastitem?.image,
               read: lastitem?.read,
               unReadCount: unreadMessages?.length,
+              isFirstUser: isFirstUser,
+              deletedBy1: lastitem?.deletedBy1,
+              deletedBy2: lastitem?.deletedBy2,
             };
             resolve(obj);
           });
@@ -507,11 +512,9 @@ const Chat = ({
             }
           })
           .catch((error) => {
-            console.log("error in getting user detail ::", error);
             resolve(false);
           });
       } catch (error) {
-        console.log("error occur in getting user profile detail ::", error);
         resolve(false);
       }
     });
@@ -520,6 +523,12 @@ const Chat = ({
   const findUser = async (name) => {
     const database = getDatabase();
     const mySnapshot = await get(ref(database, `users/${name}`));
+    return mySnapshot.val();
+  };
+
+  const findChatroom = async (chatroom_id) => {
+    const database = getDatabase();
+    const mySnapshot = await get(ref(database, `chatrooms/${chatroom_id}`));
     return mySnapshot.val();
   };
 
@@ -540,7 +549,6 @@ const Chat = ({
   //getting logged in user friend list
   const getFriendsList = async () => {
     let user_id = await AsyncStorage.getItem("user_id");
-    setLoading(true);
     setFriendsList([]);
     let data = {
       this_user_id: user_id,
@@ -555,7 +563,6 @@ const Chat = ({
       .then((result) => {
         let responseList = [];
         if (result[0]?.profile == "No Friends") {
-          console.log("no friend found");
           Snackbar.show({
             text: "No Friend Found",
             duration: Snackbar.LENGTH_SHORT,
@@ -588,8 +595,13 @@ const Chat = ({
           text: "Something went wrong.Unable to get friend list.",
           duration: Snackbar.LENGTH_SHORT,
         });
-      })
-      .finally(() => setLoading(false));
+      });
+  };
+
+  const findGroupInfo = async (id) => {
+    const database = getDatabase();
+    const mySnapshot = await get(ref(database, `groups/${id}`));
+    return mySnapshot.val();
   };
 
   //getting logged in user groups list --> where he is added or chat with
@@ -613,6 +625,7 @@ const Chat = ({
           };
         });
         let myGroups = [];
+
         for (const element of result) {
           //filter to check user exist in this group or not
           let filter = element?.data?.members?.filter(
@@ -620,8 +633,20 @@ const Chat = ({
           );
 
           if (filter?.length > 0) {
+            //getting logged in user detail from group memebers list
+            const groupDetail = await findGroupInfo(element?.id);
+            const groupMembers = groupDetail?.members
+              ? groupDetail?.members
+              : [];
+            const my_memberDetail = groupMembers?.filter(
+              (item) => item?.id == user_id
+            );
+            //get my joining time --> when i joined this group
+            const joined_at = my_memberDetail[0]?.created_at;
+
             let lastMessage_info = await getGroup_LatestMessage(
-              element?.data?.chatroomId
+              element?.data?.chatroomId,
+              joined_at
             );
             let group_info = await getGroup_Info(element?.id);
             let obj = {
@@ -659,16 +684,22 @@ const Chat = ({
   };
 
   //getting group last message detail
-  const getGroup_LatestMessage = (chatroomId) => {
+  const getGroup_LatestMessage = (chatroomId, joined_at) => {
     return new Promise((resolve, reject) => {
       try {
         if (chatroomId) {
-          console.log("getting latest messages list ::::::: ");
           const database = getDatabase();
           const chatroomRef = ref(database, `group_chatroom/${chatroomId}`);
           onValue(chatroomRef, (snapshot) => {
             const data = snapshot.val();
             let messagesList = data?.messages ? data.messages : [];
+            //only show messages after he joined this group
+
+            if (joined_at) {
+              messagesList = messagesList?.filter(
+                (item) => item?.createdAt >= joined_at
+              );
+            }
 
             const unreadMessages = messagesList?.filter(
               (item) => item?.read == false && item?.user?._id != userId
@@ -697,7 +728,6 @@ const Chat = ({
   const getSuggestedFriendsList = async () => {
     try {
       let user_id = await AsyncStorage.getItem("user_id");
-      setLoading(true);
 
       let data = {
         this_user_id: user_id,
@@ -734,11 +764,9 @@ const Chat = ({
         })
         .catch((error) => {
           setSuggestedFriends([]);
-        })
-        .finally(() => setLoading(false));
+        });
     } catch (error) {
       setSuggestedFriends([]);
-      setLoading(false);
     }
   };
 
@@ -830,10 +858,11 @@ const Chat = ({
               return (
                 <TouchableOpacity
                   onPress={() => {
-                    navigation.navigate("FriendProfile", {
-                      user: item?.item,
-                    }),
-                      bottomSheetRef?.current.close();
+                    // navigation.navigate("FriendProfile", {
+                    //   user: item?.item,
+                    // }),
+                    //   bottomSheetRef?.current.close();
+                    handleChatPress(item?.item?.id);
                   }}
                   style={{
                     ...styles.bootSheetCardView,
@@ -969,48 +998,57 @@ const Chat = ({
   };
 
   const deleteItem = async (id, item) => {
-    // console.log('item ::  ', item?.chatroomId);
     try {
       setLoading(true);
       let user_id = await AsyncStorage.getItem("user_id");
 
-      const myDetail = await findUser(userId);
+      const myDetail = await findUser(user_id);
       const selectedUserDetail = await findUser(id);
 
-      console.log("user detail ::: ", myDetail);
-      //  remove friend from my friend list
-      let filter = myDetail?.friends?.filter((element) => element?.id != id);
-      console.log("filter  ::: ", filter);
-      let newObj = {
-        ...myDetail,
-        friends: filter,
-      };
       const database = getDatabase();
-      update(ref(database, `users/${userId}`), newObj);
+      const myChatRoom = await findChatroom(item?.chatroomId);
 
-      await AsyncStorage.setItem(
-        "LoggedInUserFirebaseDetail",
-        JSON.stringify(newObj)
-      );
+      let isFirstUser = myChatRoom?.firstUserId == user_id ? true : false;
+      let newData = [];
+      if (isFirstUser) {
+        newData = myChatRoom?.messages.map((element) => {
+          return {
+            ...element,
+            deletedBy1: user_id,
+          };
+        });
+      } else {
+        newData = myChatRoom?.messages.map((element) => {
+          return {
+            ...element,
+            deletedBy2: user_id,
+          };
+        });
+      }
+      let obj = {};
+      if (isFirstUser) {
+        obj = {
+          firstUserDeleted: true,
+          first_deleted_at: new Date(),
+          first_isNewMessage: false,
+          messages: newData,
+        };
+      } else {
+        obj = {
+          secondUserDeleted: true,
+          second_deleted_at: new Date(),
+          second_isNewMessage: false,
+          messages: newData,
+        };
+      }
 
-      const selectedFilter = selectedUserDetail?.friends?.filter(
-        (element) => element?.id != userId
-      );
-      let newObj1 = {
-        ...selectedUserDetail,
-        friends: selectedFilter,
-      };
-      update(ref(database, `users/${id}`), newObj1);
+      update(ref(database, `chatrooms/${item?.chatroomId}`), obj);
+      const newData1 = chatList.filter((item) => item.id != id);
+      setChatList(newData1);
 
-      //also room chatting from chatroom
-      remove(ref(database, `chatrooms/${item?.chatroomId}`));
-
-      const newData = chatList.filter((item) => item.id != id);
-      setChatList(newData);
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.log("error occur in removeing friend  :", error);
     }
   };
 
@@ -1060,7 +1098,10 @@ const Chat = ({
         }
       });
       newData1.sort(function (a, b) {
-        return b.isPinned - a.isPinned;
+        return (
+          b.isPinned - a.isPinned ||
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
       });
       setChatList(newData1);
 
@@ -1126,37 +1167,30 @@ const Chat = ({
   //delete group from firebase
   const handleDeleteGroup = async (groupId, item) => {
     let user_id = await AsyncStorage.getItem("user_id");
-    if (user_id == item?.admin) {
-      // alert("handle remvoe");
-      try {
-        const groupDetail = await findGroup(groupId);
-        const database = getDatabase();
+    try {
+      const groupDetail = await findGroup(groupId);
+      const database = getDatabase();
 
-        //remove group from database
-        remove(ref(database, `groups/${groupId}`));
-        //also room chatting from chatroom
-        remove(ref(database, `group_chatroom/${item?.chatroomId}`));
-        //also delete from flatlist
-        const newData = chatList.filter((item) => item.id != groupId);
-        setChatList(newData);
-      } catch (error) {
-        Snackbar.show({
-          text: "Something went wrong.",
-          duration: Snackbar.LENGTH_SHORT,
-        });
-      }
-    } else {
+      //remove current group_memeber from this group
+      const members = groupDetail?.members ? groupDetail?.members : [];
+      //remove this member from group
+      const filter = members?.filter((item) => item?.id != user_id);
+      let obj = {
+        ...groupDetail,
+        members: filter,
+      };
+      update(ref(database, `groups/${groupId}`), obj);
+      const newData = chatList.filter((item) => item.id != groupId);
+      setChatList(newData);
+    } catch (error) {
       Snackbar.show({
-        text: "Only admin will allow to delete this group",
+        text: "Something went wrong.",
         duration: Snackbar.LENGTH_SHORT,
       });
     }
-    // console.log("group id  ::", groupId);
-    // console.log("item :: ", item);
   };
 
   const findGroup = async (id) => {
-    console.log("find user name...", id);
     const database = getDatabase();
     const mySnapshot = await get(ref(database, `groups/${id}`));
     return mySnapshot.val();
@@ -1176,8 +1210,26 @@ const Chat = ({
                 ? handleGroupChatItemPress(data?.item)
                 : handlePress(data?.item)
             }
-            style={styles.chatCardView}
+            style={{ ...styles.chatCardView }}
           >
+            {data?.item?.isPinned && (
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  right: 20,
+                  top: -10,
+                }}
+              >
+                <Image
+                  source={require("../../../assets/images/pin.png")}
+                  style={{
+                    width: 20,
+                    height: 20,
+                  }}
+                />
+              </TouchableOpacity>
+            )}
+
             {data?.item?.type == "group" ? (
               <>
                 {data?.item?.profile ? (
@@ -1251,10 +1303,12 @@ const Chat = ({
                       }}
                     />
                   )}
-
                   <Text
                     numberOfLines={1}
-                    style={{ ...styles.messageText, color: "#003E6B" }}
+                    style={{
+                      ...styles.messageText,
+                      color: data?.item?.type == "group" ? "#000" : "#003E6B",
+                    }}
                   >
                     {typeof data?.item?.image == "undefined" &&
                     typeof data.item.message == "undefined"
@@ -1371,6 +1425,210 @@ const Chat = ({
     setLoading(false);
   };
 
+  // ___________________________________________________________________CHAT USING FIREBASE__________________________________________________________
+  const handleChatPress = async (user_id) => {
+    if (user_id) {
+      onAddFriend(user_id);
+      bottomSheetRef?.current.close();
+    } else {
+      Snackbar.show({
+        text: "Something went wrong.User Not found",
+        duration: Snackbar.LENGTH_SHORT,
+      });
+    }
+  };
+
+  const createUser = async (id, name, email) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const database = getDatabase();
+        //first check if the user registered before
+        const newUserObj = {
+          id: id ? id : "",
+          name: name ? name : "",
+          email: email ? email : "",
+        };
+        set(ref(database, `users/${id}`), newUserObj);
+        resolve(true);
+      } catch (error) {
+        resolve(false);
+      }
+    });
+  };
+  const onAddFriend = async (selected_user_id) => {
+    try {
+      setLoading(true);
+      //find user and add it to my friends and also add me to his friends
+      let loggedinFirebaseuser = await AsyncStorage.getItem(
+        "LoggedInUserFirebaseDetail"
+      );
+      if (loggedinFirebaseuser != null) {
+        loggedinFirebaseuser = JSON.parse(loggedinFirebaseuser);
+      }
+
+      let isLoggedInUserExist = await findUser(loggedinFirebaseuser?.id);
+
+      //TODO: if loggged in user record not exist in firebase then create it
+      if (isLoggedInUserExist == null) {
+        let result = await createUser(
+          loggedinFirebaseuser?.id,
+          loggedinFirebaseuser?.name,
+          loggedinFirebaseuser?.email
+        );
+        loggedinFirebaseuser = await findUser(loggedinFirebaseuser?.id);
+      }
+
+      const database = getDatabase();
+
+      let user = await findUser(selected_user_id);
+      if (user == null) {
+        let result = await createUser(selected_user_id, firstName, "");
+        user = await findUser(selected_user_id);
+      }
+
+      if (user) {
+        if (user?.id === loggedinFirebaseuser?.id) {
+          // don't let user add himself
+          ///-------------------------------------------------
+          let loggedin_user = await findUser(loggedinFirebaseuser?.id);
+          let filter = loggedin_user?.friends?.filter(
+            (element) => element?.id == selected_user_id
+          );
+          if (filter.length > 0) {
+            dispatch(setUserForChat(filter[0]));
+            dispatch(setLoginUserDetail(loggedin_user));
+            navigation.navigate("Conversations");
+          } else {
+            let obj = {
+              chatroomId: "",
+              name: "",
+              id: 0,
+            };
+            dispatch(setUserForChat(obj));
+            dispatch(setLoginUserDetail(loggedin_user));
+            navigation.navigate("Conversations");
+          }
+          setLoading(false);
+          return;
+          //--------------------------------------------
+        }
+
+        if (
+          loggedinFirebaseuser?.friends &&
+          loggedinFirebaseuser?.friends.findIndex((f) => f?.id === user?.id) >=
+            0
+        ) {
+          // don't let user add a user twice
+
+          ///-------------------------------------------------
+          let loggedin_user = await findUser(loggedinFirebaseuser?.id);
+          let filter = loggedin_user?.friends?.filter(
+            (element) => element?.id == selected_user_id
+          );
+
+          if (filter.length > 0) {
+            dispatch(setUserForChat(filter[0]));
+            dispatch(setLoginUserDetail(loggedin_user));
+            navigation.navigate("Conversations");
+          } else {
+            let obj = {
+              chatroomId: "",
+              name: "",
+              id: 0,
+            };
+            dispatch(setUserForChat(obj));
+            dispatch(setLoginUserDetail(loggedin_user));
+            navigation.navigate("Conversations");
+          }
+          setLoading(false);
+          return;
+          //-----------------------------------
+        }
+        // create a chatroom and store the chatroom id
+
+        const newChatroomRef = push(ref(database, "chatrooms"), {
+          firstUser: loggedinFirebaseuser?.name,
+          secondUser: user?.name,
+          firstUserId: loggedinFirebaseuser?.id,
+          secondUserId: user?.id,
+          messages: [],
+        });
+
+        const newChatroomId = newChatroomRef?.key;
+
+        const userFriends = user?.friends || [];
+        let clicked_user_Obj = {
+          id: user?.id,
+          name: user?.name,
+          email: user?.email,
+          friends: [
+            ...userFriends,
+            {
+              id: loggedinFirebaseuser?.id,
+              name: loggedinFirebaseuser?.name,
+              chatroomId: newChatroomId,
+              isPinned: false,
+            },
+          ],
+        };
+
+        update(ref(database, `users/${user?.id}`), clicked_user_Obj);
+
+        const myFriends = loggedinFirebaseuser?.friends || [];
+        //add this user to my friend list
+        let loggedin_user_Obj = {
+          id: loggedinFirebaseuser?.id,
+          name: loggedinFirebaseuser?.name,
+          email: loggedinFirebaseuser?.email,
+          friends: [
+            ...myFriends,
+            {
+              id: user?.id,
+              name: user?.name,
+              chatroomId: newChatroomId,
+              isPinned: false,
+            },
+          ],
+        };
+        //update loggedin user in async storage
+        await AsyncStorage.setItem(
+          "LoggedInUserFirebaseDetail",
+          JSON.stringify(loggedin_user_Obj)
+        );
+        update(
+          ref(database, `users/${loggedinFirebaseuser?.id}`),
+          loggedin_user_Obj
+        );
+        ///-------------------------------------------------
+        let loggedin_user = await findUser(loggedinFirebaseuser?.id);
+        let filter = loggedin_user?.friends?.filter(
+          (element) => element?.id == selected_user_id
+        );
+        if (filter.length > 0) {
+          dispatch(setUserForChat(filter[0]));
+          dispatch(setLoginUserDetail(loggedin_user));
+          navigation.navigate("Conversations");
+        } else {
+          let obj = {
+            chatroomId: "",
+            name: "",
+            id: 0,
+          };
+          dispatch(setUserForChat(obj));
+          dispatch(setLoginUserDetail(loggedin_user));
+          navigation.navigate("Conversations");
+        }
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
+  };
+
+  // ___________________________________________________________________CHAT USING FIREBASE__________________________________________________________
+
   return (
     <Animated.View
       style={{
@@ -1394,6 +1652,7 @@ const Chat = ({
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
+          {loading && <Loader />}
           <View style={styles.headerView}>
             {/* <Pressable onPress={() => handleOpenDrawer(navigation)}> */}
             <Pressable

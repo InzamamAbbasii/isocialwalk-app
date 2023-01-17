@@ -117,13 +117,35 @@ const GroupConversations = ({ navigation, route }) => {
     return mySnapshot.val();
   };
 
+  const findGroupInfo = async (id) => {
+    const database = getDatabase();
+    const mySnapshot = await get(ref(database, `groups/${id}`));
+    return mySnapshot.val();
+  };
+
   useEffect(() => {
-    console.log("selectedUser ::: :__________________", selectedUser);
     const loadData = async () => {
       const myChatroom = await fetchMessages();
+
+      //here selectedUser is user is basically selected group
+
+      //getting logged in user detail from group memebers list
+      const groupDetail = await findGroupInfo(selectedUser?.id);
+      const groupMembers = groupDetail?.members ? groupDetail?.members : [];
+      const my_memberDetail = groupMembers?.filter(
+        (item) => item?.id == userDetail?.id
+      );
+
+      //get my joining time --> when i joined this group
+      const joined_at = my_memberDetail[0]?.created_at;
       let messagesList =
         myChatroom?.messages?.length > 0 ? myChatroom.messages : [];
       if (messagesList.length > 0) {
+        if (joined_at) {
+          messagesList = messagesList?.filter(
+            (item) => item?.createdAt >= joined_at
+          );
+        }
         setMessages(messagesList.reverse());
       } else {
         console.log("no messsage found", messagesList);

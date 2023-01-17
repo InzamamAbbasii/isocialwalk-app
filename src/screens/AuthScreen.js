@@ -319,6 +319,7 @@ const AuthScreen = ({ navigation }) => {
       await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+
       if (userInfo) {
         // console.log('userinfo _____', userInfo);
         // console.log(
